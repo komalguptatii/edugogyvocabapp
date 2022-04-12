@@ -9,7 +9,7 @@
 #\
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore\
 #\
-/Users/apple/Documents/Projects/2022/Unity/Edugogy/Library/*
+/Users/apple/Documents/Projects/2022/Unity/Edugogy/Library/*\
 /Library/*\
 /Packages/*
 \f1\fs22 \cf2 \CocoaLigature0 \
