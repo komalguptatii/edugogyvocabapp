@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>849410546096-u4ts6ca5r87de36u7dboraamas44kbmh.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.849410546096-u4ts6ca5r87de36u7dboraamas44kbmh</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCsSTXM5YOebWeQG7xUjKj_3OG_3X4MFE0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>849410546096</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>it.techies.vocabapp</string>
+	<key>PROJECT_ID</key>
+	<string>edugogy-1aae2</string>
+	<key>STORAGE_BUCKET</key>
+	<string>edugogy-1aae2.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:849410546096:ios:102cf7eb64382fadde9e75</string>
+</dict>
+</plist>

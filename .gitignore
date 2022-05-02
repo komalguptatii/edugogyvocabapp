@@ -1,0 +1,25 @@
+
+
+# Except for these
+# !/Assets
+
+#Ignore these
+/Assets/Firebase
+/Assets/Plugins
+/Assets/Sprites
+/edugogyios/
+*.csproj
+*.sln
+*.apk
+*.zip
+*.txt
+*_ios
+*.keystore
+*.vscode/
+*.DS_Store
+/Library/
+/Logs/
+/Packages/
+/ProjectSettings/
+/UserSettings/
+/Temp/
