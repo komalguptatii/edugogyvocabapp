@@ -1,36 +1,47 @@
 {
+  "project_info": {
+    "project_number": "849410546096",
+    "project_id": "edugogy-1aae2",
+    "storage_bucket": "edugogy-1aae2.appspot.com"
+  },
   "client": [
     {
-      "services": {
-        "appinvite_service": {
-          "status": 1
-        }, 
-        "analytics_service": {
-          "status": 0
-        }
-      }, 
-      "oauth_client": [
-        {
-          "client_id": "849410546096-u4ts6ca5r87de36u7dboraamas44kbmh.apps.googleusercontent.com"
-        }
-      ], 
-      "api_key": [
-        {
-          "current_key": "AIzaSyCsSTXM5YOebWeQG7xUjKj_3OG_3X4MFE0"
-        }
-      ], 
       "client_info": {
-        "mobilesdk_app_id": "1:849410546096:ios:102cf7eb64382fadde9e75", 
+        "mobilesdk_app_id": "1:849410546096:android:e54505cf8be36a66de9e75",
         "android_client_info": {
           "package_name": "it.techies.vocabapp"
         }
+      },
+      "oauth_client": [
+        {
+          "client_id": "849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.techies.vocabapp",
+            "certificate_hash": "de5e61be08b23ffdcf80ad6100870812cb0c254b"
+          }
+        },
+        {
+          "client_id": "849410546096-tja0e1fatmts96fph3v4972t42ne79qv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWhba6qPpOwSy2Ou4xMCLPsXx8h9BOGOw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "849410546096-tja0e1fatmts96fph3v4972t42ne79qv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
       }
     }
-  ], 
-  "configuration_version": "1", 
-  "project_info": {
-    "storage_bucket": "edugogy-1aae2.appspot.com", 
-    "project_id": "edugogy-1aae2", 
-    "project_number": "849410546096"
-  }
+  ],
+  "configuration_version": "1"
 }
