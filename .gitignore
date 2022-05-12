@@ -8,6 +8,8 @@
 /Assets/Plugins
 /Assets/Sprites
 /edugogyios/
+*_ButDontShipItWithYourGame
+*.json
 *.csproj
 *.sln
 *.apk
