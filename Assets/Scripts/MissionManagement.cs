@@ -15,6 +15,10 @@ public class MissionManagement : MonoBehaviour
     void Awake()
     {
         // StartMission();
+    }
+
+    void Start()
+    {
         GetNewWordData();
     }
 
@@ -58,7 +62,7 @@ public class MissionManagement : MonoBehaviour
     IEnumerator GetNounData_Coroutine()
     {
 
-        string uri = "http://165.22.219.198/edugogy/api/v1//day-levels/1?expand=newWords";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/1?expand=newWords";
 
         var request = new UnityWebRequest(uri, "GET");
 
@@ -78,6 +82,7 @@ public class MissionManagement : MonoBehaviour
             Debug.Log(request.downloadHandler.text);
 
 
+            // { "id":4,"type":1,"age_group_id":2,"level":1,"newWords":[{ "id":4,"day_level_id":4,"type":1,"name":"Orange","pronunciation":null,"sort_order":null,"created_at":null,"updated_at":null,"image":"Screen_Shot_2022-04-28_at_10.44.30_AM-4.png","image_url":"http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png"}]}
         }
     }
 
