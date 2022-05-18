@@ -23,14 +23,8 @@ public class AgeSelection : MonoBehaviour
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
 
-            // if (request.result.ConnectionError || request.result.ProtocolError)
-            // {
-            //     Debug.Log(request.error);
-            // }
-            // else
-            // {
-            //     Debug.Log(request.downloadHandler.text);
-            // }
+            //Put data in dropdown
+
 
         }
     }
