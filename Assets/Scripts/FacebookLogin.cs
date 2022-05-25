@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Facebook.Unity;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class FacebookLogin : MonoBehaviour
@@ -78,6 +79,7 @@ public class FacebookLogin : MonoBehaviour
             FB.API("/me/picture?type=square&height=128&width=128", HttpMethod.GET, DisplayProfilePic);
             FB.API("/me?fields=id", HttpMethod.GET, DisplayID);
             FB.API("/me?fields=email", HttpMethod.GET, DisplayEmail);
+            SceneManager.LoadScene("IAPCatalog");
 
         }
         else

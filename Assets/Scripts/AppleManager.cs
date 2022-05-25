@@ -7,7 +7,7 @@ using AppleAuth.Enums;
 using AppleAuth.Interfaces;
 using System.Text;
 using AppleAuth.Extensions;
-
+using UnityEngine.SceneManagement;
 
 
 public class AppleManager : MonoBehaviour
@@ -82,6 +82,7 @@ public class AppleManager : MonoBehaviour
                     Debug.Log(fullName);
                     Debug.Log(identityToken);
                     Debug.Log("It's done");
+                    SceneManager.LoadScene("IAPCatalog");
 
 
                     // And now you have all the information to create/login a user in your system
