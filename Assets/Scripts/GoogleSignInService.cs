@@ -7,6 +7,7 @@ using Firebase.Auth;
 using Google;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GoogleSignInService : MonoBehaviour
 {
@@ -93,6 +94,7 @@ public class GoogleSignInService : MonoBehaviour
             AddToInformation("Google ID Token = " + task.Result.IdToken);
             AddToInformation("Email = " + task.Result.Email);
             SignInWithGoogleOnFirebase(task.Result.IdToken);
+            SceneManager.LoadScene("IAPCatalog");
         }
     }
 
