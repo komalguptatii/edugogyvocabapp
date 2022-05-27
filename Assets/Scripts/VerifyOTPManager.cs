@@ -196,6 +196,7 @@ public class VerifyOTPManager : MonoBehaviour
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login
     {
 
+        ResetInputs();
         ResendOTP resendOTP = new ResendOTP();
         ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumber, country_code_id = countryCodeId };
         string json = JsonUtility.ToJson(validateOTPFormData);
@@ -236,5 +237,13 @@ public class VerifyOTPManager : MonoBehaviour
 
     }
 
+    public void ResetInputs()
+    {
+        firstDigit.text = "";
+        secondDigit.text = "";
+        thirdDigit.text = "";
+        fourthDigit.text = "";
+        otpEntered = "";
+    }
 
 }

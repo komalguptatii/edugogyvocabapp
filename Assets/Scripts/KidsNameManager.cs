@@ -23,11 +23,20 @@ public class KidsNameManager : MonoBehaviour
     // public TextMeshProUGUI kidsNameTextInput;
     public TMP_InputField kidsNameTextInput;
     public string theName;
+    public string auth_key;
     // public GameObject textDisplay;
     void Start()
     {
         //Add condition for first time login
         // SelectAge
+
+         if (PlayerPrefs.HasKey("auth_key"))
+        {
+            auth_key = PlayerPrefs.GetString("auth_key");
+            
+            Debug.Log(auth_key);
+
+        }
     }
 
     // Update is called once per frame
@@ -63,7 +72,7 @@ public class KidsNameManager : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer 3VcmTskZ5jRINDiaO_489b0pdVsbTEy6");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -74,11 +83,9 @@ public class KidsNameManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("All OK");
             Debug.Log("Status Code: " + request.responseCode);
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            // { "auth_key":"3VcmTskZ5jRINDiaO_489b0pdVsbTEy6"}
             MoveToNextScreen();
         }
 
