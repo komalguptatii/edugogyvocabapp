@@ -61,14 +61,6 @@ public class LoginAPIManager : MonoBehaviour
        
     }
 
-    // "student": {
-    //     "id": 3,
-    //     "name": "Komal Gupta",
-    //     "phone": "9855940600",
-    //     "age_group_id": 2,
-    //     "country_code_id": 88
-    // }
-
     [Serializable]
     public class Student
     {
@@ -137,16 +129,10 @@ public class LoginAPIManager : MonoBehaviour
             listObject = JsonUtility.FromJson<CountryCodeList>(jsonString);
 
             for (var i = 0; i < listObject.items.Length; i++) {
-                Debug.Log(listObject.items.Length);
-                Debug.Log(listObject.items[i]);
-
-                Debug.Log("country code is " + listObject.items[i].code);
-
-                Debug.Log("country id is " + listObject.items[i].id);
-                //  var dropdownOptions = listObject.items.Select(i => new Dropdown.OptionData(i.id)).ToList();
-                //  Debug.Log(dropdownOptions);
-                // m_DropOptions.Add((listObject.items[i].id).ToString());
-                // Debug.Log(m_DropOptions);
+                // Debug.Log(listObject.items.Length);
+                // Debug.Log(listObject.items[i]);
+                // Debug.Log("country code is " + listObject.items[i].code);
+                // Debug.Log("country id is " + listObject.items[i].id);
                 countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
             }
         }

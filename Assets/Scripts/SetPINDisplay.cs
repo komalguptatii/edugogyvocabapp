@@ -5,100 +5,26 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class CodeDisplay : MonoBehaviour
+public class SetPINDisplay : MonoBehaviour
 {
     [SerializeField] private Sprite[] digits;
 
     [SerializeField] private Image[] characters;
 
-    [SerializeField] public TextMeshProUGUI codeText;
+    [SerializeField] public TextMeshProUGUI setPINDescription;
 
     private string codeSequence;
-    // Start is called before the first frame update
-
-    private int firstNumber;
-    private int secondNumber;
-    private int thirdNumber;
-
-    private string numberValueInString = "";
-
-    private string generatedCodeSequence = "";
-
-    private string codeInString = "";
 
     private bool isReset = false;
-    private void Awake()
-    {
-        firstNumber = RandomRangeExcept(0, 9, 0);
-        secondNumber = RandomRangeExcept(0, 9, firstNumber);
-        thirdNumber = RandomRangeExcept(0, 9, secondNumber);
-        Debug.Log(firstNumber);
-        Debug.Log(secondNumber);
-        Debug.Log(thirdNumber);
-
-        generatedCodeSequence = string.Format("{0}{1}{2}", firstNumber, secondNumber, thirdNumber);
-        Debug.Log(generatedCodeSequence);
-
-        generateNumberString(firstNumber);
-        string firstNumberInWord = numberValueInString;
-
-        generateNumberString(secondNumber);
-        string secondNumberInWord = numberValueInString;
-
-        generateNumberString(thirdNumber);
-        string thirdNumberInWord = numberValueInString;
-
-
-        codeInString = string.Join(", ", firstNumberInWord, secondNumberInWord, thirdNumberInWord);
-        Debug.Log(codeInString);
-
-    }
-
-    private void generateNumberString(int numberGenerated)
-    {
-        switch (numberGenerated)
+    
+    private void Awake() {
+        // FinalPIN
+        if (PlayerPrefs.HasKey("FinalPIN"))
         {
-            case 0:
-                numberValueInString = "Zero";
-                break;
-            case 1:
-                numberValueInString = "One";
-                break;
-            case 2:
-                numberValueInString = "Two";
-                break;
-            case 3:
-                numberValueInString = "Three";
-                break;
-            case 4:
-                numberValueInString = "Four";
-                break;
-            case 5:
-                numberValueInString = "Five";
-                break;
-            case 6:
-                numberValueInString = "Six";
-                break;
-            case 7:
-                numberValueInString = "Seven";
-                break;
-            case 8:
-                numberValueInString = "Eight";
-                break;
-            case 9:
-                numberValueInString = "Nine";
-                break;
+            setPINDescription.text = "Enter PIN";
         }
     }
-
-
-
-    public int RandomRangeExcept(int min, int max, int except)
-    {
-        int result = Random.Range(min, max - 1);
-        if (result >= except) result += 1;
-        return result;
-    }
+    
     void Start()
     {
 
@@ -110,15 +36,16 @@ public class CodeDisplay : MonoBehaviour
         };
 
         PushButton.ButtonPressed += AddDigitToCodeSequence;
-
-        codeText.GetComponent<TextMeshProUGUI>().text = codeInString;
+        Debug.Log("Hello");
 
     }
 
     private void AddDigitToCodeSequence(string digitEntered)
     {
-        if (codeSequence.Length < 3)
+        if (codeSequence.Length < 4)
         {
+                    Debug.Log("Hello2");
+
             switch (digitEntered)
             {
                 case "Zero":
@@ -173,6 +100,9 @@ public class CodeDisplay : MonoBehaviour
                 // CheckResults();
                 ResetDisplay();
                 break;
+            case "Next":
+                CheckResults();
+                break;
         }
     }
 
@@ -192,6 +122,9 @@ public class CodeDisplay : MonoBehaviour
             case 3:
                 characters[2].sprite = digits[digitJustEntered];
                 break;
+            case 4:
+                characters[3].sprite = digits[digitJustEntered];
+                break;
 
         }
     }
@@ -199,19 +132,38 @@ public class CodeDisplay : MonoBehaviour
     public void CheckResults()
     {
         Debug.Log(codeSequence);
-        Debug.Log(generatedCodeSequence);
-        if (codeSequence == generatedCodeSequence)
+        
+        if (setPINDescription.text == "Set your Pin")
         {
-            Debug.Log("Working");
-            SceneManager.LoadScene("Login");
-        }
-        else
-        {
-            Debug.Log("Not Working");
-            isReset = true;
+            //Save set pin
+            PlayerPrefs.SetString("SetPIN", codeSequence);
             ResetDisplay();
-            // MessageBox().DisplayFormat("Warning", "Please enter correct digits");
+            setPINDescription.text = "Confirm PIN";
+
         }
+        else if (PlayerPrefs.HasKey("SetPIN"))
+        {
+            Debug.Log(codeSequence);
+            var alreadySetPIN = PlayerPrefs.GetString("SetPIN");
+            if (codeSequence == alreadySetPIN)
+            {
+                PlayerPrefs.SetString("FinalPIN", codeSequence);
+                PlayerPrefs.DeleteKey("SetPIN");
+                SceneManager.LoadScene("KidsProfile");
+            }
+        }
+
+        if (PlayerPrefs.HasKey("FinalPIN"))
+        {
+            Debug.Log(codeSequence);
+            var alreadySetPIN = PlayerPrefs.GetString("FinalPIN");
+            if (codeSequence == alreadySetPIN)
+            {
+                //Moveto Kids profile
+                SceneManager.LoadScene("KidsProfile");
+            }
+        }
+
     }
 
     void ResetDisplay()
@@ -224,13 +176,17 @@ public class CodeDisplay : MonoBehaviour
             Debug.Log("when code is incorrect and checking for results");
             Debug.Log(codeSequence.Length);
 
-            // characters[0].sprite = digits[10];
-
             for (int i = 0; i <= characters.Length - 1; i++)
             {
                 characters[i].sprite = digits[10];
             };
             isReset = false;
+        }
+        else if (codeSequence.Length > 3)
+        {
+            characters[3].sprite = digits[10];
+            codeSequence = codeSequence.Substring(0, codeSequence.Length - 1);
+            Debug.Log(codeSequence.Length);
         }
         else if (codeSequence.Length > 2)
         {
