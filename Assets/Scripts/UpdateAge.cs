@@ -17,16 +17,26 @@ public class UpdateAge : MonoBehaviour
         public int age_group_id;
     }
 
-    // Start is called before the first frame update
-
-    // public TextMeshProUGUI kidsNameTextInput;
-    // public TMP_InputField kidsNameTextInput;
+    public Button[] ageButton;
+    public Image[] ageImageTick;
     public int ageGroupId;
-    // public GameObject textDisplay;
+    string auth_key;
+    public Sprite buttonSprite;
+    
     void Start()
     {
-        //Add condition for first time login
-        // SelectAge
+        if (PlayerPrefs.HasKey("auth_key"))
+        {
+            auth_key = PlayerPrefs.GetString("auth_key");
+            
+            Debug.Log(auth_key);
+
+        }
+
+        for(int i = 0; i < ageImageTick.Length; i++)
+        {
+            ageImageTick[i].enabled = false;
+        }
     }
 
     // Update is called once per frame
@@ -38,6 +48,14 @@ public class UpdateAge : MonoBehaviour
             Debug.Log(ageGroupId);
             UpdateKidsAgeGroup();
         }
+    }
+
+    public void OnClick()
+    {
+        var indexOfButton = 0;
+        ageButton[indexOfButton].image.sprite = buttonSprite;
+        ageImageTick[indexOfButton].enabled = true;
+        // ageButton[indexOfButton].text.color = Color(141, 41, 2555);
     }
 
     void UpdateKidsAgeGroup() => StartCoroutine(ProcessKidsAgeGroup_Coroutine());
@@ -59,7 +77,7 @@ public class UpdateAge : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer 3VcmTskZ5jRINDiaO_489b0pdVsbTEy6");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -75,13 +93,13 @@ public class UpdateAge : MonoBehaviour
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
             // { "auth_key":"3VcmTskZ5jRINDiaO_489b0pdVsbTEy6"}
-            MoveToNextScreen();
+            // MoveToNextScreen();
         }
 
     }
 
-    public void MoveToNextScreen()
-    {
-        SceneManager.LoadScene("SelectAge");
-    }
+    // public void MoveToNextScreen()
+    // {
+    //     SceneManager.LoadScene("SelectAge");
+    // }
 }
