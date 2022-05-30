@@ -1,26 +1,61 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
 using System;
 using System.Text;
 
 public class MissionManagement : MonoBehaviour
 {
+    [SerializeField] 
+    public Image wordImage;
+
+    [SerializeField] 
+    public Texture2D wordImageTexture;
+
+    // [SerializeField] Material _material;
+    // Texture2D _texture;
+
     public class MissionForm
     {
         public int day_level_id;
     }
+    
     // Start is called before the first frame update
     void Awake()
     {
         // StartMission();
+
     }
 
-    void Start()
+    async void Start ()
     {
+       DownloadPicture();
         GetNewWordData();
     }
+
+
+IEnumerator DownloadImage()
+{   
+     var mediaUrl = "http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png";
+
+    UnityWebRequest request = UnityWebRequestTexture.GetTexture(mediaUrl);
+    yield return request.SendWebRequest();
+    if(request.isNetworkError || request.isHttpError) 
+        Debug.Log(request.error);
+    else
+    {
+        Texture2D myTexture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+
+        wordImage.sprite = Sprite.Create(myTexture, new Rect(0, 0, myTexture.width, myTexture.height), new Vector2(0, 0));
+    }
+    request.Dispose();
+    
+        // wordImage.texture = ((DownloadHandlerTexture) request.downloadHandler).texture;
+} 
+
+    void DownloadPicture() => StartCoroutine(DownloadImage());
 
     void StartMission() => StartCoroutine(StartMission_Coroutine());
 
