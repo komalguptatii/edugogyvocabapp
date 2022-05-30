@@ -17,11 +17,29 @@ public class UpdateAge : MonoBehaviour
         public int age_group_id;
     }
 
+     [Serializable]
+    public class AgeGroup
+    {
+
+        public int id;
+        public string title;
+        public int sort_order;
+        public int total_level;
+    }
+
+    [Serializable]
+    public class AgeGroupList
+    {
+        public AgeGroup[] items;
+    }
+
     public Button[] ageButton;
     public Image[] ageImageTick;
     public int ageGroupId;
-    string auth_key;
+    private string auth_key;
     public Sprite buttonSprite;
+    public Sprite deactivateButtonSprite;
+    private int selectedButton;
     
     void Start()
     {
@@ -36,6 +54,8 @@ public class UpdateAge : MonoBehaviour
         for(int i = 0; i < ageImageTick.Length; i++)
         {
             ageImageTick[i].enabled = false;
+            ageImageTick[i].tag = i.ToString();
+            ageButton[i].tag = i.ToString();
         }
     }
 
@@ -50,18 +70,71 @@ public class UpdateAge : MonoBehaviour
         }
     }
 
-    public void OnClick()
+    public void OnClick(Button button)
     {
-        var indexOfButton = 0;
-        ageButton[indexOfButton].image.sprite = buttonSprite;
-        ageImageTick[indexOfButton].enabled = true;
+        
+        Debug.Log(button.tag);
+        selectedButton = int.Parse(button.tag);
+        ageButton[selectedButton].image.sprite = buttonSprite;
+        ageImageTick[selectedButton].enabled = true;
+
+        for(int i = 0; i < 7; i++)
+        {
+            if(i != selectedButton)
+            {
+                ageButton[i].image.sprite = deactivateButtonSprite;
+                ageImageTick[i].enabled = false;
+
+            }
+        }
+
         // ageButton[indexOfButton].text.color = Color(141, 41, 2555);
     }
 
+    public void UpdateOnClick()
+    {
+        GetKidsAgeGroup();
+    }
+
     void UpdateKidsAgeGroup() => StartCoroutine(ProcessKidsAgeGroup_Coroutine());
+    void GetKidsAgeGroup() => StartCoroutine(GetAgeGroupList_Coroutine());
+
+
+    string fixJson(string value)            // Added object type to JSON
+    {
+        value = "{\"items\":" + value + "}";
+        return value;
+    }
+
+    IEnumerator GetAgeGroupList_Coroutine()
+    {
+        // outputArea.text = "Loading...";
+    AgeGroupList agegrouplist = new AgeGroupList();
+
+        string uri = "http://165.22.219.198/edugogy/api/v1/age-groups";
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
+
+            yield return request.SendWebRequest();
+            
+            string ageGroupJson = request.downloadHandler.text;
+            string jsonString = fixJson(ageGroupJson);
+            Debug.Log(jsonString);            
+
+            agegrouplist = JsonUtility.FromJson<AgeGroupList>(jsonString);
+
+            ageGroupId = agegrouplist.items[selectedButton].id;
+            Debug.Log(ageGroupId + " Age Group ID");
+            StoreKidsAgeGroup();
+           
+        }
+    }
+
+
     IEnumerator ProcessKidsAgeGroup_Coroutine()  //validate otp
     {
 
+        Debug.Log(ageGroupId);
         SelectAgeForm validAgeGroupForm = new SelectAgeForm { age_group_id = ageGroupId };
         string json = JsonUtility.ToJson(validAgeGroupForm);
 
@@ -92,14 +165,13 @@ public class UpdateAge : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode);
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            // { "auth_key":"3VcmTskZ5jRINDiaO_489b0pdVsbTEy6"}
-            // MoveToNextScreen();
+            MoveToNextScreen();
         }
 
     }
 
-    // public void MoveToNextScreen()
-    // {
-    //     SceneManager.LoadScene("SelectAge");
-    // }
+    public void MoveToNextScreen()
+    {
+        SceneManager.LoadScene("Dashboard");
+    }
 }
