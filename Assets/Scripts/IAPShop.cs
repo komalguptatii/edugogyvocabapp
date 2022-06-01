@@ -13,7 +13,7 @@ public class IAPShop : MonoBehaviour
 {
     private string timePeriod = "com.techies.edugogy.onemonth";
     private string subPeriod = "com.techies.edugogy.threemonth";
-
+    string auth_key;
     [SerializeField] public TextMeshProUGUI transactionId;
 
     public class SubscriptionForm
@@ -27,6 +27,13 @@ public class IAPShop : MonoBehaviour
     private void Start()
     {
         //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
+         if (PlayerPrefs.HasKey("auth_key"))
+        {
+            auth_key = PlayerPrefs.GetString("auth_key");
+            
+            Debug.Log(auth_key);
+
+        }
         AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
@@ -49,7 +56,7 @@ public class IAPShop : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer 3VcmTskZ5jRINDiaO_489b0pdVsbTEy6");
+        request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 
