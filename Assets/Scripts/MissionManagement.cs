@@ -12,6 +12,7 @@ public class MissionManagement : MonoBehaviour
     [SerializeField] 
     public Image wordImage;
 
+    [Serializable]
     public class MissionForm
     {
         public int day_level_id;
@@ -21,11 +22,27 @@ public class MissionManagement : MonoBehaviour
     public TextMeshProUGUI newWord;
 
     [SerializeField]
+    public TextMeshProUGUI meaningAsNoun;
+
+    [SerializeField]
+    public TextMeshProUGUI sentenceOfNoun;
+
+    [SerializeField]
     public Button speakerButton;
+
+    [SerializeField]
+    public Image singleSentenceNounBoard;
+
+    [SerializeField]
+    public Image multipleSentenceNounBoard;
+
+    [SerializeField]
+    public Transform sentencePrefab;
     
     string auth_key;
     int dayLevelId;
 
+    [Serializable]
      public class AllDetail
     {
         public int id;
@@ -40,6 +57,7 @@ public class MissionManagement : MonoBehaviour
         public Passage[] passages;
     }
 
+    [Serializable]
     public class NewWord
     {
         public int id;
@@ -60,6 +78,7 @@ public class MissionManagement : MonoBehaviour
         public Antonym[] antonyms;
     }
 
+    [Serializable]
      public class Noun
     {
         public int id;
@@ -68,6 +87,7 @@ public class MissionManagement : MonoBehaviour
         public NounSentence[] nounSentences;
     }
 
+    [Serializable]
     public class NounSentence
     {
         public int id;
@@ -75,7 +95,8 @@ public class MissionManagement : MonoBehaviour
         public int noun_id;
     }
 
- public class Verb
+    [Serializable]
+    public class Verb
     {
         public int id;
         public string description;
@@ -83,12 +104,15 @@ public class MissionManagement : MonoBehaviour
         public VerbSentence[] verbSentences;
     }
 
+    [Serializable]
     public class VerbSentence
     {
         public int id;
         public string description;
         public int verb_id;
     }
+
+    [Serializable]
     public class Adjective
     {
         public int id;
@@ -97,6 +121,7 @@ public class MissionManagement : MonoBehaviour
         public AdjectiveSentence[] adjectiveSentences;
     }
 
+    [Serializable]
     public class AdjectiveSentence
     {
         public int id;
@@ -104,6 +129,7 @@ public class MissionManagement : MonoBehaviour
         public int adjective_id;
     }
 
+    [Serializable]
     public class Adverb
     {
         public int id;
@@ -112,6 +138,7 @@ public class MissionManagement : MonoBehaviour
         public AdverbSentence[] adverbSentences;
     }
 
+    [Serializable]
     public class AdverbSentence
     {
         public int id;
@@ -119,6 +146,7 @@ public class MissionManagement : MonoBehaviour
         public int adverb_id;
     }
 
+    [Serializable]
     public class Antonym
     {
         public int id;
@@ -128,6 +156,7 @@ public class MissionManagement : MonoBehaviour
         public AntonymSentence[] antonymSentences;
     }
 
+    [Serializable]
     public class AntonymSentence
     {
         public int id;
@@ -135,6 +164,7 @@ public class MissionManagement : MonoBehaviour
         public int antonym_id;
     }
 
+    [Serializable]
     public class Conversation
     {
         public int id;
@@ -142,6 +172,7 @@ public class MissionManagement : MonoBehaviour
         public string description;
     }
 
+    [Serializable]
     public class ConversationQuestion
     {
         public int id;
@@ -154,6 +185,7 @@ public class MissionManagement : MonoBehaviour
         public List<QuestionOption> questionOptions;
     }
 
+    [Serializable]
     public class DailyUseTip
     {
         public int id;
@@ -161,6 +193,7 @@ public class MissionManagement : MonoBehaviour
         public int word_id;
     }
 
+    [Serializable]
     public class Idiom
     {
         public int id;
@@ -170,6 +203,7 @@ public class MissionManagement : MonoBehaviour
         public IdiomSentence[] idiomSentences;
     }
 
+    [Serializable]
     public class IdiomSentence
     {
         public int id;
@@ -177,6 +211,7 @@ public class MissionManagement : MonoBehaviour
         public int idiom_id;
     }
 
+    [Serializable]
     public class OtherWayUsingWord
     {
         public int id;
@@ -185,6 +220,7 @@ public class MissionManagement : MonoBehaviour
         public OtherWayUsingWordSentence[] otherWayUsingWordSentences;
     }
 
+    [Serializable]
     public class OtherWayUsingWordSentence
     {
         public int id;
@@ -192,6 +228,7 @@ public class MissionManagement : MonoBehaviour
         public int other_way_using_word_id;
     }
 
+    [Serializable]
     public class Passage
     {
         public int id;
@@ -200,6 +237,7 @@ public class MissionManagement : MonoBehaviour
         public Question[] questions;
     }
 
+    [Serializable]
     public class Question
     {
         public int id;
@@ -211,15 +249,15 @@ public class MissionManagement : MonoBehaviour
         public List<QuestionOption> questionOptions;
     }
 
+    [Serializable]
     public class QuestionOption
     {
         public int id;
         public string option;
         public int value;
     }
-
    
-
+    [Serializable]    
     public class Synonym
     {
         public int id;
@@ -229,6 +267,7 @@ public class MissionManagement : MonoBehaviour
         public SynonymSentence[] synonymSentences;
     }
 
+    [Serializable]
     public class SynonymSentence
     {
         public int id;
@@ -236,6 +275,7 @@ public class MissionManagement : MonoBehaviour
         public int synonym_id;
     }
 
+    [Serializable]
     public class UseMultipleWord
     {
         public int id;
@@ -244,6 +284,7 @@ public class MissionManagement : MonoBehaviour
         public UseMultipleWordSentence[] useMultipleWordSentences;
     }
 
+    [Serializable]
     public class UseMultipleWordSentence
     {
         public int id;
@@ -278,9 +319,9 @@ public class MissionManagement : MonoBehaviour
     }
 
 
-IEnumerator DownloadImage()
+IEnumerator DownloadImage(string mediaUrl)
 {   
-     var mediaUrl = "http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png";
+    //  var mediaUrl = "http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png";
 
     UnityWebRequest request = UnityWebRequestTexture.GetTexture(mediaUrl);
     yield return request.SendWebRequest();
@@ -296,7 +337,7 @@ IEnumerator DownloadImage()
     
 } 
 
-    void DownloadPicture() => StartCoroutine(DownloadImage());
+    // void DownloadPicture() => StartCoroutine(DownloadImage(string));
 
     void StartMission() => StartCoroutine(StartMission_Coroutine());
 
@@ -305,11 +346,11 @@ IEnumerator DownloadImage()
     void GetNounDetails() => StartCoroutine(GetNounData_Coroutine());
 
 
-    AllDetail allDetailData = new AllDetail();
+         AllDetail allDetailData = new AllDetail();
 
     IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
     {
-        Conversation convo = new Conversation();
+
 
         string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/1?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
 
@@ -329,15 +370,15 @@ IEnumerator DownloadImage()
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+
             string jsonString = request.downloadHandler.text;
+            // var details = JSON.Parse(jsonString);
+            // Debug.Log(details["id"]);
             // string detailJson = fixJson(jsonString);
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
             dayLevelId = allDetailData.id;
-            convo = allDetailData.conversation;
-            Debug.Log(convo.id);
-            
-
-            // StartMission();            
+            Debug.Log(allDetailData.conversation.id);
+            StartMission();            
         }
     }
 
@@ -369,7 +410,7 @@ IEnumerator DownloadImage()
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            // GetNounDetails();
+            GetNounDetails();
 
         }
     }
@@ -377,7 +418,7 @@ IEnumerator DownloadImage()
     IEnumerator GetNounData_Coroutine()
     {
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/1?expand=newWords";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/2?expand=newWords.nouns,newWords.nouns.nounSentences";
 
         var request = new UnityWebRequest(uri, "GET");
 
@@ -396,18 +437,67 @@ IEnumerator DownloadImage()
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
             string jsonString = request.downloadHandler.text;
-            // string detailJson = fixJson(jsonString);
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
-            Debug.Log(allDetailData.id);
+            Debug.Log("Check no. of new words");
            
-        //     for (var i = 0; i < allDetailData.newWords.Length; i++) {
-        //         NewWord newWordDetail = new NewWord();
-        //         newWordDetail = allDetailData.newWords[i];
-        //         Debug.Log(newWordDetail.name);
-        //         Debug.Log(newWordDetail.id);
-        //         // Debug.Log(allDetailData.newWords[i].name);
-        //     }
+            Debug.Log(allDetailData.newWords.Length);
+            if (allDetailData.newWords.Length == 1)
+            {
+                Debug.Log("Noun data");
+                Debug.Log(allDetailData.newWords[0].name);
+
+                Debug.Log(allDetailData.newWords[0].id);
+                newWord.text = allDetailData.newWords[0].name;
+                StartCoroutine(DownloadImage(allDetailData.newWords[0].image_url));
+                Debug.Log("Check length of noun");
+                Debug.Log(allDetailData.newWords[0].nouns.Length);
+                NewWord newWordDetails = new NewWord();
+                newWordDetails = allDetailData.newWords[0];
+                Debug.Log(newWordDetails.nouns[0].description);
+                Noun newNoun = new Noun();
+                newNoun = newWordDetails.nouns[0];
+                meaningAsNoun.text = newNoun.description;
+                // for (var i = 0; i < newNoun.nounSentences.Length; i++)
+                // {
+                //     if (i > 1)
+                //     {
+                        singleSentenceNounBoard.enabled = false;
+                        multipleSentenceNounBoard.enabled = true;
+                        Vector2 prefabPosition = sentencePrefab.position;
+                        RectTransform rt = (RectTransform)sentencePrefab.transform;
+                        var height = rt.rect.height;
+                        Instantiate(sentencePrefab, new Vector2(prefabPosition.x, prefabPosition.y + height + 30f), Quaternion.identity);
+                        
+                    // }
+                    // else
+                    // {
+                    sentenceOfNoun.text = newNoun.nounSentences[0].description;
+                    // }
+                // }
+             
+            }
+            // for (var i = 0; i < allDetailData.newWords.Length; i++) 
+            // {
+            //     Debug.Log("Noun data");
+            //     Debug.Log(allDetailData.newWords[i].name);
+
+            //     Debug.Log(allDetailData.newWords[i].id);
+            //     newWord.text = allDetailData.newWords[i].name;
+            //     StartCoroutine(DownloadImage(allDetailData.newWords[i].image_url));
+            //     Debug.Log("Check length of noun");
+            //     Debug.Log(allDetailData.newWords[i].nouns.Length);
+                
+            //     for (var j = 0; i < allDetailData.newWords[i].nouns.Length; j++) {
+            //         Debug.Log("Putting data on screen");
+            //         Debug.Log(allDetailData.newWords[i].nouns[j].description);
+
+            //         meaningAsNoun.text = allDetailData.newWords[i].nouns[j].description;
+            //         Debug.Log(allDetailData.newWords[i].nouns[j].nounSentences.Length);
+
+            //     }
+            // }
         }
+        // request.Dispose();
     }
 
 }

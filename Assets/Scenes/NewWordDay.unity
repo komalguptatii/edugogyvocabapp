@@ -2417,7 +2417,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &457069977
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2737,7 +2737,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordImage: {fileID: 1840769999}
   newWord: {fileID: 970135261}
+  meaningAsNoun: {fileID: 779815204}
+  sentenceOfNoun: {fileID: 1980836611}
   speakerButton: {fileID: 643249596}
+  singleSentenceNounBoard: {fileID: 1364031787}
+  multipleSentenceNounBoard: {fileID: 457069978}
+  sentencePrefab: {fileID: 1120557273}
 --- !u!1 &565558601
 GameObject:
   m_ObjectHideFlags: 0
@@ -2772,7 +2777,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordImage: {fileID: 0}
   newWord: {fileID: 0}
+  meaningAsNoun: {fileID: 0}
+  sentenceOfNoun: {fileID: 0}
   speakerButton: {fileID: 0}
+  singleSentenceNounBoard: {fileID: 0}
+  multipleSentenceNounBoard: {fileID: 0}
+  sentencePrefab: {fileID: 0}
 --- !u!114 &565558603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4247,7 +4257,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordImage: {fileID: 0}
   newWord: {fileID: 0}
+  meaningAsNoun: {fileID: 0}
+  sentenceOfNoun: {fileID: 0}
   speakerButton: {fileID: 0}
+  singleSentenceNounBoard: {fileID: 0}
+  multipleSentenceNounBoard: {fileID: 0}
+  sentencePrefab: {fileID: 0}
 --- !u!114 &762088600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4482,7 +4497,7 @@ GameObject:
   - component: {fileID: 779815205}
   - component: {fileID: 779815204}
   m_Layer: 5
-  m_Name: Description
+  m_Name: NounMeaning
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5812,7 +5827,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordImage: {fileID: 0}
   newWord: {fileID: 0}
+  meaningAsNoun: {fileID: 0}
+  sentenceOfNoun: {fileID: 0}
   speakerButton: {fileID: 0}
+  singleSentenceNounBoard: {fileID: 0}
+  multipleSentenceNounBoard: {fileID: 0}
+  sentencePrefab: {fileID: 0}
 --- !u!114 &975855782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8197,7 +8217,7 @@ GameObject:
   - component: {fileID: 1364031788}
   - component: {fileID: 1364031787}
   m_Layer: 5
-  m_Name: SentenceBoard
+  m_Name: NounSentenceBoard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9585,7 +9605,7 @@ GameObject:
   - component: {fileID: 1617336064}
   - component: {fileID: 1617336063}
   m_Layer: 5
-  m_Name: SentencesPlace
+  m_Name: SentencesPlaceBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11413,7 +11433,7 @@ GameObject:
   - component: {fileID: 1980836612}
   - component: {fileID: 1980836611}
   m_Layer: 5
-  m_Name: Sentences
+  m_Name: NounSentences
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11572,7 +11592,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordImage: {fileID: 0}
   newWord: {fileID: 0}
+  meaningAsNoun: {fileID: 0}
+  sentenceOfNoun: {fileID: 0}
   speakerButton: {fileID: 0}
+  singleSentenceNounBoard: {fileID: 0}
+  multipleSentenceNounBoard: {fileID: 0}
+  sentencePrefab: {fileID: 0}
 --- !u!114 &1996923845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12705,7 +12730,7 @@ GameObject:
   - component: {fileID: 2143074091}
   - component: {fileID: 2143074090}
   m_Layer: 5
-  m_Name: NounExplanation
+  m_Name: NounExplanationBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
