@@ -38,9 +38,23 @@ public class MissionManagement : MonoBehaviour
 
     [SerializeField]
     public Transform sentencePrefab;
+
+    [SerializeField]
+    public GameObject[] noOfSentences; 
+
+     [SerializeField]
+    public Canvas[] diffBoards; 
+
+    [SerializeField]
+    public Transform parent;
+
+
     
     string auth_key;
     int dayLevelId;
+
+    int nextNumber = 0;
+    int backNumber = 0;
 
     [Serializable]
      public class AllDetail
@@ -418,7 +432,7 @@ IEnumerator DownloadImage(string mediaUrl)
     IEnumerator GetNounData_Coroutine()
     {
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/2?expand=newWords.nouns,newWords.nouns.nounSentences";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/1?expand=newWords.nouns,newWords.nouns.nounSentences";
 
         var request = new UnityWebRequest(uri, "GET");
 
@@ -441,7 +455,14 @@ IEnumerator DownloadImage(string mediaUrl)
             Debug.Log("Check no. of new words");
            
             Debug.Log(allDetailData.newWords.Length);
-            if (allDetailData.newWords.Length == 1)
+            NewWordSetup();
+            
+        }
+    }
+
+    public void NewWordSetup()
+    {
+         if (allDetailData.newWords.Length == 1)
             {
                 Debug.Log("Noun data");
                 Debug.Log(allDetailData.newWords[0].name);
@@ -457,47 +478,47 @@ IEnumerator DownloadImage(string mediaUrl)
                 Noun newNoun = new Noun();
                 newNoun = newWordDetails.nouns[0];
                 meaningAsNoun.text = newNoun.description;
-                // for (var i = 0; i < newNoun.nounSentences.Length; i++)
-                // {
-                //     if (i > 1)
-                //     {
+                if (newNoun.nounSentences.Length > 1)
+                {
+                    for (var i = 0; i < newNoun.nounSentences.Length; i++)
+                    {
                         singleSentenceNounBoard.enabled = false;
                         multipleSentenceNounBoard.enabled = true;
-                        Vector2 prefabPosition = sentencePrefab.position;
+                        Vector2 prefabPosition = sentencePrefab.transform.position;
                         RectTransform rt = (RectTransform)sentencePrefab.transform;
                         var height = rt.rect.height;
-                        Instantiate(sentencePrefab, new Vector2(prefabPosition.x, prefabPosition.y + height + 30f), Quaternion.identity);
-                        
-                    // }
-                    // else
-                    // {
+                        var calculatedHeight = prefabPosition.y - height - 27f;
+                        GameObject secondSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                        secondSentencePrefab.transform.position = new Vector2(prefabPosition.x, calculatedHeight);
+                        secondSentencePrefab.transform.SetParent(parent, true);
+                        noOfSentences[i] = secondSentencePrefab;
+                        GameObject childObj = secondSentencePrefab.transform.GetChild(0).gameObject;
+                        TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                        mytext.text = newNoun.nounSentences[i].description;
+                    }
+                }
+                else
+                {
+                    singleSentenceNounBoard.enabled = true;
+                    multipleSentenceNounBoard.enabled = false;
                     sentenceOfNoun.text = newNoun.nounSentences[0].description;
-                    // }
-                // }
-             
+                }
             }
-            // for (var i = 0; i < allDetailData.newWords.Length; i++) 
-            // {
-            //     Debug.Log("Noun data");
-            //     Debug.Log(allDetailData.newWords[i].name);
+    }
 
-            //     Debug.Log(allDetailData.newWords[i].id);
-            //     newWord.text = allDetailData.newWords[i].name;
-            //     StartCoroutine(DownloadImage(allDetailData.newWords[i].image_url));
-            //     Debug.Log("Check length of noun");
-            //     Debug.Log(allDetailData.newWords[i].nouns.Length);
-                
-            //     for (var j = 0; i < allDetailData.newWords[i].nouns.Length; j++) {
-            //         Debug.Log("Putting data on screen");
-            //         Debug.Log(allDetailData.newWords[i].nouns[j].description);
+    public void NextButton()
+    {
+        nextNumber = nextNumber + 1;
 
-            //         meaningAsNoun.text = allDetailData.newWords[i].nouns[j].description;
-            //         Debug.Log(allDetailData.newWords[i].nouns[j].nounSentences.Length);
+    }
 
-            //     }
-            // }
+    public void BackButton()
+    {
+        if (backNumber > 0)
+        {
+        backNumber = backNumber - 1;
+
         }
-        // request.Dispose();
     }
 
 }
