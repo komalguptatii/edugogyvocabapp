@@ -400,7 +400,7 @@ public class MissionManagement : MonoBehaviour
     {
         // StartMission(); // start mission after fetching id from detail all api
 
-        singleSentenceNounBoard.gameObject.SetActive(false);
+        singleSentenceNounBoard.gameObject.SetActive(true);
         multipleSentenceNounBoard.gameObject.SetActive(false);
 
         
@@ -458,7 +458,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer a0iG_UYvMEB2AqI2Mu4FtFGdrylGdwBo");
+        request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 
@@ -498,7 +498,7 @@ IEnumerator DownloadImage(string mediaUrl)
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer a0iG_UYvMEB2AqI2Mu4FtFGdrylGdwBo");
+        request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 
@@ -525,7 +525,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer a0iG_UYvMEB2AqI2Mu4FtFGdrylGdwBo");
+        request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 

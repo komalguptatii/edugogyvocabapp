@@ -96,11 +96,13 @@ public class LoginAPIManager : MonoBehaviour
         if (Application.platform == RuntimePlatform.Android)
         {
             Debug.Log("will hide apple sign in button here later");
+            appleBtn.SetActive(false);
+            ChangeButtonPosition();
 
         }
         //change position of facebook and google button after hiding apple button
-        appleBtn.SetActive(false);
-        ChangeButtonPosition();
+        // appleBtn.SetActive(false);
+        // ChangeButtonPosition();
     }
 
     void Start()
