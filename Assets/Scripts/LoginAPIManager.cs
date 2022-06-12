@@ -98,7 +98,6 @@ public class LoginAPIManager : MonoBehaviour
             Debug.Log("will hide apple sign in button here later");
             appleBtn.SetActive(false);
             ChangeButtonPosition();
-
         }
         //change position of facebook and google button after hiding apple button
         // appleBtn.SetActive(false);
