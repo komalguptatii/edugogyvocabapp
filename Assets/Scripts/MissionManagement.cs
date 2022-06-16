@@ -387,8 +387,49 @@ public class MissionManagement : MonoBehaviour
         public int use_multiple_word_id;
     }
 
-    
-   
+    Dictionary<string, bool> availableData = new Dictionary<string, bool>()
+        {
+            {"isNewWordAvailable", false},
+            {"newWordNoun", false},
+            {"newWordVerb", false},
+            {"newWordAdverbs", false},
+            {"newWordAdjectives", false},
+            {"newWordDailyUseTips", false},
+            {"newWordOtherWayUsingWords", false},
+            {"newWordIdioms", false},
+            {"newWordUseMultipleWords", false},
+            {"newWordSynonyms",false},
+            {"newWordAntonyms", false},
+            {"isRevisionWordsAvailable", false},
+            {"revisionNoun", false},
+            {"revisionVerb", false},
+            {"revisionAdverbs", false},
+            {"revisionAdjectives", false},
+            {"revisionDailyUseTips", false},
+            {"revisionOtherWayUsingWords", false},
+            {"revisionIdioms", false},
+            {"revisionUseMultipleWords", false},
+            {"revisionSynonyms",false},
+            {"revisionAntonyms", false},
+            {"Questions", false},
+            {"Conversation", false},
+            {"Passages", false}
+        };
+
+    public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
+    public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
+    public string adverbDetails = "newWords,newWords.adverbs,newWords.adverbs.adverbSentences";
+    public string adjectiveDetails = "newWords,newWords.adjectives,newWords.adjectives.adjectiveSentences";
+    public string dailyTipsDetails = "newWords,newWords.dailyUseTips";
+    public string otherWayUsingWords = "newWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences";
+    public string idioms = "newWords,newWords.idioms,newWords.idioms.idiomSentences";
+    public string useMultipleWords = "newWords,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences";
+    public string synonyms = "newWords,newWords.synonyms,newWords.synonyms.synonymSentences";
+    public string antonyms = "newWords,newWords.synonyms,newWords.antonyms,newWords.antonyms.antonymSentences";
+    public string questions = "questions,questions.questionOptions";
+    public string conversation = "conversation,conversationQuestions,conversationQuestions.questionOptions";
+    public string passages = "passages,passages.questions,passages.questions.questionOptions";
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -398,12 +439,10 @@ public class MissionManagement : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        // StartMission(); // start mission after fetching id from detail all api
+         // start mission after fetching id from detail all api
 
         singleSentenceNounBoard.gameObject.SetActive(true);
         multipleSentenceNounBoard.gameObject.SetActive(false);
-
-        
 
          if (PlayerPrefs.HasKey("auth_key"))
         {
@@ -411,11 +450,20 @@ public class MissionManagement : MonoBehaviour
             Debug.Log(auth_key);
         }
 
+        // if (PlayerPrefs.HasKey("StartLevelID"))
+        // {
+        //     dayLevelId = PlayerPrefs.GetInt("StartLevelID");
+        //     Debug.Log(dayLevelId);
+        //     StartMission();
+        // }
+
     }
 
     async void Start ()
     {
+        Debug.Log(availableData.Count);
         GetAllDetails();
+
     }
 
 
@@ -457,7 +505,9 @@ IEnumerator DownloadImage(string mediaUrl)
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+
 
         yield return request.SendWebRequest();
 
@@ -473,11 +523,58 @@ IEnumerator DownloadImage(string mediaUrl)
             string jsonString = request.downloadHandler.text;
            
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
-            dayLevelId = allDetailData.id;
-            Debug.Log(allDetailData.conversation.id);
-            NewWordSetup();
+            if (allDetailData.newWords.Length > 0)
+            {
+                availableData["isNewWordAvailable"] = true;
+                //new word length will always be 1
+            }
+            
+            if (availableData["isNewWordAvailable"] == true)
+            {
+                if (allDetailData.newWords[0].nouns.Length > 0)
+                {
+                    availableData["newWordNoun"] = true;
+                }
+                if (allDetailData.newWords[0].verbs.Length > 0)
+                {
+                    availableData["newWordVerb"] = true;
+                }
+                if (allDetailData.newWords[0].adverbs.Length > 0)
+                {
+                    availableData["newWordAdverbs"] = true;
+                }
+                if (allDetailData.newWords[0].adjectives.Length > 0)
+                {
+                    availableData["newWordAdjectives"] = true;
+                }
+                if (allDetailData.newWords[0].dailyUseTips.Length > 0)
+                {
+                    availableData["newWordDailyUseTips"] = true;
+                }
+                if (allDetailData.newWords[0].otherWayUsingWords.Length > 0)
+                {
+                    availableData["newWordOtherWayUsingWords"] = true;
+                }
+                if (allDetailData.newWords[0].idioms.Length > 0)
+                {
+                    availableData["newWordIdioms"] = true;
+                }
+                if (allDetailData.newWords[0].useMultipleWords.Length > 0)
+                {
+                    availableData["newWordUseMultipleWords"] = true;
+                }
+                if (allDetailData.newWords[0].synonyms.Length > 0)
+                {
+                    availableData["newWordSynonyms"] = true;
+                }
+                if (allDetailData.newWords[0].antonyms.Length > 0)
+                {
+                    availableData["newWordAntonyms"] = true;
+                }
 
-            StartMission();            
+            }
+            
+          Debug.Log(availableData["isNewWordAvailable"]);
         }
     }
 
