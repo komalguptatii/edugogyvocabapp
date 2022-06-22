@@ -492,7 +492,7 @@ public class MissionManagement : MonoBehaviour
             {"Passages", false}
         };
 
-     Dictionary<string, bool> completedData = new Dictionary<string, bool>()
+     Dictionary<string, bool> dataDisplayed = new Dictionary<string, bool>()
     {
          {"isNounDone", false},
         {"isVerbDone", false},
@@ -555,7 +555,6 @@ public class MissionManagement : MonoBehaviour
 
     async void Start ()
     {
-        // GetAllDetails();
         GetDataCount();
     }
 
@@ -584,8 +583,6 @@ IEnumerator DownloadImage(string mediaUrl)
     void StartMission() => StartCoroutine(StartMission_Coroutine());
 
     void GetAllDetails() => StartCoroutine(GetAllDetailsForLevel_Coroutine());
-
-    void GetNounDetails() => StartCoroutine(GetNounData_Coroutine());
 
     void GetDataCount() => StartCoroutine(GetDataCount_Coroutine());
 
@@ -653,6 +650,7 @@ IEnumerator DownloadImage(string mediaUrl)
        + dataCountDetails.passage_data.passage_count;
 
        Debug.Log(totalNumber);
+         GetAllDetails();
 
 
     }
@@ -711,11 +709,15 @@ IEnumerator DownloadImage(string mediaUrl)
                 word.text = newWordDetails.name;
             }
 
-            if (dataCountDetails.new_word_data.more_data[0].noun_count != 0 && parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) // check if data displayed or not, add check count condition
+            
+            // if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
+            if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
             {
+                Debug.Log("Calling Noun Setup");
+
                 NounSetup();                
             }
-            if (dataCountDetails.new_word_data.more_data[0].verb_count != 0)
+            else if (dataCountDetails.new_word_data.more_data[0].verb_count != 0)
             {
                 VerbSetup();
             }
@@ -756,53 +758,24 @@ IEnumerator DownloadImage(string mediaUrl)
         }
     }
 
-    IEnumerator GetNounData_Coroutine()
-    {
-
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/1?expand=newWords.nouns,newWords.nouns.nounSentences";
-
-        var request = new UnityWebRequest(uri, "GET");
-
-        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
-
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("Error: " + request.error);
-        }
-        else
-        {
-            Debug.Log(request.result);
-            Debug.Log(request.downloadHandler.text);
-            string jsonString = request.downloadHandler.text;
-            allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
-            Debug.Log("Check no. of new words");
-           
-            Debug.Log(allDetailData.newWords.Length);
-            // NewWordSetup();
-            
-        }
-    }
-
     public void NounSetup()
     {
         typeOfWord.text = "Noun";
-                Noun newNoun = new Noun();
+        Noun newNoun = new Noun();
+        int nounCount = dataCountDetails.new_word_data.more_data[0].noun_count;
+
             
-                newNoun = newWordDetails.nouns[parameterCountControlCheck];
-                meaningAsNoun.text = newNoun.description;
+        newNoun = newWordDetails.nouns[parameterCountControlCheck];
+        meaningAsNoun.text = newNoun.description;
 
 
-                if (newNoun.nounSentences.Length > 1)
-                {
-                    sentencePrefabsArray.Add(sentencePrefab);
+        if (newNoun.nounSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
 
-                    singleSentenceBoard.gameObject.SetActive(false);
-                    multipleSentenceBoard.gameObject.SetActive(true);
-                    Debug.Log("Length " + newNoun.nounSentences.Length);
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+            Debug.Log("Length " + newNoun.nounSentences.Length);
                     for (var i = 0; i < newNoun.nounSentences.Length; i++)
                     {
                         Debug.Log("Running in For loop " + i);
@@ -839,19 +812,27 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newNoun.nounSentences[0].description;
                 }
-            
-            if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)
+            if (parameterCountControlCheck == nounCount - 1)
             {
+                Debug.Log("noun is complete here");
+                dataDisplayed["isNounDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else //if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)
+            {
+                Debug.Log("Working on calling noun again");
                 parameterCountControlCheck = parameterCountControlCheck + 1;
             }
+            Debug.Log(dataDisplayed["isNounDone"] + "Noun is done");
     }
 
     public void VerbSetup()
     {
          
-                typeOfWord.text = "Verb";
-                Verb newVerb = new Verb();
-                Debug.Log("Length of verb" + newWordDetails.verbs.Length);
+        typeOfWord.text = "Verb";
+        Verb newVerb = new Verb();
+
+        Debug.Log("Length of verb" + newWordDetails.verbs.Length);
                 newVerb = newWordDetails.verbs[0];
                 meaningAsNoun.text = newVerb.description;
 
@@ -1067,6 +1048,7 @@ IEnumerator DownloadImage(string mediaUrl)
         {
             SetUpBaseCanvas();
         }
+        SetBottomTitleLabel();
     }
 
 }
