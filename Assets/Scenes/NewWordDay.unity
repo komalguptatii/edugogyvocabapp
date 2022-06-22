@@ -2437,6 +2437,8 @@ MonoBehaviour:
   singleSentencePrefab: {fileID: 1980836609}
   parent: {fileID: 1043515613}
   sentencePrefabsArray: []
+  parameterCountControlCheck: 0
+  screenCount: 1
 --- !u!4 &192530273
 Transform:
   m_ObjectHideFlags: 0

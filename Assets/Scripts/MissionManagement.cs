@@ -424,7 +424,7 @@ public class MissionManagement : MonoBehaviour
         public int use_multiple_word_id;
     }
 
-
+    [Serializable]
     public class MoreDatum
     {
         public int word_id;
@@ -442,24 +442,28 @@ public class MissionManagement : MonoBehaviour
         public int question_count;
     }
 
+    [Serializable]
     public class NewWordData
     {
         public int new_word_count;
-        public List<MoreDatum> more_data;
+        public MoreDatum[] more_data;
     }
 
+    [Serializable]
     public class PassageData
     {
         public int passage_count;
-        public List<MoreDatum> more_data;
+        public MoreDatum[] more_data;
     }
 
+    [Serializable]
     public class RevisionWordData
     {
         public int revison_word_count;
-        public List<MoreDatum> more_data;
+        public MoreDatum[] more_data;
     }
 
+    [Serializable]
     public class DataCount
     {
         public int id;
@@ -482,44 +486,11 @@ public class MissionManagement : MonoBehaviour
     Dictionary<string, bool> availableData = new Dictionary<string, bool>()
         {
             {"isNewWordAvailable", false},
-            {"newWordNoun", false},
-            {"newWordVerb", false},
-            {"newWordAdverbs", false},
-            {"newWordAdjectives", false},
-            {"newWordDailyUseTips", false},
-            {"newWordOtherWayUsingWords", false},
-            {"newWordIdioms", false},
-            {"newWordUseMultipleWords", false},
-            {"newWordSynonyms",false},
-            {"newWordAntonyms", false},
             {"isRevisionWordsAvailable", false},
-            {"revisionNoun", false},
-            {"revisionVerb", false},
-            {"revisionAdverbs", false},
-            {"revisionAdjectives", false},
-            {"revisionDailyUseTips", false},
-            {"revisionOtherWayUsingWords", false},
-            {"revisionIdioms", false},
-            {"revisionUseMultipleWords", false},
-            {"revisionSynonyms",false},
-            {"revisionAntonyms", false},
             {"Questions", false},
             {"Conversation", false},
             {"Passages", false}
         };
-
-    Dictionary<string, int> dataLength = new Dictionary<string, int>()
-    {
-        {"nounLength", 0},
-        {"verbLength", 0},
-        {"adverbLength",0},
-        {"adjectiveLength",0},
-        {"dailyUseTipsLength",0},
-        {"otherwayofusingwordLength",0},
-        {"idiomLength",0},
-        {"synonymLength",0},
-        {"antonymLength",0}
-    };
 
      Dictionary<string, bool> completedData = new Dictionary<string, bool>()
     {
@@ -536,6 +507,8 @@ public class MissionManagement : MonoBehaviour
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
 
+    public int parameterCountControlCheck = 0;
+    public int screenCount = 1;
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
     // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
@@ -562,8 +535,8 @@ public class MissionManagement : MonoBehaviour
     {
          // start mission after fetching id from detail all api
 
-        // singleSentenceBoard.gameObject.SetActive(true);
-        // multipleSentenceBoard.gameObject.SetActive(false);
+        singleSentenceBoard.gameObject.SetActive(true);
+        multipleSentenceBoard.gameObject.SetActive(false);
 
          if (PlayerPrefs.HasKey("auth_key"))
         {
@@ -571,22 +544,19 @@ public class MissionManagement : MonoBehaviour
             Debug.Log(auth_key);
         }
 
-        // if (PlayerPrefs.HasKey("StartLevelID"))
-        // {
-        //     dayLevelId = PlayerPrefs.GetInt("StartLevelID");
-        //     Debug.Log(dayLevelId);
-        //     StartMission();
-        // }
+        if (PlayerPrefs.HasKey("StartLevelID"))
+        {
+            dayLevelId = PlayerPrefs.GetInt("StartLevelID");
+            Debug.Log(dayLevelId);
+            // StartMission();
+        }
 
     }
 
     async void Start ()
     {
-        // Debug.Log(availableData.Count);
-        // totalNumber = availableData.Count;
         // GetAllDetails();
         GetDataCount();
-
     }
 
 
@@ -665,7 +635,24 @@ IEnumerator DownloadImage(string mediaUrl)
         + dataCountDetails.new_word_data.more_data[0].idiom_count
         + dataCountDetails.new_word_data.more_data[0].use_multiple_count
         + dataCountDetails.new_word_data.more_data[0].synonym_count
-        + dataCountDetails.new_word_data.more_data[0].antonym_count;
+        + dataCountDetails.new_word_data.more_data[0].antonym_count
+        + 1;
+
+        int revisionCount = 0;
+        for(int i = 0; i < dataCountDetails.revision_word_data.more_data.Length; i++)
+        {
+            revisionCount = dataCountDetails.revision_word_data.more_data[i].other_way_using_count + 
+            dataCountDetails.revision_word_data.more_data[i].idiom_count
+            + dataCountDetails.revision_word_data.more_data[i].use_multiple_count
+            + dataCountDetails.revision_word_data.more_data[i].synonym_count
+            + dataCountDetails.revision_word_data.more_data[i].antonym_count;
+        }
+       
+       totalNumber = totalNumber + revisionCount + dataCountDetails.conversation_revision_word_count 
+       + dataCountDetails.conversation_new_word_count + dataCountDetails.conversation_mcq_count 
+       + dataCountDetails.passage_data.passage_count;
+
+       Debug.Log(totalNumber);
 
 
     }
@@ -701,63 +688,12 @@ IEnumerator DownloadImage(string mediaUrl)
                 availableData["isNewWordAvailable"] = true;
                 //new word length will always be 1
             }
-            
-            if (availableData["isNewWordAvailable"] == true)
+            if (allDetailData.revisionWords.Length > 0)
             {
-                if (allDetailData.newWords[0].nouns.Length > 0)
-                {
-                    availableData["newWordNoun"] = true;
-                }
-                if (allDetailData.newWords[0].verbs.Length > 0)
-                {
-                    availableData["newWordVerb"] = true;
-                }
-                if (allDetailData.newWords[0].adverbs.Length > 0)
-                {
-                    availableData["newWordAdverbs"] = true;
-                }
-                if (allDetailData.newWords[0].adjectives.Length > 0)
-                {
-                    availableData["newWordAdjectives"] = true;
-                }
-                if (allDetailData.newWords[0].dailyUseTips.Length > 0)
-                {
-                    availableData["newWordDailyUseTips"] = true;
-                }
-                if (allDetailData.newWords[0].otherWayUsingWords.Length > 0)
-                {
-                    availableData["newWordOtherWayUsingWords"] = true;
-                }
-                if (allDetailData.newWords[0].idioms.Length > 0)
-                {
-                    availableData["newWordIdioms"] = true;
-                }
-                if (allDetailData.newWords[0].useMultipleWords.Length > 0)
-                {
-                    availableData["newWordUseMultipleWords"] = true;
-                }
-                if (allDetailData.newWords[0].synonyms.Length > 0)
-                {
-                    availableData["newWordSynonyms"] = true;
-                }
-                if (allDetailData.newWords[0].antonyms.Length > 0)
-                {
-                    availableData["newWordAntonyms"] = true;
-                }
-
+                availableData["isRevisionWordsAvailable"] = true;
             }
-
-            foreach(bool value in availableData.Values)
-            {
-                if (value == true)
-                {
-                    parameterCount = parameterCount + 1;
-                }
-            }
-            Debug.Log("Parameter count is " + parameterCount);
-          Debug.Log(availableData["isNewWordAvailable"]);
-          SetBottomTitleLabel();
-          SetUpBaseCanvas();
+            SetBottomTitleLabel();
+            SetUpBaseCanvas();
 
         }
     }
@@ -775,11 +711,11 @@ IEnumerator DownloadImage(string mediaUrl)
                 word.text = newWordDetails.name;
             }
 
-            if (availableData["newWordNoun"] == true) // check if data displayed or not
+            if (dataCountDetails.new_word_data.more_data[0].noun_count != 0 && parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) // check if data displayed or not, add check count condition
             {
                 NounSetup();                
             }
-            if (availableData["newWordVerb"] == true)
+            if (dataCountDetails.new_word_data.more_data[0].verb_count != 0)
             {
                 VerbSetup();
             }
@@ -855,7 +791,8 @@ IEnumerator DownloadImage(string mediaUrl)
     {
         typeOfWord.text = "Noun";
                 Noun newNoun = new Noun();
-                newNoun = newWordDetails.nouns[0];
+            
+                newNoun = newWordDetails.nouns[parameterCountControlCheck];
                 meaningAsNoun.text = newNoun.description;
 
 
@@ -902,6 +839,11 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newNoun.nounSentences[0].description;
                 }
+            
+            if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)
+            {
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
     }
 
     public void VerbSetup()
@@ -1112,85 +1054,19 @@ IEnumerator DownloadImage(string mediaUrl)
         GameObject bottomPanel = GameObject.Find("BottomPanel");
         GameObject childObj = bottomPanel.transform.GetChild(0).gameObject;
         TMPro.TMP_Text numberText = childObj.GetComponent<TMPro.TMP_Text>();
-        numberText.text = nextNumber + "/" + parameterCount;
+        numberText.text = screenCount + "/" + totalNumber;
     }
 
     public void NextButton(Button button)
     {
 
-        // if (button.tag == "Next")
-        // {
-        //     nextNumber = nextNumber + 1;
-        // }
-        // else
-        // {
-        //     if (nextNumber > 1)
-        //     {
-        //         nextNumber = nextNumber - 1;
-        //     }
-        // }
-        // var currentBoardNumber = nextNumber - 1;
-
-        // for(int i = 0; i < diffBoards.Length; i++)
-        // {
-        //     if (i != currentBoardNumber)
-        //     {
-        //         diffBoards[i].gameObject.SetActive(false);
-        //     }
-        // }
-
-        // diffBoards[currentBoardNumber].gameObject.SetActive(true);
-
-        // Debug.Log(diffBoards[currentBoardNumber].gameObject.name);
-
-        // SetBottomTitleLabel();
-
-        // if (nextNumber == 1)
-        // {
-        //     NewWordSetup();
-        // }
-        // else if (nextNumber == 2)
-        // {
-        //     VerbSetup();
-        // }
-        // else if (nextNumber == 3)
-        // {
-        //     AdverbSetup();
-        // }
-        // else if (nextNumber == 4)
-        // {
-        //     AdjectiveSetup();
-        // }
-        // else if (nextNumber == 5)
-        // {
-        //     ConversationSetup();
-        // }
-        // else if (nextNumber == 6)
-        // {
-        //     DailyTipsSetup();
-        // }
-        // else if (nextNumber == 7)
-        // {
-        //     AnotherWayOfUsingWordSetup();
-        // }
-        // else if (nextNumber == 8)
-        // {
-        //     IdiomSetup();
-        // }
-        // else if (nextNumber == 9)
-        // {
-        //     MultipleWordSetup();
-        // }
-        // else if (nextNumber == 10)
-        // {
-        //     SynonymSetup();
-        // }
-        // else if (nextNumber == 11)
-        // {
-        //     AntonymSetup();
-        // }
+        //Check screen count
+        screenCount = screenCount + 1;
+        
+        if (button.tag == "Next")
+        {
+            SetUpBaseCanvas();
+        }
     }
-
-    
 
 }
