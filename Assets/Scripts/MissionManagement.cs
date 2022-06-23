@@ -36,8 +36,7 @@ public class MissionManagement : MonoBehaviour
     [SerializeField]
     public TextMeshProUGUI sentenceOfNoun;
 
-    [SerializeField]
-    public Canvas dutCanvas;
+  
 
     [SerializeField]
     public Image singleSentenceBoard;
@@ -53,6 +52,28 @@ public class MissionManagement : MonoBehaviour
 
      [SerializeField]
     public Transform parent;
+
+    [SerializeField]
+    public GameObject baseParentBoard;
+
+    [SerializeField]
+    public GameObject conversationBoard;
+
+    [SerializeField]
+    public TextMeshProUGUI conversationText;
+
+    [SerializeField]
+    public GameObject generalBaseBoard;
+
+      [SerializeField]
+    public GameObject dutBoard;
+
+    [SerializeField]
+    public GameObject dutSentencePrefab;
+
+    [SerializeField]
+    public Transform dutParent;
+
 
 //     //Verb
 //     [SerializeField]
@@ -498,11 +519,13 @@ public class MissionManagement : MonoBehaviour
         {"isVerbDone", false},
         {"isAdverbDone",false},
         {"isAdjectiveDone",false},
+        {"isNewWordConverstaionDone",false},
         {"isDUTDone",false},
-        {"isOWUWordDone",false},
-        {"isIdiomDone",false},
-        {"isSynonymDone",false},
-        {"isAntonymDone",false}
+        {"isnewWordOWUWordDone",false},
+        {"isnewWordIdiomDone",false},
+        {"isnewWordUsingMultipleWordsDone",false},
+        {"isnewWordSynonymDone",false},
+        {"isnewWirdAntonymDone",false}
     };
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
@@ -537,6 +560,7 @@ public class MissionManagement : MonoBehaviour
 
         singleSentenceBoard.gameObject.SetActive(true);
         multipleSentenceBoard.gameObject.SetActive(false);
+        dutBoard.gameObject.SetActive(false);
 
          if (PlayerPrefs.HasKey("auth_key"))
         {
@@ -578,6 +602,7 @@ IEnumerator DownloadImage(string mediaUrl)
     
 } 
 
+
     // void DownloadPicture() => StartCoroutine(DownloadImage(string));
 
     void StartMission() => StartCoroutine(StartMission_Coroutine());
@@ -590,6 +615,37 @@ IEnumerator DownloadImage(string mediaUrl)
     NewWord newWordDetails = new NewWord();
     DataCount dataCountDetails = new DataCount();
 
+
+    IEnumerator StartMission_Coroutine()
+    {
+        MissionForm missionFormData = new MissionForm { day_level_id = dayLevelId };
+        string json = JsonUtility.ToJson(missionFormData);
+
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = "http://165.22.219.198/edugogy/api/v1/student-levels/start-level";
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", auth_key);
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+        }
+    }
 
     IEnumerator GetDataCount_Coroutine()
     {
@@ -717,9 +773,68 @@ IEnumerator DownloadImage(string mediaUrl)
 
                 NounSetup();                
             }
-            else if (dataCountDetails.new_word_data.more_data[0].verb_count != 0)
+            else if ((dataCountDetails.new_word_data.more_data[0].verb_count != 0)  && (dataDisplayed["isVerbDone"] == false))
             {
+                Debug.Log("Calling verb Setup");
                 VerbSetup();
+            }
+            else if ((dataCountDetails.new_word_data.more_data[0].adverb_count != 0)  && (dataDisplayed["isAdverbDone"] == false))
+            {
+                Debug.Log("Calling adverb Setup");
+                AdverbSetup();
+            }
+            else if ((dataCountDetails.new_word_data.more_data[0].adjective_count != 0)  && (dataDisplayed["isAdjectiveDone"] == false))
+            {
+                Debug.Log("Calling adjective Setup");
+                AdjectiveSetup();
+            }
+            else if ((dataCountDetails.conversation_new_word_count != 0) && (dataDisplayed["isNewWordConverstaionDone"] == false))
+            {
+                baseParentBoard.gameObject.SetActive(false);
+                conversationBoard.gameObject.SetActive(true);
+                ConversationSetup();
+            }
+            else if ((dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0) && (dataDisplayed["isDUTDone"] == false))
+            {
+                baseParentBoard.gameObject.SetActive(true);
+                conversationBoard.gameObject.SetActive(false);
+                generalBaseBoard.gameObject.SetActive(false);
+                dutBoard.gameObject.SetActive(true);
+                singleSentenceBoard.gameObject.SetActive(false);
+                multipleSentenceBoard.gameObject.SetActive(false);
+                DailyTipsSetup();
+
+            }
+            else if ((dataCountDetails.new_word_data.more_data[0].other_way_using_count != 0) && (dataDisplayed["isnewWordOWUWordDone"] == false))
+            {
+                baseParentBoard.gameObject.SetActive(true);
+                conversationBoard.gameObject.SetActive(false);
+                generalBaseBoard.gameObject.SetActive(true);
+                dutBoard.gameObject.SetActive(false);
+                singleSentenceBoard.gameObject.SetActive(true);
+                multipleSentenceBoard.gameObject.SetActive(false);
+                AnotherWayOfUsingWordSetup();
+
+            }
+            else if ((dataCountDetails.new_word_data.more_data[0].idiom_count != 0) && (dataDisplayed["isnewWordIdiomDone"] == false))
+            {
+                IdiomSetup();
+
+            }
+             else if ((dataCountDetails.new_word_data.more_data[0].use_multiple_count != 0) && (dataDisplayed["isnewWordUsingMultipleWordsDone"] == false))
+            {
+                generalBaseBoard.gameObject.SetActive(false);
+                //-373
+                //Change position of sentence boards
+                Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                singleSentenceBoardPos.y += 423f;
+                singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+                Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+                multipleSentenceBoardPos.y += 423f;
+                multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+                MultipleWordSetup();
+
             }
         }
 
@@ -727,36 +842,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
     }
 
-    IEnumerator StartMission_Coroutine()
-    {
-        MissionForm missionFormData = new MissionForm { day_level_id = dayLevelId };
-        string json = JsonUtility.ToJson(missionFormData);
-
-        Debug.Log(json);
-
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-levels/start-level";
-
-        var request = new UnityWebRequest(uri, "POST");
-
-        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
-
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("Error: " + request.error);
-        }
-        else
-        {
-            Debug.Log(request.result);
-            Debug.Log(request.downloadHandler.text);
-        }
-    }
+    
 
     public void NounSetup()
     {
@@ -831,9 +917,10 @@ IEnumerator DownloadImage(string mediaUrl)
          
         typeOfWord.text = "Verb";
         Verb newVerb = new Verb();
+        int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
 
         Debug.Log("Length of verb" + newWordDetails.verbs.Length);
-                newVerb = newWordDetails.verbs[0];
+                newVerb = newWordDetails.verbs[parameterCountControlCheck];
                 meaningAsNoun.text = newVerb.description;
 
                 if (newVerb.verbSentences.Length > 1)
@@ -879,119 +966,415 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newVerb.verbSentences[0].description;
                 }
+
+            if (parameterCountControlCheck == verbCount - 1)
+            {
+                Debug.Log("verb is complete here");
+                dataDisplayed["isVerbDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+                // Array.Clear(sentencePrefabsArray, 0, sentencePrefabsArray.count);
+            }
+            else 
+            {
+                Debug.Log("Working on calling verb again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+            Debug.Log(dataDisplayed["isVerbDone"] + "Verb is done");
     }
     
     public void AdverbSetup()
     {
-        
+        typeOfWord.text = "Adverb";
+        Adverb newAdverb = new Adverb();
+        int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
+
+            
+        newAdverb = newWordDetails.adverbs[parameterCountControlCheck];
+        meaningAsNoun.text = newAdverb.description;
+
+
+        if (newAdverb.adverbSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
+
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+            Debug.Log("Length " + newAdverb.adverbSentences.Length);
+                    for (var i = 0; i < newAdverb.adverbSentences.Length; i++)
+                    {
+                        Debug.Log("Running in For loop " + i);
+                        Debug.Log(newAdverb.adverbSentences[0].description);
+                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newAdverb.adverbSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newAdverb.adverbSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newAdverb.adverbSentences[0].description;
+                }
+            if (parameterCountControlCheck == adverbCount - 1)
+            {
+                Debug.Log("Adverb is complete here");
+                dataDisplayed["isAdverbDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling Adverb again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+            Debug.Log(dataDisplayed["isAdverbDone"] + "Adverb is done");
+
     }
 
-    // public void AdjectiveSetup()
-    // {
-    //      if (allDetailData.newWords.Length == 1)
-    //         {
+    public void AdjectiveSetup()
+    {
+         typeOfWord.text = "Adjective";
+        Adjective newAdjective = new Adjective();
+        int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
 
-    //             newWord.text = allDetailData.newWords[0].name;
-    //             StartCoroutine(DownloadImage(allDetailData.newWords[0].image_url));
             
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             title.text = "Adjective";
-    //             Adjective adjectiveDetail = new Adjective();
-    //             adjectiveDetail = newWordDetails.adjectives[0];
-    //             meaningAsAdjective.text = adjectiveDetail.description;
-                
-    //             sentenceOfAdjective.text = adjectiveDetail.adjectiveSentences[0].description;
-    //         }
-    // }
-
-    // public void ConversationSetup()
-    // {
-    //      if (allDetailData.newWords.Length == 1)
-    //         {            
-                
-    //             Conversation convo = new Conversation();
-    //             convo = allDetailData.conversation;
-    //             Debug.Log(convo.description);
-    //             convoDescription.text = convo.description;
-                
-    //         }
-    // }
+        newAdjective = newWordDetails.adjectives[parameterCountControlCheck];
+        meaningAsNoun.text = newAdjective.description;
 
 
-    // public void DailyTipsSetup()
-    // {
-    //      if (allDetailData.newWords.Length == 1)
-    //         {
+        if (newAdjective.adjectiveSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
 
-    //             newWord.text = allDetailData.newWords[0].name;
-    //             // StartCoroutine(DownloadImage(allDetailData.newWords[0].image_url));
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+            Debug.Log("Length " + newAdjective.adjectiveSentences.Length);
+                    for (var i = 0; i < newAdjective.adjectiveSentences.Length; i++)
+                    {
+                        Debug.Log("Running in For loop " + i);
+                        Debug.Log(newAdjective.adjectiveSentences[0].description);
+                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newAdjective.adjectiveSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newAdjective.adjectiveSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newAdjective.adjectiveSentences[0].description;
+                }
+            if (parameterCountControlCheck == adjectiveCount - 1)
+            {
+                Debug.Log("adjective is complete here");
+                dataDisplayed["isAdjectiveDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling adjective again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+            Debug.Log(dataDisplayed["isAdjectiveDone"] + "adjective is done");
+
+    }
+
+    public void ConversationSetup()
+    {
+        
+        Conversation convo = new Conversation();
+        convo = allDetailData.conversation;
+        conversationText.text = convo.description;
+        dataDisplayed["isNewWordConverstaionDone"] = true;
+           
+    }
+
+
+
+
+    public void DailyTipsSetup()
+    {
+
+        if (newWordDetails.dailyUseTips.Length > 1)
+        {
             
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             title.text = "Daily Use Tips";
-    //             DailyUseTip dailyUseTipsDetails = new DailyUseTip();
-    //             dailyUseTipsDetails = newWordDetails.dailyUseTips[0];
-                
-    //             sentenceOfDUT.text = dailyUseTipsDetails.description;
+            sentencePrefabsArray.Add(sentencePrefab);
 
-    
-    //         }
-    // }
+                    for (var i = 0; i < newWordDetails.dailyUseTips.Length; i++)
+                    {
+                        // newDUT = newWordDetails.dailyUseTips[i];
+                        Debug.Log("Running in For loop " + i);
+                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = dutSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newWordDetails.dailyUseTips[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(dutSentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(dutParent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newWordDetails.dailyUseTips[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
 
-    // public void AnotherWayOfUsingWordSetup()
-    // {
-    //     if (allDetailData.newWords.Length == 1)
-    //         {
+                    }
+                }
+         else
+                {
+                    GameObject childObj = dutSentencePrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newWordDetails.dailyUseTips[0].description;
+                }
 
-    //             newWord.text = allDetailData.newWords[0].name;
+        dataDisplayed["isDUTDone"] = true;
+    }
+
+    public void AnotherWayOfUsingWordSetup()
+    {
+        
+        typeOfDay.text = "Another way of using";
+        typeOfWord.text = "Brief/Note";
+        OtherWayUsingWord newOwuw = new OtherWayUsingWord();
+        int owuwCount = dataCountDetails.new_word_data.more_data[0].other_way_using_count;
+
             
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             // title.text = "Another Way of using word";
-    //             OtherWayUsingWord anotherwayDetail = new OtherWayUsingWord();
-    //             anotherwayDetail = newWordDetails.otherWayUsingWords[0];
-    //             meaningAnotherwayofusingword.text = anotherwayDetail.description;
-                
-    //             sentenceAnotherwayofusingword.text = anotherwayDetail.otherWayUsingWordSentences[0].description;
-    //         }
-    // }
+        newOwuw = newWordDetails.otherWayUsingWords[parameterCountControlCheck];
+        meaningAsNoun.text = newOwuw.description;
 
-    // public void IdiomSetup()
-    // {
-    //     if (allDetailData.newWords.Length == 1)
-    //         {
 
-    //             newWord.text = allDetailData.newWords[0].name;
+        if (newOwuw.otherWayUsingWordSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
+
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+                    for (var i = 0; i < newOwuw.otherWayUsingWordSentences.Length; i++)
+                    {
+                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newOwuw.otherWayUsingWordSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newOwuw.otherWayUsingWordSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newOwuw.otherWayUsingWordSentences[0].description;
+                }
+            if (parameterCountControlCheck == owuwCount - 1)
+            {
+                Debug.Log("OWUW is complete here");
+                dataDisplayed["isnewWordOWUWordDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling adjective again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+    }
+
+    public void IdiomSetup()
+    {
+        typeOfDay.text = "Idiom";
+        
+        typeOfWord.text = "Meaning";
+        Idiom newIdiom = new Idiom();
+        int idiomCount = dataCountDetails.new_word_data.more_data[0].idiom_count;
+       
             
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             // title.text = "Another Way of using word";
-    //             Idiom idiomDetails = new Idiom();
-    //             idiomDetails = newWordDetails.idioms[0];
-    //             meaningAsIdiom.text = idiomDetails.description;
-                
-    //             sentenceOfIdiom.text = idiomDetails.idiomSentences[0].description;
-    //         }
-    // }
+        newIdiom = newWordDetails.idioms[parameterCountControlCheck];
+        word.text = newIdiom.description;
+        meaningAsNoun.text = newIdiom.meaning;
 
-    // public void MultipleWordSetup()
-    // {
-    //     if (allDetailData.newWords.Length == 1)
-    //         {
 
-    //             newWord.text = allDetailData.newWords[0].name;
-            
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             // title.text = "Another Way of using word";
-    //             UseMultipleWord multipleWordDetails = new UseMultipleWord();
-    //             multipleWordDetails = newWordDetails.useMultipleWords[0];
-    //             placeholderMultipleWords.text = multipleWordDetails.description;
-                
-    //             sentenceOfMultipleWords.text = multipleWordDetails.useMultipleWordSentences[0].description;
-    //         }
-    // }
+        if (newIdiom.idiomSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
+
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+                    for (var i = 0; i < newIdiom.idiomSentences.Length; i++)
+                    {
+                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newIdiom.idiomSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = newIdiom.idiomSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newIdiom.idiomSentences[0].description;
+                }
+            if (parameterCountControlCheck == idiomCount - 1)
+            {
+                Debug.Log("Idiom is complete here");
+                dataDisplayed["isnewWordIdiomDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling idiom again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+    }
+
+    public void MultipleWordSetup()
+    {
+        
+        typeOfDay.text = "Using multiple words in a sentence";
+        
+        UseMultipleWord multipleWordDetails = new UseMultipleWord();
+        int multipleWordCount = dataCountDetails.new_word_data.more_data[0].use_multiple_count;
+        multipleWordDetails = newWordDetails.useMultipleWords[parameterCountControlCheck];
+        word.text = multipleWordDetails.description;
+
+        if (multipleWordDetails.useMultipleWordSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
+
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+
+                    for (var i = 0; i < multipleWordDetails.useMultipleWordSentences.Length; i++)
+                    {
+                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = multipleWordDetails.useMultipleWordSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;
+                }
+            if (parameterCountControlCheck == multipleWordCount - 1)
+            {
+                dataDisplayed["isnewWordUsingMultipleWordsDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else //if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)
+            {
+                Debug.Log("Working on calling multipleWords again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+    }
 
     // public void AntonymSetup()
     // {
