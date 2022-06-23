@@ -525,7 +525,7 @@ public class MissionManagement : MonoBehaviour
         {"isnewWordIdiomDone",false},
         {"isnewWordUsingMultipleWordsDone",false},
         {"isnewWordSynonymDone",false},
-        {"isnewWirdAntonymDone",false}
+        {"isnewWordAntonymDone",false}
     };
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
@@ -836,6 +836,46 @@ IEnumerator DownloadImage(string mediaUrl)
                 MultipleWordSetup();
 
             }
+            else if ((dataCountDetails.new_word_data.more_data[0].antonym_count != 0) && (dataDisplayed["isnewWordAntonymDone"] == false))
+            {
+                generalBaseBoard.gameObject.SetActive(true);
+
+                if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true)
+                {
+                    //Change position of sentence boards
+                    Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                    singleSentenceBoardPos.y -= 423f;
+                    singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+                    Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+                    multipleSentenceBoardPos.y -= 423f;
+                    multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+                }
+                
+                AntonymSetup();
+
+            }
+            else if ((dataCountDetails.new_word_data.more_data[0].synonym_count != 0) && (dataDisplayed["isnewWordSynonymDone"] == false))
+            {
+                generalBaseBoard.gameObject.SetActive(true);
+
+                if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && dataDisplayed["isnewWordAntonymDone"] == false)
+                {
+                    //Change position of sentence boards
+                    Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                    singleSentenceBoardPos.y -= 423f;
+                    singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+                    Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+                    multipleSentenceBoardPos.y -= 423f;
+                    multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+                }       
+                SynonymSetup();
+            }
+            // else if ()
+            // {
+                    // display revision list
+            // }
         }
 
         
@@ -1053,7 +1093,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void AdjectiveSetup()
     {
-         typeOfWord.text = "Adjective";
+        typeOfWord.text = "Adjective";
         Adjective newAdjective = new Adjective();
         int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
 
@@ -1376,42 +1416,135 @@ IEnumerator DownloadImage(string mediaUrl)
             }
     }
 
-    // public void AntonymSetup()
-    // {
-    //     if (allDetailData.newWords.Length == 1)
-    //         {
+    public void AntonymSetup()
+    {
+ 
+        typeOfDay.text = "Antonym of " + newWordDetails.antonyms[0].description;
+        typeOfWord.text = "Meaning";
+        Antonym antonymDetails = new Antonym();
+        int antonymCount = dataCountDetails.new_word_data.more_data[0].antonym_count;
 
-    //             newWord.text = allDetailData.newWords[0].name;
             
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             // title.text = "Another Way of using word";
-    //             Antonym antonymDetails = new Antonym();
-    //             antonymDetails = newWordDetails.antonyms[0];
-    //             antonymTitle.text = antonymDetails.description;
-    //             meaningAsAntonym.text = antonymDetails.meaning;
-                
-    //             sentenceOfAntonym.text = antonymDetails.antonymSentences[0].description;
-    //         }
-    // }
-    // public void SynonymSetup()
-    // {
-    //     if (allDetailData.newWords.Length == 1)
-    //         {
+        antonymDetails = newWordDetails.antonyms[parameterCountControlCheck];
+        meaningAsNoun.text = antonymDetails.meaning;
 
-    //             newWord.text = allDetailData.newWords[0].name;
+
+        if (antonymDetails.antonymSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
+
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+                    for (var i = 0; i < antonymDetails.antonymSentences.Length; i++)
+                    {                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = antonymDetails.antonymSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = antonymDetails.antonymSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = antonymDetails.antonymSentences[0].description;
+                }
+            if (parameterCountControlCheck == antonymCount - 1)
+            {
+                Debug.Log("antonym is complete here");
+                dataDisplayed["isnewWordAntonymDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling antonym again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+    }
+
+    
+    public void SynonymSetup()
+    {
+        typeOfDay.text = "Synonym of " + newWordDetails.synonyms[0].description;
+        typeOfWord.text = "Meaning";
+        Synonym synonymDetails = new Synonym();
+        int synonymCount = dataCountDetails.new_word_data.more_data[0].synonym_count;
+
             
-    //             NewWord newWordDetails = new NewWord();
-    //             newWordDetails = allDetailData.newWords[0];
-    //             // title.text = "Another Way of using word";
-    //             Synonym synonymDetails = new Synonym();
-    //             synonymDetails = newWordDetails.synonyms[0];
-    //             synonymTitle.text = synonymDetails.description;
-    //             meaningAsSynonym.text = synonymDetails.meaning;
-                
-    //             sentenceOfSynonym.text = synonymDetails.synonymSentences[0].description;
-    //         }
-    // }
+        synonymDetails = newWordDetails.synonyms[parameterCountControlCheck];
+        meaningAsNoun.text = synonymDetails.meaning;
+
+
+        if (synonymDetails.synonymSentences.Length > 1)
+        {
+            sentencePrefabsArray.Add(sentencePrefab);
+
+            singleSentenceBoard.gameObject.SetActive(false);
+            multipleSentenceBoard.gameObject.SetActive(true);
+                    for (var i = 0; i < synonymDetails.synonymSentences.Length; i++)
+                    {                         
+                        if (i == 0)
+                        {
+                            Debug.Log("i is 0 here");
+                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = synonymDetails.synonymSentences[0].description;                     
+                        }
+                        else
+                        {
+                            Debug.Log("i is 1 here");
+                            Debug.Log("Checking in loop for second object");
+                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.SetParent(parent, true);
+                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                            mytext.text = synonymDetails.synonymSentences[i].description;
+                            sentencePrefabsArray.Add(newSentencePrefab);
+                            Debug.Log("End of Checking in loop for second object");
+                        }  
+
+                    }
+                }
+                else
+                {
+                    singleSentenceBoard.gameObject.SetActive(true);
+                    multipleSentenceBoard.gameObject.SetActive(false);
+                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = synonymDetails.synonymSentences[0].description;
+                }
+            if (parameterCountControlCheck == synonymCount - 1)
+            {
+                Debug.Log("synonym is complete here");
+                dataDisplayed["isnewWordSynonymDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling synonym again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+    }
 
     public void SetBottomTitleLabel()
     {
