@@ -36,8 +36,6 @@ public class MissionManagement : MonoBehaviour
     [SerializeField]
     public TextMeshProUGUI sentenceOfNoun;
 
-  
-
     [SerializeField]
     public Image singleSentenceBoard;
 
@@ -79,6 +77,8 @@ public class MissionManagement : MonoBehaviour
 
     [SerializeField]
     public TextMeshProUGUI revisionWordList;
+
+  
 
 //     //Verb
 //     [SerializeField]
@@ -549,6 +549,9 @@ public class MissionManagement : MonoBehaviour
     public int revisionDataCount = 0;
     public int newWordNumber = 0; // check if all new word screens are done
     public int revisionWordReference = 0;
+    public List<Action> methodCallArray = new List<Action>();
+    public List<int> parameterValueArray = new List<int>();
+    
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
     // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
@@ -717,14 +720,18 @@ IEnumerator DownloadImage(string mediaUrl)
 
             for(int i = 0; i < dataCountDetails.revision_word_data.more_data.Length; i++)
             {
-            revisionDataCount = dataCountDetails.revision_word_data.more_data[i].other_way_using_count + 
-            dataCountDetails.revision_word_data.more_data[i].idiom_count
-            + dataCountDetails.revision_word_data.more_data[i].use_multiple_count
-            + dataCountDetails.revision_word_data.more_data[i].synonym_count
-            + dataCountDetails.revision_word_data.more_data[i].antonym_count;
+                revisionDataCount = dataCountDetails.revision_word_data.more_data[i].other_way_using_count + 
+                     dataCountDetails.revision_word_data.more_data[i].idiom_count
+                + dataCountDetails.revision_word_data.more_data[i].use_multiple_count
+                + dataCountDetails.revision_word_data.more_data[i].synonym_count
+                + dataCountDetails.revision_word_data.more_data[i].antonym_count;
              }
        
         }
+
+        //no. of revision words i.e. dataCountDetails.revision_word_data.revison_word_count
+        //total count for each revision word
+        // for back button  - working on calling method with parameter
         
         Debug.Log(revisionDataCount);
        totalNumber = totalNumber + revisionDataCount + dataCountDetails.conversation_revision_word_count 
@@ -798,24 +805,32 @@ IEnumerator DownloadImage(string mediaUrl)
             {
                 Debug.Log("Calling Noun Setup");
                 newWordNumber += 1;
-                NounSetup();                
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add(NounSetup);
+                NounSetup(parameterCountControlCheck);                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].verb_count != 0)  && (dataDisplayed["isVerbDone"] == false))
             {
                 Debug.Log("Calling verb Setup");
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add(VerbSetup);
                 VerbSetup();
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adverb_count != 0)  && (dataDisplayed["isAdverbDone"] == false))
             {
                 Debug.Log("Calling adverb Setup");
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("AdverbSetup");
                 AdverbSetup();
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adjective_count != 0)  && (dataDisplayed["isAdjectiveDone"] == false))
             {
                 Debug.Log("Calling adjective Setup");
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("AdjectiveSetup");
                 AdjectiveSetup();
             }
             else if ((dataCountDetails.conversation_new_word_count != 0) && (dataDisplayed["isNewWordConverstaionDone"] == false))
@@ -823,6 +838,8 @@ IEnumerator DownloadImage(string mediaUrl)
                 baseParentBoard.gameObject.SetActive(false);
                 conversationBoard.gameObject.SetActive(true);
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("ConversationSetup");
                 ConversationSetup();
             }
             else if ((dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0) && (dataDisplayed["isDUTDone"] == false))
@@ -834,6 +851,8 @@ IEnumerator DownloadImage(string mediaUrl)
                 singleSentenceBoard.gameObject.SetActive(false);
                 multipleSentenceBoard.gameObject.SetActive(false);
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("DailyTipsSetup");
                 DailyTipsSetup();
 
             }
@@ -846,12 +865,16 @@ IEnumerator DownloadImage(string mediaUrl)
                 singleSentenceBoard.gameObject.SetActive(true);
                 multipleSentenceBoard.gameObject.SetActive(false);
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("AnotherWayOfUsingWordSetup");
                 AnotherWayOfUsingWordSetup();
 
             }
             else if ((dataCountDetails.new_word_data.more_data[0].idiom_count != 0) && (dataDisplayed["isnewWordIdiomDone"] == false))
             {
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("IdiomSetup");
                 IdiomSetup();
 
             }
@@ -868,6 +891,8 @@ IEnumerator DownloadImage(string mediaUrl)
                 multipleSentenceBoardPos.y += 423f;
                 multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("MultipleWordSetup");
                 MultipleWordSetup();
 
             }
@@ -887,6 +912,8 @@ IEnumerator DownloadImage(string mediaUrl)
                     multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                 }
                 newWordNumber += 1;
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("AntonymSetup");
                 AntonymSetup();
 
             }
@@ -906,6 +933,8 @@ IEnumerator DownloadImage(string mediaUrl)
                     multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                 }     
                 newWordNumber += 1;  
+                parameterValueArray.Add(parameterCountControlCheck);
+                // methodCallArray.Add("SynonymSetup");
                 SynonymSetup();
             }
             // else 
@@ -986,6 +1015,65 @@ IEnumerator DownloadImage(string mediaUrl)
                          revisionDataCount += 1;     
                         AntonymSetup();
                     }
+                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
+                    {
+                         baseParentBoard.gameObject.SetActive(true);
+                        conversationBoard.gameObject.SetActive(false);
+                         generalBaseBoard.gameObject.SetActive(true);
+                         dutBoard.gameObject.SetActive(false);
+                         singleSentenceBoard.gameObject.SetActive(true);
+                        multipleSentenceBoard.gameObject.SetActive(false);
+                    revisionDataCount += 1;
+                    AnotherWayOfUsingWordSetup();
+
+                    }
+                    else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count != 0) && (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == false))
+                    {
+                        baseParentBoard.gameObject.SetActive(true);
+                        revisionWordBoard.gameObject.SetActive(false);
+                        generalBaseBoard.gameObject.SetActive(false);
+
+                        
+                             //Change position of sentence boards
+                             Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                             singleSentenceBoardPos.y += 423f;
+                            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+                            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+                            multipleSentenceBoardPos.y += 423f;
+                             multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+                        
+                         revisionDataCount += 1;     
+                        MultipleWordSetup();
+                    }
+                    else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
+                    {
+                        baseParentBoard.gameObject.SetActive(true);
+                        revisionWordBoard.gameObject.SetActive(false);
+                        generalBaseBoard.gameObject.SetActive(true);
+
+                        if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true)
+                        {
+                             //Change position of sentence boards
+                              Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                             singleSentenceBoardPos.y -= 423f;
+                            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+                            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+                            multipleSentenceBoardPos.y -= 423f;
+                             multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+                        }                        
+                           
+                         revisionDataCount += 1;     
+                        IdiomSetup();
+                    }
+                    else if ((dataCountDetails.conversation_revision_word_count != 0) && (dataDisplayed["isRevisionWordConversationDone"] == false))
+                    {
+                        baseParentBoard.gameObject.SetActive(false);
+                         conversationBoard.gameObject.SetActive(true);                                 
+                         revisionDataCount += 1;     
+                        ConversationSetup();
+                    }
                 // }
             }
             
@@ -1008,14 +1096,14 @@ IEnumerator DownloadImage(string mediaUrl)
     }
     
 
-    public void NounSetup()
+    public void NounSetup(int parameter)
     {
         typeOfWord.text = "Noun";
         Noun newNoun = new Noun();
         int nounCount = dataCountDetails.new_word_data.more_data[0].noun_count;
 
             
-        newNoun = newWordDetails.nouns[parameterCountControlCheck];
+        newNoun = newWordDetails.nouns[parameter];
         meaningAsNoun.text = newNoun.description;
 
 
@@ -1286,11 +1374,18 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void ConversationSetup()
     {
-        
         Conversation convo = new Conversation();
         convo = allDetailData.conversation;
         conversationText.text = convo.description;
-        dataDisplayed["isNewWordConverstaionDone"] = true;
+
+             if (dataDisplayed["isRevisionWordListDone"] == true)
+             {
+                 dataDisplayed["isRevisionWordConversationDone"] = true;
+             }   
+             else
+             {
+                 dataDisplayed["isNewWordConverstaionDone"] = true;
+             }
            
     }
 
@@ -1346,15 +1441,25 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void AnotherWayOfUsingWordSetup()
     {
-        
-        typeOfDay.text = "Another way of using";
-        typeOfWord.text = "Brief/Note";
+        int owuwCount = 0;
         OtherWayUsingWord newOwuw = new OtherWayUsingWord();
-        int owuwCount = dataCountDetails.new_word_data.more_data[0].other_way_using_count;
 
-            
-        newOwuw = newWordDetails.otherWayUsingWords[parameterCountControlCheck];
-        meaningAsNoun.text = newOwuw.description;
+         if (dataDisplayed["isRevisionWordListDone"] == true)
+        {
+            typeOfDay.text = "Another way of using";
+            typeOfWord.text = "Brief/Note";
+             owuwCount = dataCountDetails.revision_word_data.more_data[0].other_way_using_count;
+             newOwuw = revisionWordDetails.otherWayUsingWords[parameterCountControlCheck];
+             meaningAsNoun.text = newOwuw.description;
+        }
+        else
+        {
+            typeOfDay.text = "Another way of using";
+            typeOfWord.text = "Brief/Note";
+             owuwCount = dataCountDetails.new_word_data.more_data[0].other_way_using_count;
+             newOwuw = newWordDetails.otherWayUsingWords[parameterCountControlCheck];
+             meaningAsNoun.text = newOwuw.description;
+        }
 
 
         if (newOwuw.otherWayUsingWordSentences.Length > 1)
@@ -1400,7 +1505,14 @@ IEnumerator DownloadImage(string mediaUrl)
             if (parameterCountControlCheck == owuwCount - 1)
             {
                 Debug.Log("OWUW is complete here");
+                 if (dataDisplayed["isRevisionWordListDone"] == true)
+             {
+                    dataDisplayed["isRevisionWordOWUWordDone"] = true;
+             }   
+             else
+             {
                 dataDisplayed["isnewWordOWUWordDone"] = true;
+             }
                 parameterCountControlCheck = 0;     //resetting 
             }
             else 
@@ -1412,16 +1524,28 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void IdiomSetup()
     {
+        
         typeOfDay.text = "Idiom";
         
         typeOfWord.text = "Meaning";
-        Idiom newIdiom = new Idiom();
-        int idiomCount = dataCountDetails.new_word_data.more_data[0].idiom_count;
+         Idiom newIdiom = new Idiom();
+        int idiomCount = 0;
+
+         if (dataDisplayed["isRevisionWordListDone"] == true)
+        {
+             idiomCount = dataCountDetails.revision_word_data.more_data[0].idiom_count;    
+            newIdiom = revisionWordDetails.idioms[parameterCountControlCheck];
+            word.text = newIdiom.description;
+            meaningAsNoun.text = newIdiom.meaning;  
+        }
+        else
+        {
+             idiomCount = dataCountDetails.new_word_data.more_data[0].idiom_count;    
+            newIdiom = newWordDetails.idioms[parameterCountControlCheck];
+             word.text = newIdiom.description;
+             meaningAsNoun.text = newIdiom.meaning;
+        }
        
-            
-        newIdiom = newWordDetails.idioms[parameterCountControlCheck];
-        word.text = newIdiom.description;
-        meaningAsNoun.text = newIdiom.meaning;
 
 
         if (newIdiom.idiomSentences.Length > 1)
@@ -1467,7 +1591,15 @@ IEnumerator DownloadImage(string mediaUrl)
             if (parameterCountControlCheck == idiomCount - 1)
             {
                 Debug.Log("Idiom is complete here");
+                 if (dataDisplayed["isRevisionWordListDone"] == true)
+             {
+                    dataDisplayed["isRevisionWordIdiomsDone"] = true;
+             }   
+             else
+             {
                 dataDisplayed["isnewWordIdiomDone"] = true;
+             }
+                
                 parameterCountControlCheck = 0;     //resetting 
             }
             else 
@@ -1479,13 +1611,28 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void MultipleWordSetup()
     {
-        
-        typeOfDay.text = "Using multiple words in a sentence";
-        
+
+        int multipleWordCount = 0;
         UseMultipleWord multipleWordDetails = new UseMultipleWord();
-        int multipleWordCount = dataCountDetails.new_word_data.more_data[0].use_multiple_count;
-        multipleWordDetails = newWordDetails.useMultipleWords[parameterCountControlCheck];
-        word.text = multipleWordDetails.description;
+        
+         if (dataDisplayed["isRevisionWordListDone"] == true)
+        {
+             typeOfDay.text = "Using multiple words in a sentence";
+        
+             
+            multipleWordCount = dataCountDetails.revision_word_data.more_data[0].use_multiple_count;
+             multipleWordDetails = revisionWordDetails.useMultipleWords[parameterCountControlCheck];
+            word.text = multipleWordDetails.description;
+        }
+        else
+        {
+             typeOfDay.text = "Using multiple words in a sentence";
+        
+            multipleWordCount = dataCountDetails.new_word_data.more_data[0].use_multiple_count;
+             multipleWordDetails = newWordDetails.useMultipleWords[parameterCountControlCheck];
+             word.text = multipleWordDetails.description;
+        }
+       
 
         if (multipleWordDetails.useMultipleWordSentences.Length > 1)
         {
@@ -1530,7 +1677,14 @@ IEnumerator DownloadImage(string mediaUrl)
                 }
             if (parameterCountControlCheck == multipleWordCount - 1)
             {
+                if (dataDisplayed["isRevisionWordListDone"] == true)
+             {
+                    dataDisplayed["isRevisionWordUsingMultipleWordsDone"] = true;
+             }   
+             else
+             {
                 dataDisplayed["isnewWordUsingMultipleWordsDone"] = true;
+             }
                 parameterCountControlCheck = 0;     //resetting 
             }
             else //if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)
@@ -1611,9 +1765,9 @@ IEnumerator DownloadImage(string mediaUrl)
             if (parameterCountControlCheck == antonymCount - 1)
             {
                 Debug.Log("antonym is complete here");
-                if (dataDisplayed["isRevisionWordAntonymDone"] == true)
+                if (dataDisplayed["isRevisionWordListDone"] == true)
                 {
-                    dataDisplayed["isRevisionWordSynonymDone"] = true;
+                    dataDisplayed["isRevisionWordAntonymDone"] = true;
                 }
                 else
                 {
@@ -1733,13 +1887,37 @@ IEnumerator DownloadImage(string mediaUrl)
     {
 
         //Check screen count
-        screenCount = screenCount + 1;
         
         if (button.tag == "Next")
         {
+            screenCount = screenCount + 1;
+
             SetUpBaseCanvas();
         }
+        else
+        {
+            if (screenCount != 1)
+            {
+                screenCount = screenCount - 1;
+                int parameter = parameterValueArray[screenCount];
+
+                // methodCallArray[screenCount];
+                
+                Action<int> unityAction = (Action)methodCallArray[screenCount];
+                // Action<int> unityAction = NounSetup;
+                unityAction(parameter);
+                // stringFunctionToUnityAction(this, methodCallArray[screenCount]);
+                //  unityAction.Invoke(parameter);
+            }
+        }
+
         SetBottomTitleLabel();
     }
 
+// public Action unityAction;
+    // Action stringFunctionToUnityAction(object target, string functionName)
+    // {
+    //  Action action = (Action<int>)Delegate.CreateDelegate(typeof(Action<int>), target, functionName);
+    //     return action;
+    // }
 }
