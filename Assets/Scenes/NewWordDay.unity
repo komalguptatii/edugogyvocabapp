@@ -2635,7 +2635,6 @@ MonoBehaviour:
   dutParent: {fileID: 144012241}
   revisionWordBoard: {fileID: 137271727}
   revisionWordList: {fileID: 319657607}
-  emptyGameobject: {fileID: 0}
   sentencePrefabsArray: []
   parameterCountControlCheck: 0
   screenCount: 1
@@ -2643,7 +2642,6 @@ MonoBehaviour:
   revisionDataCount: 0
   newWordNumber: 0
   revisionWordReference: 0
-  methodCallArray: []
   parameterValueArray: 
 --- !u!4 &192530273
 Transform:

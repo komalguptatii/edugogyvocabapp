@@ -549,9 +549,24 @@ public class MissionManagement : MonoBehaviour
     public int revisionDataCount = 0;
     public int newWordNumber = 0; // check if all new word screens are done
     public int revisionWordReference = 0;
-    public List<Action> methodCallArray = new List<Action>();
+    public int numberOfRevisionWords = 0;
+    public int rwdataCount = 0;
+
+    public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
     
+    // Dictionary<string, Action> methods = new Dictionary<string, Action>
+    // {
+    //     {"method1", () => NounSetup(0) }
+    // };
+
+    // var methods = new System.Collections.Generic.Dictionary<string, System.Action<int>>()
+    //   {
+    //       {"method1", () => NounSetup(0) }
+        
+    //   };
+
+
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
     // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
@@ -717,7 +732,7 @@ IEnumerator DownloadImage(string mediaUrl)
         if  (dataCountDetails.revision_word_data.revison_word_count != 0)
         {
             totalNumber = totalNumber + 1;          //for revision word list
-
+            numberOfRevisionWords = dataCountDetails.revision_word_data.revison_word_count;
             for(int i = 0; i < dataCountDetails.revision_word_data.more_data.Length; i++)
             {
                 revisionDataCount = dataCountDetails.revision_word_data.more_data[i].other_way_using_count + 
@@ -742,6 +757,15 @@ IEnumerator DownloadImage(string mediaUrl)
          GetAllDetails();
 
 
+    }
+
+    public void revisionWordDataCount(int number)
+    {
+       rwdataCount = dataCountDetails.revision_word_data.more_data[number].other_way_using_count + 
+                     dataCountDetails.revision_word_data.more_data[number].idiom_count
+                + dataCountDetails.revision_word_data.more_data[number].use_multiple_count
+                + dataCountDetails.revision_word_data.more_data[number].synonym_count
+                + dataCountDetails.revision_word_data.more_data[number].antonym_count;
     }
 
     IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
@@ -806,7 +830,7 @@ IEnumerator DownloadImage(string mediaUrl)
                 Debug.Log("Calling Noun Setup");
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
-                // methodCallArray.Add(NounSetup);
+                methodCallArray.Add(NounSetup);
                 NounSetup(parameterCountControlCheck);                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].verb_count != 0)  && (dataDisplayed["isVerbDone"] == false))
@@ -957,20 +981,17 @@ IEnumerator DownloadImage(string mediaUrl)
                     revisionDataCount += 1;
                     RevisionWordList();
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true)
+            else if (dataDisplayed["isRevisionWordListDone"] == true && (revisionWordReference < numberOfRevisionWords))
             {
-                Debug.Log("Check for revision parameter" + dataCountDetails.revision_word_data.revison_word_count);
-                // for (int j = 0; j < dataCountDetails.revision_word_data.revison_word_count; j++)
-                // {
-                    // if (revisionDataCount == 1)
-                    // {
-                        revisionWordReference = 0;
-                    // }
-                    // else 
-                    // {
-                    //     revisionWordReference += 1;
+                
                         
-                    // }
+                        if ((revisionDataCount == rwdataCount) )
+                        {
+                            revisionWordReference += 1;
+                            revisionWordDataCount(revisionWordReference);
+                            revisionDataCount = 0;
+                        }
+                      
                     Debug.Log("revisionWordReference" + revisionWordReference);
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
                     Debug.Log(revisionWordDetails.id);
@@ -1076,6 +1097,10 @@ IEnumerator DownloadImage(string mediaUrl)
                     }
                 // }
             }
+             else if (revisionWordReference == numberOfRevisionWords)
+                {
+                    //call for mcq
+                 }
             
         }
         
@@ -1900,24 +1925,18 @@ IEnumerator DownloadImage(string mediaUrl)
             {
                 screenCount = screenCount - 1;
                 int parameter = parameterValueArray[screenCount];
-
-                // methodCallArray[screenCount];
-                
-                Action<int> unityAction = (Action)methodCallArray[screenCount];
-                // Action<int> unityAction = NounSetup;
-                unityAction(parameter);
-                // stringFunctionToUnityAction(this, methodCallArray[screenCount]);
-                //  unityAction.Invoke(parameter);
+                Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount]);
+                Action<int> unityAction = methodCallArray[screenCount];
+                SendInt(unityAction,parameter);
             }
         }
 
         SetBottomTitleLabel();
     }
 
-// public Action unityAction;
-    // Action stringFunctionToUnityAction(object target, string functionName)
-    // {
-    //  Action action = (Action<int>)Delegate.CreateDelegate(typeof(Action<int>), target, functionName);
-    //     return action;
-    // }
+        public void SendInt(Action<int> action, int value)
+        {
+            action.Invoke(value);
+        }
+
 }
