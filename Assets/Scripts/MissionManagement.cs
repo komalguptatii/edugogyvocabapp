@@ -537,7 +537,11 @@ public class MissionManagement : MonoBehaviour
         {"isRevisionWordOWUWordDone", false},
         {"isRevisionWordUsingMultipleWordsDone", false},
         {"isRevisionWordIdiomsDone", false},
-        {"isRevisionWordConversationDone", false}
+        {"isRevisionWordConversationDone", false},
+        {"isRevisionWordContentDone", false},
+        {"isConversationMCQDone",false},
+        {"isPassageMCQDone",false},
+        {"isGeneralMCQDone", false}
     };
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
@@ -551,6 +555,7 @@ public class MissionManagement : MonoBehaviour
     public int revisionWordReference = 0;
     public int numberOfRevisionWords = 0;
     public int rwdataCount = 0;
+    public int tempDataCount = 0;
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
@@ -979,20 +984,11 @@ IEnumerator DownloadImage(string mediaUrl)
                     baseParentBoard.gameObject.SetActive(false);
                     revisionWordBoard.gameObject.SetActive(true);
                     revisionDataCount += 1;
+                    revisionWordDataCount(revisionWordReference);
                     RevisionWordList();
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true && (revisionWordReference < numberOfRevisionWords))
-            {
-                
-                        
-                        if ((revisionDataCount == rwdataCount) )
-                        {
-                            revisionWordReference += 1;
-                            revisionWordDataCount(revisionWordReference);
-                            revisionDataCount = 0;
-                        }
-                      
-                    Debug.Log("revisionWordReference" + revisionWordReference);
+            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false)
+            {                        
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
                     Debug.Log(revisionWordDetails.id);
 
@@ -1013,7 +1009,7 @@ IEnumerator DownloadImage(string mediaUrl)
                             multipleSentenceBoardPos.y -= 423f;
                              multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                          }  
-                         revisionDataCount += 1;     
+                         tempDataCount += 1;     
                         SynonymSetup();
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count != 0) && (dataDisplayed["isRevisionWordAntonymDone"] == false))
@@ -1033,7 +1029,7 @@ IEnumerator DownloadImage(string mediaUrl)
                             multipleSentenceBoardPos.y -= 423f;
                              multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                          }  
-                         revisionDataCount += 1;     
+                         tempDataCount += 1;     
                         AntonymSetup();
                     }
                      else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
@@ -1044,7 +1040,7 @@ IEnumerator DownloadImage(string mediaUrl)
                          dutBoard.gameObject.SetActive(false);
                          singleSentenceBoard.gameObject.SetActive(true);
                         multipleSentenceBoard.gameObject.SetActive(false);
-                    revisionDataCount += 1;
+                    tempDataCount += 1;
                     AnotherWayOfUsingWordSetup();
 
                     }
@@ -1064,7 +1060,7 @@ IEnumerator DownloadImage(string mediaUrl)
                             multipleSentenceBoardPos.y += 423f;
                              multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                         
-                         revisionDataCount += 1;     
+                         tempDataCount += 1;     
                         MultipleWordSetup();
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
@@ -1085,22 +1081,75 @@ IEnumerator DownloadImage(string mediaUrl)
                              multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
                         }                        
                            
-                         revisionDataCount += 1;     
+                         tempDataCount += 1;     
                         IdiomSetup();
                     }
                     else if ((dataCountDetails.conversation_revision_word_count != 0) && (dataDisplayed["isRevisionWordConversationDone"] == false))
                     {
                         baseParentBoard.gameObject.SetActive(false);
                          conversationBoard.gameObject.SetActive(true);                                 
-                         revisionDataCount += 1;     
+                         tempDataCount += 1;     
                         ConversationSetup();
                     }
+                    
+                    // if (numberOfRevisionWords - 1 != revisionWordReference)
+                    //         {
+                        if ((tempDataCount == rwdataCount) )
+                        {
+                             dataDisplayed["isRevisionWordContentDone"] = true;
+                             Debug.Log("isRevisionWordContentDone ");
+                            //  revisionWordReference += 1;
+                            //     revisionWordDataCount(revisionWordReference);
+                            //     revisionDataCount = 0;
+                           
+                        }
+                                
+                    //         }
+                    //         else
+                    //         {
+                    //             dataDisplayed["isRevisionWordContentDone"] = true;
+                    //         }
+
+                    Debug.Log("tempDataCount " + tempDataCount);
+                    Debug.Log("rwdataCount " + rwdataCount);
+                    Debug.Log("revisionWordReference" + revisionWordReference);
+                        
                 // }
-            }
-             else if (revisionWordReference == numberOfRevisionWords)
+            } // revisionWordReference == numberOfRevisionWords-1 && 
+             else if (dataDisplayed["isRevisionWordContentDone"] == true && dataDisplayed["isConversationMCQDone"] == false)
                 {
                     //call for mcq
+                    if (dataCountDetails.conversation_mcq_count != 0)
+                    {
+                        Debug.Log("conversation_mcq_count" + dataCountDetails.conversation_mcq_count);
+                        Debug.Log(allDetailData.conversationQuestions[0].title);
+                        Debug.Log(allDetailData.conversationQuestions[0].conversation);
+                        // make a method to display these mcqs & dataDisplayed["isConversationMCQDone"] is true after displaying and taking answer
+                        dataDisplayed["isConversationMCQDone"] = true;
+                    }
                  }
+            else if (dataDisplayed["isPassageMCQDone"] == false && dataDisplayed["isConversationMCQDone"] == true)
+            {
+                if (dataCountDetails.passage_data.passage_count != 0)
+                {
+                        Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
+                        Debug.Log(allDetailData.passages[0].description);
+                        Debug.Log(allDetailData.passages[0].questions[0].title);
+                        // make a method to display passage mcqs & make dataDisplayed["isPassageMCQDone"] done only after taking answers equal to number of questions
+                        dataDisplayed["isPassageMCQDone"] = true;
+                }
+            }
+            else if (dataDisplayed["isPassageMCQDone"] == true && dataDisplayed["isGeneralMCQDone"] == false)
+            {
+                if (dataCountDetails.mcq_count != 0)
+                {
+                    Debug.Log(dataCountDetails.mcq_count);
+                    Debug.Log(allDetailData.questions[0].title);
+                    Debug.Log(allDetailData.questions[1].title);
+                }
+            }
+
+                // else if
             
         }
         
@@ -1834,10 +1883,7 @@ IEnumerator DownloadImage(string mediaUrl)
             synonymDetails = newWordDetails.synonyms[parameterCountControlCheck];
             meaningAsNoun.text = synonymDetails.meaning;
         }
-           
-       
-        
-
+    
 
         if (synonymDetails.synonymSentences.Length > 1)
         {

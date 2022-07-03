@@ -2642,6 +2642,9 @@ MonoBehaviour:
   revisionDataCount: 0
   newWordNumber: 0
   revisionWordReference: 0
+  numberOfRevisionWords: 0
+  rwdataCount: 0
+  tempDataCount: 0
   parameterValueArray: 
 --- !u!4 &192530273
 Transform:
