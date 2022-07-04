@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
+using Random=UnityEngine.Random;
+
 
 public class CodeDisplay : MonoBehaviour
 {
@@ -27,6 +30,9 @@ public class CodeDisplay : MonoBehaviour
     private string codeInString = "";
 
     private bool isReset = false;
+
+    
+
     private void Awake()
     {
         firstNumber = RandomRangeExcept(0, 9, 0);
@@ -99,6 +105,7 @@ public class CodeDisplay : MonoBehaviour
         if (result >= except) result += 1;
         return result;
     }
+
     void Start()
     {
 
@@ -208,14 +215,35 @@ public class CodeDisplay : MonoBehaviour
         else
         {
             Debug.Log("Not Working");
-            isReset = true;
-            ResetDisplay();
+
+            Popup popup = UIController.Instance.CreatePopup();
+			//Init popup with params (canvas, text, text, text, action)
+			popup.Init(UIController.Instance.MainCanvas,
+				"Code entered is not correct, Please check",
+				"Cancel",
+				"Sure!",
+				resetAction
+				);
+            
+            
             // MessageBox().DisplayFormat("Warning", "Please enter correct digits");
         }
     }
 
+
+    // Action resetAction = resetActionMethod;
+    void resetAction()
+    {
+        isReset = true;
+        ResetDisplay();
+    }
+    
+    
+    
+    
     void ResetDisplay()
     {
+        // isReset = true - set before calling this function on next button pop up
         Debug.Log(codeSequence.Length);
 
         if (isReset == true)
