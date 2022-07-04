@@ -186,6 +186,9 @@ public class MissionManagement : MonoBehaviour
         public int type;
         public int age_group_id;
         public int level;
+        public string interactive_line_new_word;
+        public string interactive_line_revision_word;
+        public string interactive_line_mcq;
         public NewWord[] newWords;
         public RevisionWord[] revisionWords;
         public Conversation conversation;
@@ -828,6 +831,17 @@ IEnumerator DownloadImage(string mediaUrl)
         }
     }
 
+    void ShowInteractivePopup()
+    {
+        string message = allDetailData.interactive_line_new_word;
+        InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+			//Init popup with params (canvas, text, text, text, action)
+			popup.Init(UIController.Instance.MainCanvas,
+				message,
+				"Let's enjoy"
+				);
+    }
+
     public void SetUpBaseCanvas()
     {
         //Check for new word availability and its correspondent parameter
@@ -840,8 +854,9 @@ IEnumerator DownloadImage(string mediaUrl)
             {
                 typeOfDay.text = "New Word";
                 word.text = newWordDetails.name;
-            }
 
+                
+            }
             
             // if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
             if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
@@ -997,6 +1012,10 @@ IEnumerator DownloadImage(string mediaUrl)
                 SynonymSetup();
             }
             // else 
+            if (newWordNumber == 1 && dataCountDetails.interactive_line_new_word != "")
+                {
+                    ShowInteractivePopup();
+                }
         }
 
         Debug.Log("Checking for revision world" + newWordNumber);
@@ -1190,6 +1209,14 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void RevisionWordList()
     {
+        if (dataCountDetails.interactive_line_revision_word != "")
+        {
+            GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
+                TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                mytext.text = allDetailData.interactive_line_revision_word;
+        }
+       
+
          for(int i = 0; i < allDetailData.revisionWords.Length; i++)
             {
                 string revisionWord = allDetailData.revisionWords[i].name;
