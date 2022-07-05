@@ -550,7 +550,8 @@ public class MissionManagement : MonoBehaviour
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
     // public GameObject[] sentencePrefabsArray;
 
-
+    public bool isNextCall = false;
+    public bool isBackCall = false;
     public int parameterCountControlCheck = 0;
     public int screenCount = 1;
     string listOfrevisionWords = "";
@@ -565,18 +566,6 @@ public class MissionManagement : MonoBehaviour
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
     
-    // Dictionary<string, Action> methods = new Dictionary<string, Action>
-    // {
-    //     {"method1", () => NounSetup(0) }
-    // };
-
-    // var methods = new System.Collections.Generic.Dictionary<string, System.Action<int>>()
-    //   {
-    //       {"method1", () => NounSetup(0) }
-        
-    //   };
-
-
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
     // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
@@ -844,8 +833,6 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void SetUpBaseCanvas()
     {
-        //Check for new word availability and its correspondent parameter
-
        
         if ( availableData["isNewWordAvailable"] == true && newWordDataCount != newWordNumber)
         {
@@ -853,9 +840,7 @@ IEnumerator DownloadImage(string mediaUrl)
             if (newWordDetails.type == 1)
             {
                 typeOfDay.text = "New Word";
-                word.text = newWordDetails.name;
-
-                
+                word.text = newWordDetails.name;                
             }
             
             // if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
@@ -870,21 +855,21 @@ IEnumerator DownloadImage(string mediaUrl)
             else if ((dataCountDetails.new_word_data.more_data[0].verb_count != 0)  && (dataDisplayed["isVerbDone"] == false))
             {
                 // Array.Clear(sentencePrefabsArray, 0, sentencePrefabsArray.Count);
-                sentencePrefabsArray.Clear();
+                
                 Debug.Log("Calling verb Setup");
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
-                // methodCallArray.Add(VerbSetup);
-                VerbSetup();
+                methodCallArray.Add(VerbSetup);
+                VerbSetup(parameterCountControlCheck);
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adverb_count != 0)  && (dataDisplayed["isAdverbDone"] == false))
             {
-                sentencePrefabsArray.Clear();
+                
                 Debug.Log("Calling adverb Setup");
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
-                // methodCallArray.Add("AdverbSetup");
-                AdverbSetup();
+                methodCallArray.Add("AdverbSetup");
+                AdverbSetup(parameterCountControlCheck);
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adjective_count != 0)  && (dataDisplayed["isAdjectiveDone"] == false))
             {
@@ -892,8 +877,8 @@ IEnumerator DownloadImage(string mediaUrl)
                 Debug.Log("Calling adjective Setup");
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
-                // methodCallArray.Add("AdjectiveSetup");
-                AdjectiveSetup();
+                methodCallArray.Add("AdjectiveSetup");
+                AdjectiveSetup(parameterCountControlCheck);
             }
             else if ((dataCountDetails.conversation_new_word_count != 0) && (dataDisplayed["isNewWordConverstaionDone"] == false))
             {
@@ -1179,7 +1164,7 @@ IEnumerator DownloadImage(string mediaUrl)
                         dataDisplayed["isConversationMCQDone"] = true;
                     }
                  }
-            else if (dataDisplayed["isPassageMCQDone"] == false && dataDisplayed["isConversationMCQDone"] == true)
+            else if (dataDisplayed["isPassageMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // && dataDisplayed["isConversationMCQDone"] == true)
             {
                 if (dataCountDetails.passage_data.passage_count != 0)
                 {
@@ -1190,7 +1175,7 @@ IEnumerator DownloadImage(string mediaUrl)
                         dataDisplayed["isPassageMCQDone"] = true;
                 }
             }
-            else if (dataDisplayed["isPassageMCQDone"] == true && dataDisplayed["isGeneralMCQDone"] == false)
+            else if (dataDisplayed["isGeneralMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
             {
                 if (dataCountDetails.mcq_count != 0)
                 {
@@ -1198,13 +1183,8 @@ IEnumerator DownloadImage(string mediaUrl)
                     Debug.Log(allDetailData.questions[0].title);
                     Debug.Log(allDetailData.questions[1].title);
                 }
-            }
-
-                // else if
-            
+            } 
         }
-        
-
     }
 
     public void RevisionWordList()
@@ -1283,7 +1263,10 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newNoun.nounSentences[0].description;
                 }
-            if (parameterCountControlCheck == nounCount - 1)
+            
+            if (isNextCall == true)
+            {
+                if (parameterCountControlCheck == nounCount - 1)
             {
                 Debug.Log("noun is complete here");
                 dataDisplayed["isNounDone"] = true;
@@ -1295,17 +1278,20 @@ IEnumerator DownloadImage(string mediaUrl)
                 parameterCountControlCheck = parameterCountControlCheck + 1;
             }
             Debug.Log(dataDisplayed["isNounDone"] + "Noun is done");
+            isNextCall = false;
+            }
+            
     }
 
-    public void VerbSetup()
+    public void VerbSetup(int parameter)
     {
-         
+        sentencePrefabsArray.Clear();
         typeOfWord.text = "Verb";
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
 
         Debug.Log("Length of verb" + newWordDetails.verbs.Length);
-                newVerb = newWordDetails.verbs[parameterCountControlCheck];
+                newVerb = newWordDetails.verbs[parameter];
                 meaningAsNoun.text = newVerb.description;
 
                 if (newVerb.verbSentences.Length > 1)
@@ -1352,6 +1338,9 @@ IEnumerator DownloadImage(string mediaUrl)
                     mytext.text = newVerb.verbSentences[0].description;
                 }
 
+
+            if (isNextCall == true)
+            {
             if (parameterCountControlCheck == verbCount - 1)
             {
                 Debug.Log("verb is complete here");
@@ -1365,18 +1354,18 @@ IEnumerator DownloadImage(string mediaUrl)
                 parameterCountControlCheck = parameterCountControlCheck + 1;
             }
             Debug.Log(dataDisplayed["isVerbDone"] + "Verb is done");
+            isNextCall = false;
+            }
     }
     
-    public void AdverbSetup()
+    public void AdverbSetup(int parameter)
     {
+        sentencePrefabsArray.Clear();
         typeOfWord.text = "Adverb";
         Adverb newAdverb = new Adverb();
         int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
-
-            
-        newAdverb = newWordDetails.adverbs[parameterCountControlCheck];
+        newAdverb = newWordDetails.adverbs[parameter];
         meaningAsNoun.text = newAdverb.description;
-
 
         if (newAdverb.adverbSentences.Length > 1)
         {
@@ -1421,7 +1410,10 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdverb.adverbSentences[0].description;
                 }
-            if (parameterCountControlCheck == adverbCount - 1)
+
+            if (isNextCall == true)
+            {
+                 if (parameterCountControlCheck == adverbCount - 1)
             {
                 Debug.Log("Adverb is complete here");
                 dataDisplayed["isAdverbDone"] = true;
@@ -1433,17 +1425,20 @@ IEnumerator DownloadImage(string mediaUrl)
                 parameterCountControlCheck = parameterCountControlCheck + 1;
             }
             Debug.Log(dataDisplayed["isAdverbDone"] + "Adverb is done");
+                isNextCall = false;
+            }
+           
 
     }
 
-    public void AdjectiveSetup()
+    public void AdjectiveSetup(int parameter)
     {
         typeOfWord.text = "Adjective";
         Adjective newAdjective = new Adjective();
         int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
 
             
-        newAdjective = newWordDetails.adjectives[parameterCountControlCheck];
+        newAdjective = newWordDetails.adjectives[parameter];
         meaningAsNoun.text = newAdjective.description;
 
 
@@ -1490,7 +1485,9 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdjective.adjectiveSentences[0].description;
                 }
-            if (parameterCountControlCheck == adjectiveCount - 1)
+            if (isNextCall == true)
+            {
+                if (parameterCountControlCheck == adjectiveCount - 1)
             {
                 Debug.Log("adjective is complete here");
                 dataDisplayed["isAdjectiveDone"] = true;
@@ -1502,6 +1499,9 @@ IEnumerator DownloadImage(string mediaUrl)
                 parameterCountControlCheck = parameterCountControlCheck + 1;
             }
             Debug.Log(dataDisplayed["isAdjectiveDone"] + "adjective is done");
+                isNextCall = false;
+            }
+            
 
     }
 
@@ -1808,6 +1808,7 @@ IEnumerator DownloadImage(string mediaUrl)
                     var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
                     mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;
                 }
+            
             if (parameterCountControlCheck == multipleWordCount - 1)
             {
                 if (dataDisplayed["isRevisionWordListDone"] == true)
@@ -2029,13 +2030,16 @@ IEnumerator DownloadImage(string mediaUrl)
         if (button.tag == "Next")
         {
             screenCount = screenCount + 1;
-
+            isNextCall = true;
+            isBackCall = false;
             SetUpBaseCanvas();
         }
         else
         {
             if (screenCount != 1)
             {
+                isNextCall = false;
+                isBackCall = true;
                 screenCount = screenCount - 1;
                 int parameter = parameterValueArray[screenCount];
                 Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount]);

@@ -2636,6 +2636,8 @@ MonoBehaviour:
   revisionWordBoard: {fileID: 137271727}
   revisionWordList: {fileID: 319657607}
   sentencePrefabsArray: []
+  isNextCall: 0
+  isBackCall: 0
   parameterCountControlCheck: 0
   screenCount: 1
   newWordDataCount: 0
