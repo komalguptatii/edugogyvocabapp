@@ -6474,7 +6474,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &457069977
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13600,8 +13600,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 487, y: 0.084991}
-  m_SizeDelta: {x: 20, y: 383.83}
+  m_AnchoredPosition: {x: 480.614, y: 0.084991}
+  m_SizeDelta: {x: 32.772, y: 383.83}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &846865162
 MonoBehaviour:
@@ -13616,7 +13616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 2
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -13647,7 +13647,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1850705158}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.2
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -13837,7 +13837,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1977621095448607355, guid: bccf6e7ea9757449793c2abcf94db422, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 54.39
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1977621095798607482, guid: bccf6e7ea9757449793c2abcf94db422, type: 3}
       propertyPath: m_Name
@@ -17314,8 +17314,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00028294, y: 0.000041962}
-  m_SizeDelta: {x: 990.32, y: 383.66}
+  m_AnchoredPosition: {x: -15.466, y: 0.000041962}
+  m_SizeDelta: {x: 959.39, y: 383.66}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1046391313
 GameObject:
@@ -30799,7 +30799,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.2}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -31074,7 +31074,7 @@ MonoBehaviour:
   m_ScrollSensitivity: 1
   m_Viewport: {fileID: 0}
   m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 0}
+  m_VerticalScrollbar: {fileID: 846865162}
   m_HorizontalScrollbarVisibility: 0
   m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: 0
