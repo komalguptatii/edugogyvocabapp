@@ -2906,6 +2906,11 @@ MonoBehaviour:
   dutParent: {fileID: 144012241}
   revisionWordBoard: {fileID: 137271727}
   revisionWordList: {fileID: 319657607}
+  conversationWithMCQBoard: {fileID: 568356496}
+  convoPassageMCQPrefabParent: {fileID: 2682849}
+  convoContentPrefab: {fileID: 221195129}
+  tickSprite: {fileID: 21300000, guid: b8fcc05b3821f4dadb4084c21f46d6b7, type: 3}
+  wrongSprite: {fileID: 21300000, guid: a03f340cb96e04b049db5834b82d44ed, type: 3}
   sentencePrefabsArray: []
   isSettingCanvas: 0
   parameterCountControlCheck: 0
@@ -3012,6 +3017,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 212797949}
   m_CullTransparentMesh: 1
+--- !u!1 &221195129 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4313870326193596394, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+  m_PrefabInstance: {fileID: 4313870327444793147}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &222776342
 GameObject:
   m_ObjectHideFlags: 0
@@ -36915,6 +36925,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2682850}
     m_Modifications:
+    - target: {fileID: 4313870325655030489, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_TagString
+      value: convoDescription
+      objectReference: {fileID: 0}
     - target: {fileID: 4313870325853484001, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -36946,6 +36960,10 @@ PrefabInstance:
     - target: {fileID: 4313870325939960607, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -347.755
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313870325993464680, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_TagString
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4313870326193596393, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_Pivot.x
@@ -37034,6 +37052,24 @@ PrefabInstance:
     - target: {fileID: 4313870326193596394, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_Name
       value: Content
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313870326254602484, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_text
+      value: 'Convo
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313870326617247317, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_TagString
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313870326906366445, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_TagString
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313870327010237437, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_TagString
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4313870327526061261, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_AnchorMax.x

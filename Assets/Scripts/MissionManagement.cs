@@ -78,6 +78,20 @@ public class MissionManagement : MonoBehaviour
     [SerializeField]
     public TextMeshProUGUI revisionWordList;
 
+    [SerializeField]
+    public GameObject conversationWithMCQBoard;
+
+    [SerializeField]
+    public GameObject convoPassageMCQPrefabParent;
+
+    [SerializeField]
+    public GameObject convoContentPrefab;
+
+    [SerializeField]
+    public Sprite tickSprite;
+
+    [SerializeField]
+    public Sprite wrongSprite;
   
 
 //     //Verb
@@ -343,7 +357,7 @@ public class MissionManagement : MonoBehaviour
         public int type;
         public string conversation;
         public object passage_id;
-        public List<QuestionOption> questionOptions;
+        public QuestionOption[] questionOptions;
     }
 
     [Serializable]
@@ -407,7 +421,7 @@ public class MissionManagement : MonoBehaviour
         public int status;
         public int type;
         public object passage_id;
-        public List<QuestionOption> questionOptions;
+        public QuestionOption[] questionOptions;
     }
 
     [Serializable]
@@ -565,6 +579,8 @@ public class MissionManagement : MonoBehaviour
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
+    int questionNumber = 0;
+    Button[] buttons;
     
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
@@ -770,6 +786,22 @@ IEnumerator DownloadImage(string mediaUrl)
         wordImage.gameObject.SetActive(false);
     }
 
+    public void DestroyPrefabs()
+    {
+       int prefabCount = parent.transform.childCount;
+       Debug.Log("prefabCount is " + prefabCount);
+       if (prefabCount > 1)
+       {
+            for (int i = 1; i < prefabCount; i++)
+            {
+                    Debug.Log("value of i " + i);
+                    Destroy(parent.transform.GetChild(i).gameObject);
+            }
+       }
+       
+       sentencePrefabsArray.Clear();
+    }
+
     public void revisionWordDataCount(int number)
     {
        rwdataCount = dataCountDetails.revision_word_data.more_data[number].other_way_using_count + 
@@ -873,7 +905,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adjective_count != 0)  && (dataDisplayed["isAdjectiveDone"] == false))
             {
-                sentencePrefabsArray.Clear();
+                
                 Debug.Log("Calling adjective Setup");
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
@@ -882,9 +914,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.conversation_new_word_count != 0) && (dataDisplayed["isNewWordConverstaionDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                baseParentBoard.gameObject.SetActive(false);
-                conversationBoard.gameObject.SetActive(true);
+                
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(ConversationSetup);
@@ -892,13 +922,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0) && (dataDisplayed["isDUTDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                baseParentBoard.gameObject.SetActive(true);
-                conversationBoard.gameObject.SetActive(false);
-                generalBaseBoard.gameObject.SetActive(false);
-                dutBoard.gameObject.SetActive(true);
-                singleSentenceBoard.gameObject.SetActive(false);
-                multipleSentenceBoard.gameObject.SetActive(false);
+               
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(DailyTipsSetup);
@@ -907,14 +931,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.new_word_data.more_data[0].other_way_using_count != 0) && (dataDisplayed["isnewWordOWUWordDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                HideSpeakerAndImage();
-                baseParentBoard.gameObject.SetActive(true);
-                conversationBoard.gameObject.SetActive(false);
-                generalBaseBoard.gameObject.SetActive(true);
-                dutBoard.gameObject.SetActive(false);
-                singleSentenceBoard.gameObject.SetActive(true);
-                multipleSentenceBoard.gameObject.SetActive(false);
+               
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AnotherWayOfUsingWordSetup);
@@ -923,8 +940,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.new_word_data.more_data[0].idiom_count != 0) && (dataDisplayed["isnewWordIdiomDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                 HideSpeakerAndImage();
+                
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(IdiomSetup);
@@ -933,18 +949,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
              else if ((dataCountDetails.new_word_data.more_data[0].use_multiple_count != 0) && (dataDisplayed["isnewWordUsingMultipleWordsDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                 HideSpeakerAndImage();
-                generalBaseBoard.gameObject.SetActive(false);
-                //-373
-                //Change position of sentence boards
-                Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                singleSentenceBoardPos.y += 423f;
-                singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                multipleSentenceBoardPos.y += 423f;
-                multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+               
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(MultipleWordSetup);
@@ -953,21 +958,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.new_word_data.more_data[0].antonym_count != 0) && (dataDisplayed["isnewWordAntonymDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                 HideSpeakerAndImage();
-                generalBaseBoard.gameObject.SetActive(true);
-
-                if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true)
-                {
-                    //Change position of sentence boards
-                    Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                    singleSentenceBoardPos.y -= 423f;
-                    singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                    Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                    multipleSentenceBoardPos.y -= 423f;
-                    multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-                }
+                
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AntonymSetup);
@@ -976,21 +967,7 @@ IEnumerator DownloadImage(string mediaUrl)
             }
             else if ((dataCountDetails.new_word_data.more_data[0].synonym_count != 0) && (dataDisplayed["isnewWordSynonymDone"] == false))
             {
-                sentencePrefabsArray.Clear();
-                 HideSpeakerAndImage();
-                generalBaseBoard.gameObject.SetActive(true);
-
-                if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && dataDisplayed["isnewWordAntonymDone"] == false)
-                {
-                    //Change position of sentence boards
-                    Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                    singleSentenceBoardPos.y -= 423f;
-                    singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                    Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                    multipleSentenceBoardPos.y -= 423f;
-                    multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-                }     
+                   
                 newWordNumber += 1;  
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(SynonymSetup);
@@ -1008,7 +985,7 @@ IEnumerator DownloadImage(string mediaUrl)
         {
              HideSpeakerAndImage();
 
-            sentencePrefabsArray.Clear();
+            DestroyPrefabs();
             // new word displaying is done start checking for revision word list and related data
             Debug.Log("Entering to revision world");
 
@@ -1030,21 +1007,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
                     if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count != 0) && (dataDisplayed["isRevisionWordSynonymDone"] == false))
                     {
-                        baseParentBoard.gameObject.SetActive(true);
-                        revisionWordBoard.gameObject.SetActive(false);
-                        generalBaseBoard.gameObject.SetActive(true);
 
-                        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
-                        {
-                             //Change position of sentence boards
-                             Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                             singleSentenceBoardPos.y -= 423f;
-                            singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                            multipleSentenceBoardPos.y -= 423f;
-                             multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-                         }  
                          tempDataCount += 1;   
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(SynonymSetup);  
@@ -1052,34 +1015,15 @@ IEnumerator DownloadImage(string mediaUrl)
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count != 0) && (dataDisplayed["isRevisionWordAntonymDone"] == false))
                     {
-                        baseParentBoard.gameObject.SetActive(true);
-                        revisionWordBoard.gameObject.SetActive(false);
-                        generalBaseBoard.gameObject.SetActive(true);
-
-                        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
-                        {
-                             //Change position of sentence boards
-                             Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                             singleSentenceBoardPos.y -= 423f;
-                            singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                            multipleSentenceBoardPos.y -= 423f;
-                             multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-                         }  
+                     
                          tempDataCount += 1;  
                           parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(AntonymSetup);   
                         AntonymSetup(parameterCountControlCheck);
                     }
-                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
+                    else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
                     {
-                         baseParentBoard.gameObject.SetActive(true);
-                        conversationBoard.gameObject.SetActive(false);
-                         generalBaseBoard.gameObject.SetActive(true);
-                         dutBoard.gameObject.SetActive(false);
-                         singleSentenceBoard.gameObject.SetActive(true);
-                        multipleSentenceBoard.gameObject.SetActive(false);
+                    
                     tempDataCount += 1;
                     parameterValueArray.Add(parameterCountControlCheck);
                     methodCallArray.Add(AnotherWayOfUsingWordSetup); 
@@ -1088,43 +1032,14 @@ IEnumerator DownloadImage(string mediaUrl)
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count != 0) && (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == false))
                     {
-                        baseParentBoard.gameObject.SetActive(true);
-                        revisionWordBoard.gameObject.SetActive(false);
-                        generalBaseBoard.gameObject.SetActive(false);
-
-                        
-                             //Change position of sentence boards
-                             Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                             singleSentenceBoardPos.y += 423f;
-                            singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                            multipleSentenceBoardPos.y += 423f;
-                             multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-                        
+            
                          tempDataCount += 1; 
                          parameterValueArray.Add(parameterCountControlCheck);
-                    methodCallArray.Add(MultipleWordSetup);    
+                         methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
-                    {
-                        baseParentBoard.gameObject.SetActive(true);
-                        revisionWordBoard.gameObject.SetActive(false);
-                        generalBaseBoard.gameObject.SetActive(true);
-
-                        if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true)
-                        {
-                             //Change position of sentence boards
-                              Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                             singleSentenceBoardPos.y -= 423f;
-                            singleSentenceBoard.transform.position = singleSentenceBoardPos;
-
-                            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-                            multipleSentenceBoardPos.y -= 423f;
-                             multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-                        }                        
-                           
+                    {                          
                         tempDataCount += 1;
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(IdiomSetup); 
@@ -1132,8 +1047,7 @@ IEnumerator DownloadImage(string mediaUrl)
                     }
                     else if ((dataCountDetails.conversation_revision_word_count != 0) && (dataDisplayed["isRevisionWordConversationDone"] == false))
                     {
-                        baseParentBoard.gameObject.SetActive(false);
-                         conversationBoard.gameObject.SetActive(true);                                 
+                                                  
                          tempDataCount += 1; 
                          parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(ConversationSetup);     
@@ -1158,10 +1072,10 @@ IEnumerator DownloadImage(string mediaUrl)
                 if (dataCountDetails.conversation_mcq_count != 0)
                 {
                     Debug.Log("conversation_mcq_count" + dataCountDetails.conversation_mcq_count);
-                    Debug.Log(allDetailData.conversationQuestions[0].title);
-                    Debug.Log(allDetailData.conversationQuestions[0].conversation);
-                    // make a method to display these mcqs & dataDisplayed["isConversationMCQDone"] is true after displaying and taking answer
-                    dataDisplayed["isConversationMCQDone"] = true;
+                    ConversationWithMCQSetup();
+                    
+                    // // make a method to display these mcqs & dataDisplayed["isConversationMCQDone"] is true after displaying and taking answer
+                    // dataDisplayed["isConversationMCQDone"] = true;
                 }
              }
             else if (dataDisplayed["isPassageMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // && dataDisplayed["isConversationMCQDone"] == true)
@@ -1185,6 +1099,129 @@ IEnumerator DownloadImage(string mediaUrl)
                 }
             } 
         }
+    }
+
+    public void ConversationWithMCQSetup()
+    {
+        baseParentBoard.gameObject.SetActive(false);
+        conversationWithMCQBoard.gameObject.SetActive(true);
+
+      
+
+        if (allDetailData.conversationQuestions.Length > 1)
+        {
+        //     sentencePrefabsArray.Add(sentencePrefab);
+
+        //     singleSentenceBoard.gameObject.SetActive(false);
+        //     multipleSentenceBoard.gameObject.SetActive(true);
+        //     Debug.Log("Length " + newNoun.nounSentences.Length);
+        //     for (var i = 0; i < newNoun.nounSentences.Length; i++)
+        //     {
+        //         Debug.Log("Running in For loop " + i);
+        //         Debug.Log(newNoun.nounSentences[0].description);
+                    
+        //         if (i == 0)
+        //         {
+        //             Debug.Log("i is 0 here");
+        //             GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+        //             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+        //             mytext.text = newNoun.nounSentences[0].description;                     
+        //         }
+        //         else
+        //         {
+                        
+                        
+        //             Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+        //             GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+        //             newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+        //             newSentencePrefab.transform.SetParent(parent, true);
+
+        //             GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+        //             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+        //             mytext.text = newNoun.nounSentences[i].description;
+        //             sentencePrefabsArray.Add(newSentencePrefab);
+        //             Debug.Log("End of Checking in loop for second object");
+        //         }  
+
+        //     }
+        }
+        else
+        {
+            
+            GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+            mytext.text = "Conversation";
+
+            GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+            GameObject container = scrollBar.transform.GetChild(0).gameObject;
+            
+            TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            descriptionText.text = allDetailData.conversationQuestions[0].conversation;
+
+            GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+            GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+
+            TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            question.text = allDetailData.conversationQuestions[0].title;
+
+            int answerOptions = allDetailData.conversationQuestions[0].questionOptions.Length;
+            Debug.Log(answerOptions);
+
+            GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+            GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+            int children = optionContainer.transform.childCount;
+            buttons = new Button[answerOptions];
+
+            questionNumber = 0;
+
+            for(int j = 0; j < children; j++ )
+            {
+                Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                if (j <= answerOptions-1)
+                {
+                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    answerOption.text = allDetailData.conversationQuestions[0].questionOptions[j].option;
+                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                    rightWrongImage.SetActive(false);
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton);});
+                    buttons[j] = thisButton;
+
+                }
+                else
+                {
+                    thisButton.gameObject.SetActive(false);
+                }
+            }
+
+
+        } 
+        // convoPassageMCQPrefabParent
+        dataDisplayed["isConversationMCQDone"] = true;
+    }
+
+    public void CheckRightAnswerOfQuestion(Button button)
+    {
+        // int questionNumber - check the answer value 1 for particular question
+        // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
+        int tag = System.Convert.ToInt32(button.tag);
+        int value = allDetailData.conversationQuestions[questionNumber].questionOptions[tag].value;
+        Debug.Log(button.tag);
+        Debug.Log("value of" + value);
+        GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
+        Image myImage = rightWrongImage.GetComponent<Image>();
+
+        if (value == 1)
+        {
+            myImage.sprite = tickSprite;
+        }
+        else
+        {
+            myImage.sprite = wrongSprite;
+        }
+       
+        rightWrongImage.SetActive(true);
+
     }
 
     public void RevisionWordList()
@@ -1287,7 +1324,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void VerbSetup(int parameter)
     {
-        sentencePrefabsArray.Clear();
+        DestroyPrefabs();
         typeOfWord.text = "Verb";
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
@@ -1362,7 +1399,7 @@ IEnumerator DownloadImage(string mediaUrl)
     
     public void AdverbSetup(int parameter)
     {
-        sentencePrefabsArray.Clear();
+        DestroyPrefabs();
         typeOfWord.text = "Adverb";
         Adverb newAdverb = new Adverb();
         int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
@@ -1371,26 +1408,28 @@ IEnumerator DownloadImage(string mediaUrl)
 
         if (newAdverb.adverbSentences.Length > 1)
         {
+            Debug.Log(sentencePrefabsArray.Count);
             sentencePrefabsArray.Add(sentencePrefab);
-
             singleSentenceBoard.gameObject.SetActive(false);
             multipleSentenceBoard.gameObject.SetActive(true);
             Debug.Log("Length " + newAdverb.adverbSentences.Length);
             for (var i = 0; i < newAdverb.adverbSentences.Length; i++)
             {
                 Debug.Log("Running in For loop " + i);
-                Debug.Log(newAdverb.adverbSentences[0].description);
+                Debug.Log(newAdverb.adverbSentences.Length + " newAdverb.adverbSentences");
                     
                 if (i == 0)
                 {
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newAdverb.adverbSentences[0].description;                     
+                    mytext.text = newAdverb.adverbSentences[0].description;  
+                
                 }
                 else
                 {
-                 
+                    Debug.Log(sentencePrefabsArray.Count + "sentencePrefabsArray");
+                    Debug.Log(i + " i value");
                     Vector2 prefabPosition = sentencePrefabsArray[i-1].transform.position;
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
                     newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
@@ -1403,14 +1442,16 @@ IEnumerator DownloadImage(string mediaUrl)
                 }  
 
             }
-            }
-            else
-            {
-                singleSentenceBoard.gameObject.SetActive(true);
-                multipleSentenceBoard.gameObject.SetActive(false);
-                var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
-                mytext.text = newAdverb.adverbSentences[0].description;
-            }
+            Debug.Log(sentencePrefabsArray.Count);
+            
+        }
+        else
+        {
+            singleSentenceBoard.gameObject.SetActive(true);
+            multipleSentenceBoard.gameObject.SetActive(false);
+            var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+            mytext.text = newAdverb.adverbSentences[0].description;
+        }
 
             if (isSettingCanvas == true)
             {
@@ -1434,6 +1475,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void AdjectiveSetup(int parameter)
     {
+        DestroyPrefabs();
         typeOfWord.text = "Adjective";
         Adjective newAdjective = new Adjective();
         int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
@@ -1508,6 +1550,10 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void ConversationSetup(int parameter)
     {
+        DestroyPrefabs();
+        baseParentBoard.gameObject.SetActive(false);
+        conversationBoard.gameObject.SetActive(true);
+
         Conversation convo = new Conversation();
         convo = allDetailData.conversation;
         conversationText.text = convo.description;
@@ -1529,6 +1575,14 @@ IEnumerator DownloadImage(string mediaUrl)
     public void DailyTipsSetup(int parameter)
     {
 
+        DestroyPrefabs();
+        baseParentBoard.gameObject.SetActive(true);
+        conversationBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(false);
+        dutBoard.gameObject.SetActive(true);
+        singleSentenceBoard.gameObject.SetActive(false);
+        multipleSentenceBoard.gameObject.SetActive(false);
+        
         if (newWordDetails.dailyUseTips.Length > 1)
         {
         
@@ -1575,6 +1629,15 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void AnotherWayOfUsingWordSetup(int parameter)
     {
+        DestroyPrefabs();
+        HideSpeakerAndImage();
+        baseParentBoard.gameObject.SetActive(true);
+        conversationBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(true);
+        dutBoard.gameObject.SetActive(false);
+        singleSentenceBoard.gameObject.SetActive(true);
+        multipleSentenceBoard.gameObject.SetActive(false);
+        
         int owuwCount = 0;
         OtherWayUsingWord newOwuw = new OtherWayUsingWord();
 
@@ -1663,7 +1726,24 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void IdiomSetup(int parameter)
     {
-        
+        DestroyPrefabs();
+        HideSpeakerAndImage();
+        baseParentBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(true);
+
+        // if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true)
+        // {
+                //Change position of sentence boards
+                Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                singleSentenceBoardPos.y -= 423f;
+            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+            multipleSentenceBoardPos.y -= 423f;
+                multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+        // }    
+
         typeOfDay.text = "Idiom";
         
         typeOfWord.text = "Meaning";
@@ -1755,6 +1835,23 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void MultipleWordSetup(int parameter)
     {
+         DestroyPrefabs();
+        HideSpeakerAndImage();
+           
+
+        baseParentBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(false);
+
+
+        //Change position of sentence boards
+        Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+        singleSentenceBoardPos.y += 423f;
+        singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+        Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+        multipleSentenceBoardPos.y += 423f;
+        multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
 
         int multipleWordCount = 0;
         UseMultipleWord multipleWordDetails = new UseMultipleWord();
@@ -1846,6 +1943,25 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void AntonymSetup(int parameter)
     {
+
+        DestroyPrefabs();
+         HideSpeakerAndImage();
+        baseParentBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(true);
+
+        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
+        {
+            //Change position of sentence boards
+            Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+            singleSentenceBoardPos.y -= 423f;
+            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+            multipleSentenceBoardPos.y -= 423f;
+            multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+        }
+
         Antonym antonymDetails = new Antonym();
         int antonymCount = 0;
         if (dataDisplayed["isRevisionWordListDone"] == true)
@@ -1941,6 +2057,25 @@ IEnumerator DownloadImage(string mediaUrl)
     
     public void SynonymSetup(int parameter)
     {
+
+         DestroyPrefabs();
+        HideSpeakerAndImage();
+         baseParentBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(true);
+
+        // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
+        // {
+            //Change position of sentence boards
+            Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+            singleSentenceBoardPos.y -= 423f;
+            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+
+            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+            multipleSentenceBoardPos.y -= 423f;
+            multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+        // } 
+
         Synonym synonymDetails = new Synonym();
         int synonymCount = 0;
         if (dataDisplayed["isRevisionWordListDone"] == true)
