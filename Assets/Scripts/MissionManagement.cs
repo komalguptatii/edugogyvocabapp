@@ -82,7 +82,7 @@ public class MissionManagement : MonoBehaviour
     public GameObject conversationWithMCQBoard;
 
     [SerializeField]
-    public GameObject convoPassageMCQPrefabParent;
+    public Transform convoPassageMCQPrefabParent;
 
     [SerializeField]
     public GameObject convoContentPrefab;
@@ -92,6 +92,10 @@ public class MissionManagement : MonoBehaviour
 
     [SerializeField]
     public Sprite wrongSprite;
+
+     [SerializeField]
+    public GameObject mcqPrefab;
+
   
 
 //     //Verb
@@ -562,6 +566,8 @@ public class MissionManagement : MonoBehaviour
     };
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
+    public List<GameObject> convoWithMCQPrefabsArray = new List<GameObject>();
+
     // public GameObject[] sentencePrefabsArray;
 
     public bool isSettingCanvas = false;
@@ -580,7 +586,8 @@ public class MissionManagement : MonoBehaviour
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
     int questionNumber = 0;
-    Button[] buttons;
+    // Button[] otherQbuttons;
+    // Button[] firstQbuttons;
     
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
@@ -800,6 +807,22 @@ IEnumerator DownloadImage(string mediaUrl)
        }
        
        sentencePrefabsArray.Clear();
+    }
+
+    public void DestroyConvoPrefabs()
+    {
+        int prefabCount = convoPassageMCQPrefabParent.transform.childCount;
+       Debug.Log("prefabCount is " + prefabCount);
+       if (prefabCount > 1)
+       {
+            for (int i = 1; i < prefabCount; i++)
+            {
+                    Debug.Log("value of i " + i);
+                    Destroy(convoPassageMCQPrefabParent.transform.GetChild(i).gameObject);
+            }
+       }
+       
+       convoWithMCQPrefabsArray.Clear();
     }
 
     public void revisionWordDataCount(int number)
@@ -1082,15 +1105,18 @@ IEnumerator DownloadImage(string mediaUrl)
             {
                 if (dataCountDetails.passage_data.passage_count != 0)
                 {
+                        DestroyConvoPrefabs();
                         Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
-                        Debug.Log(allDetailData.passages[0].description);
-                        Debug.Log(allDetailData.passages[0].questions[0].title);
+                        PassageMCQSetup();
+                        // Debug.Log(allDetailData.passages[0].description);
+                        // Debug.Log(allDetailData.passages[0].questions[0].title);
                         // make a method to display passage mcqs & make dataDisplayed["isPassageMCQDone"] done only after taking answers equal to number of questions
-                        dataDisplayed["isPassageMCQDone"] = true;
+                        // dataDisplayed["isPassageMCQDone"] = true;
                 }
             }
             else if (dataDisplayed["isGeneralMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
             {
+                DestroyConvoPrefabs();
                 if (dataCountDetails.mcq_count != 0)
                 {
                     Debug.Log(dataCountDetails.mcq_count);
@@ -1101,54 +1127,232 @@ IEnumerator DownloadImage(string mediaUrl)
         }
     }
 
+    public void PassageMCQSetup()
+    {
+        baseParentBoard.gameObject.SetActive(false);
+        conversationWithMCQBoard.gameObject.SetActive(true);
+
+        if (allDetailData.passages.Length > 1)
+        {
+            convoWithMCQPrefabsArray.Add(convoContentPrefab);
+
+    
+            for (var i = 0; i < allDetailData.passages.Length; i++)
+            {
+                if (i == 0)
+                {
+                     SetUpSinglePassageWithMCQ();
+                
+                }
+                else
+                {
+                    
+                    Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    GameObject newPrefab = Instantiate(mcqPrefab).gameObject;
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
+                    newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
+
+                     GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+                    int dialogueNumber = i + 1;
+                    mytext.text = "Conversation - Dialogue " + dialogueNumber;
+
+                    GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+                    GameObject container = scrollBar.transform.GetChild(0).gameObject;
+                    
+                    TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    descriptionText.text = allDetailData.conversationQuestions[i].conversation;
+
+                    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
+                    GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+
+                    TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    question.text = allDetailData.conversationQuestions[i].title;
+
+                    int answerOptions = allDetailData.conversationQuestions[i].questionOptions.Length;
+                    Debug.Log(answerOptions);
+
+                    GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+                    GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+                    int children = optionContainer.transform.childCount;
+                    Button[] otherQbuttons = new Button[answerOptions];
+
+                    questionNumber = i;
+
+                    for(int j = 0; j < children; j++ )
+                    {
+                        Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                        if (j <= answerOptions-1)
+                        {
+                            TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                            answerOption.text = allDetailData.conversationQuestions[i].questionOptions[j].option;
+                            GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                            rightWrongImage.SetActive(false);
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, questionNumber,i);});
+                            otherQbuttons[j] = thisButton;
+
+                        }
+                        else
+                        {
+                            thisButton.gameObject.SetActive(false);
+                        }
+                    }
+                    convoContentPrefab.transform.SetAsFirstSibling();
+
+                    convoWithMCQPrefabsArray.Add(newPrefab);
+                    
+                }  
+
+            }
+        }
+        else
+        {
+            
+            SetUpSinglePassageWithMCQ();
+
+        } 
+
+        dataDisplayed["isPassageMCQDone"] = true;
+        
+    }
+
     public void ConversationWithMCQSetup()
     {
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
 
-      
-
         if (allDetailData.conversationQuestions.Length > 1)
         {
-        //     sentencePrefabsArray.Add(sentencePrefab);
+            convoWithMCQPrefabsArray.Add(convoContentPrefab);
 
-        //     singleSentenceBoard.gameObject.SetActive(false);
-        //     multipleSentenceBoard.gameObject.SetActive(true);
-        //     Debug.Log("Length " + newNoun.nounSentences.Length);
-        //     for (var i = 0; i < newNoun.nounSentences.Length; i++)
-        //     {
-        //         Debug.Log("Running in For loop " + i);
-        //         Debug.Log(newNoun.nounSentences[0].description);
+    
+            for (var i = 0; i < allDetailData.conversationQuestions.Length; i++)
+            {
+                if (i == 0)
+                {
+                     SetUpSingleConvoWithMCQ();
+                     GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+                    int dialogueNumber = i + 1;
+                    mytext.text = "Conversation - Dialogue " + dialogueNumber;
+                }
+                else
+                {
                     
-        //         if (i == 0)
-        //         {
-        //             Debug.Log("i is 0 here");
-        //             GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
-        //             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-        //             mytext.text = newNoun.nounSentences[0].description;                     
-        //         }
-        //         else
-        //         {
-                        
-                        
-        //             Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
-        //             GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-        //             newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-        //             newSentencePrefab.transform.SetParent(parent, true);
+                    Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    GameObject newPrefab = Instantiate(convoContentPrefab).gameObject;
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
+                    newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
 
-        //             GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
-        //             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-        //             mytext.text = newNoun.nounSentences[i].description;
-        //             sentencePrefabsArray.Add(newSentencePrefab);
-        //             Debug.Log("End of Checking in loop for second object");
-        //         }  
 
-        //     }
+                    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
+                    GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+
+                    TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    question.text = allDetailData.conversationQuestions[i].title;
+
+                    int answerOptions = allDetailData.conversationQuestions[i].questionOptions.Length;
+                    Debug.Log(answerOptions);
+
+                    GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+                    GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+                    int children = optionContainer.transform.childCount;
+                    Button[] otherQbuttons = new Button[answerOptions];
+
+                    questionNumber = i;
+
+                    for(int j = 0; j < children; j++ )
+                    {
+                        Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                        if (j <= answerOptions-1)
+                        {
+                            TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                            answerOption.text = allDetailData.conversationQuestions[i].questionOptions[j].option;
+                            GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                            rightWrongImage.SetActive(false);
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, questionNumber);});
+                            otherQbuttons[j] = thisButton;
+
+                        }
+                        else
+                        {
+                            thisButton.gameObject.SetActive(false);
+                        }
+                    }
+                    convoContentPrefab.transform.SetAsFirstSibling();
+
+                    convoWithMCQPrefabsArray.Add(newPrefab);
+                    
+                }  
+
+            }
         }
         else
         {
             
-            GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+            SetUpSingleConvoWithMCQ();
+
+        } 
+        
+        dataDisplayed["isConversationMCQDone"] = true;
+    }
+
+    public void SetUpSinglePassageWithMCQ()
+    {
+        GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+            mytext.text = "Passage";
+
+            GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+            GameObject container = scrollBar.transform.GetChild(0).gameObject;
+            
+            TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            descriptionText.text = allDetailData.passages[0].description;
+
+            GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+            GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+
+            TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            question.text = allDetailData.passages[0].questions[0].title;
+
+            int answerOptions = allDetailData.passages[0].questions[0].questionOptions.Length;
+            Debug.Log(answerOptions);
+
+            GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+            GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+            int children = optionContainer.transform.childCount;
+            Button[] passageButtons = new Button[answerOptions];
+
+            questionNumber = 0;
+
+            for(int j = 0; j < children; j++ )
+            {
+                Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                if (j <= answerOptions-1)
+                {
+                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
+                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                    rightWrongImage.SetActive(false);
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0);});
+                    passageButtons[j] = thisButton;
+
+                }
+                else
+                {
+                    thisButton.gameObject.SetActive(false);
+                }
+            }
+
+    }
+
+
+    public void SetUpSingleConvoWithMCQ()
+    {
+        GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
             TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
             mytext.text = "Conversation";
 
@@ -1171,7 +1375,7 @@ IEnumerator DownloadImage(string mediaUrl)
             GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
             int children = optionContainer.transform.childCount;
-            buttons = new Button[answerOptions];
+            Button[] firstQbuttons = new Button[answerOptions];
 
             questionNumber = 0;
 
@@ -1184,8 +1388,8 @@ IEnumerator DownloadImage(string mediaUrl)
                     answerOption.text = allDetailData.conversationQuestions[0].questionOptions[j].option;
                     GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
-                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton);});
-                    buttons[j] = thisButton;
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0);});
+                    firstQbuttons[j] = thisButton;
 
                 }
                 else
@@ -1194,13 +1398,33 @@ IEnumerator DownloadImage(string mediaUrl)
                 }
             }
 
-
-        } 
-        // convoPassageMCQPrefabParent
-        dataDisplayed["isConversationMCQDone"] = true;
     }
 
-    public void CheckRightAnswerOfQuestion(Button button)
+    public void CheckRightAnswerForPassageQuestion(Button button,int passageNumber, int questionNumber)
+    {
+        // int questionNumber - check the answer value 1 for particular question
+        // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
+        int tag = System.Convert.ToInt32(button.tag);
+        int value = allDetailData.passages[passageNumber].questions[questionNumber].questionOptions[tag].value;
+        Debug.Log(button.tag);
+        Debug.Log("value of" + value);
+        GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
+        Image myImage = rightWrongImage.GetComponent<Image>();
+
+        if (value == 1)
+        {
+            myImage.sprite = tickSprite;
+        }
+        else
+        {
+            myImage.sprite = wrongSprite;
+        }
+       
+        rightWrongImage.SetActive(true);
+
+    }
+
+    public void CheckRightAnswerOfQuestion(Button button, int questionNumber)
     {
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
