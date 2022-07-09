@@ -96,6 +96,13 @@ public class MissionManagement : MonoBehaviour
      [SerializeField]
     public GameObject mcqPrefab;
 
+    [SerializeField]
+    public GameObject generalMCQBoard;
+
+    [SerializeField]
+    public GameObject generalMCQContent;
+
+    private Vector3 sentenceRealPos;
   
 
 //     //Verb
@@ -614,7 +621,7 @@ public class MissionManagement : MonoBehaviour
     void Awake()
     {
          // start mission after fetching id from detail all api
-
+        sentenceRealPos = singleSentenceBoard.transform.position;
         singleSentenceBoard.gameObject.SetActive(true);
         multipleSentenceBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
@@ -1107,11 +1114,8 @@ IEnumerator DownloadImage(string mediaUrl)
                 {
                         DestroyConvoPrefabs();
                         Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
-                        PassageMCQSetup();
-                        // Debug.Log(allDetailData.passages[0].description);
-                        // Debug.Log(allDetailData.passages[0].questions[0].title);
-                        // make a method to display passage mcqs & make dataDisplayed["isPassageMCQDone"] done only after taking answers equal to number of questions
-                        // dataDisplayed["isPassageMCQDone"] = true;
+                        PassageMCQSetup(parameterCountControlCheck);
+                        // parameterCountControlCheck pending
                 }
             }
             else if (dataDisplayed["isGeneralMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
@@ -1119,25 +1123,101 @@ IEnumerator DownloadImage(string mediaUrl)
                 DestroyConvoPrefabs();
                 if (dataCountDetails.mcq_count != 0)
                 {
-                    Debug.Log(dataCountDetails.mcq_count);
-                    Debug.Log(allDetailData.questions[0].title);
-                    Debug.Log(allDetailData.questions[1].title);
+                    conversationWithMCQBoard.gameObject.SetActive(false);
+                    generalMCQBoard.gameObject.SetActive(true);
+                    GeneralMCQSetup(0);
+                    // Debug.Log(dataCountDetails.mcq_count);
+                    // Debug.Log(allDetailData.questions[0].title);
+                    // Debug.Log(allDetailData.questions[1].title);
                 }
             } 
         }
     }
 
-    public void PassageMCQSetup()
+    public void GeneralMCQSetup(int parameter)
+    {
+        if (dataCountDetails.mcq_count != 0)
+        {
+            GameObject topImage = generalMCQContent.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text mcqInteractiveStatement = topImage.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+
+            mcqInteractiveStatement.text = allDetailData.interactive_line_mcq;
+
+            GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
+            GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text questionText = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            questionText.text = allDetailData.questions[parameter].title;
+
+            GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+            GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+            int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
+            Debug.Log(answerOptions);
+
+
+            int children = optionContainer.transform.childCount;
+            Button[] MCQbuttons = new Button[answerOptions];
+
+            questionNumber = parameter;
+
+            for(int j = 0; j < children; j++ )
+            {
+                Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                if (j <= answerOptions-1)
+                {
+                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
+                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                    rightWrongImage.SetActive(false);
+                    thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber);});
+                    MCQbuttons[j] = thisButton;
+
+                }
+                else
+                {
+                    thisButton.gameObject.SetActive(false);
+                }
+            }
+
+        }
+    }
+
+    public void CheckRightMCQAnswer(Button button, int questionNumber)
+    {
+        // int questionNumber - check the answer value 1 for particular question
+        // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
+        int tag = System.Convert.ToInt32(button.tag);
+        int value = allDetailData.questions[questionNumber].questionOptions[tag].value;
+        Debug.Log(button.tag);
+        Debug.Log("value of" + value);
+        GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
+        Image myImage = rightWrongImage.GetComponent<Image>();
+
+        if (value == 1)
+        {
+            myImage.sprite = tickSprite;
+        }
+        else
+        {
+            myImage.sprite = wrongSprite;
+        }
+       
+        rightWrongImage.SetActive(true);
+
+    }
+
+
+    public void PassageMCQSetup(int parameter)
     {
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
 
-        if (allDetailData.passages.Length > 1)
+        if (allDetailData.passages[parameter].questions.Length > 1)
         {
             convoWithMCQPrefabsArray.Add(convoContentPrefab);
 
     
-            for (var i = 0; i < allDetailData.passages.Length; i++)
+            for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
             {
                 if (i == 0)
                 {
@@ -1149,35 +1229,33 @@ IEnumerator DownloadImage(string mediaUrl)
                     
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
                     GameObject newPrefab = Instantiate(mcqPrefab).gameObject;
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
+                    if (i == 1)
+                    {
+                        newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1300f);
+
+                    }
+                    else
+                    {
+                        newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 400f);
+
+                    }
                     newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
 
-                     GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
-                    TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-                    int dialogueNumber = i + 1;
-                    mytext.text = "Conversation - Dialogue " + dialogueNumber;
-
-                    GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
-                    GameObject container = scrollBar.transform.GetChild(0).gameObject;
-                    
-                    TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                    descriptionText.text = allDetailData.conversationQuestions[i].conversation;
-
-                    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
-                    GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+                    GameObject questionBoard = newPrefab.transform.GetChild(0).gameObject;
 
                     TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                    question.text = allDetailData.conversationQuestions[i].title;
+                    question.text = allDetailData.passages[parameter].questions[i].title;
 
-                    int answerOptions = allDetailData.conversationQuestions[i].questionOptions.Length;
+                    int answerOptions = allDetailData.passages[parameter].questions[i].questionOptions.Length;
                     Debug.Log(answerOptions);
 
-                    GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+                    GameObject optionBoard = newPrefab.transform.GetChild(1).gameObject;
                     GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
                     int children = optionContainer.transform.childCount;
-                    Button[] otherQbuttons = new Button[answerOptions];
+                    Button[] otherPassagebuttons = new Button[answerOptions];
 
+                    Debug.Log("value of i here is " + i);
                     questionNumber = i;
 
                     for(int j = 0; j < children; j++ )
@@ -1186,11 +1264,11 @@ IEnumerator DownloadImage(string mediaUrl)
                         if (j <= answerOptions-1)
                         {
                             TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                            answerOption.text = allDetailData.conversationQuestions[i].questionOptions[j].option;
+                            answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
                             GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, questionNumber,i);});
-                            otherQbuttons[j] = thisButton;
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, parameterCountControlCheck,questionNumber);});
+                            otherPassagebuttons[j] = thisButton;
 
                         }
                         else
@@ -1215,6 +1293,56 @@ IEnumerator DownloadImage(string mediaUrl)
 
         dataDisplayed["isPassageMCQDone"] = true;
         
+    }
+
+    public void SetUpSinglePassageWithMCQ()
+    {
+        GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+            mytext.text = "Passage";
+
+            GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+            GameObject container = scrollBar.transform.GetChild(0).gameObject;
+            
+            TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            descriptionText.text = allDetailData.passages[0].description;
+
+            GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+            GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+
+            TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            question.text = allDetailData.passages[0].questions[0].title;
+
+            int answerOptions = allDetailData.passages[0].questions[0].questionOptions.Length;
+            Debug.Log(answerOptions);
+
+            GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+            GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+            int children = optionContainer.transform.childCount;
+            Button[] passageButtons = new Button[answerOptions];
+
+            questionNumber = 0;
+
+            for(int j = 0; j < children; j++ )
+            {
+                Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                if (j <= answerOptions-1)
+                {
+                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
+                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                    rightWrongImage.SetActive(false);
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0);});
+                    passageButtons[j] = thisButton;
+
+                }
+                else
+                {
+                    thisButton.gameObject.SetActive(false);
+                }
+            }
+
     }
 
     public void ConversationWithMCQSetup()
@@ -1244,6 +1372,17 @@ IEnumerator DownloadImage(string mediaUrl)
                     GameObject newPrefab = Instantiate(convoContentPrefab).gameObject;
                     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
                     newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
+
+                    GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+                    int dialogueNumber = i + 1;
+                    mytext.text = "Conversation - Dialogue " + dialogueNumber;
+
+                    GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+                    GameObject container = scrollBar.transform.GetChild(0).gameObject;
+                    
+                    TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    descriptionText.text = allDetailData.conversationQuestions[i].conversation;
 
 
                     GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
@@ -1299,55 +1438,7 @@ IEnumerator DownloadImage(string mediaUrl)
         dataDisplayed["isConversationMCQDone"] = true;
     }
 
-    public void SetUpSinglePassageWithMCQ()
-    {
-        GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
-            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-            mytext.text = "Passage";
-
-            GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
-            GameObject container = scrollBar.transform.GetChild(0).gameObject;
-            
-            TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-            descriptionText.text = allDetailData.passages[0].description;
-
-            GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
-            GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
-
-            TMPro.TMP_Text question = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-            question.text = allDetailData.passages[0].questions[0].title;
-
-            int answerOptions = allDetailData.passages[0].questions[0].questionOptions.Length;
-            Debug.Log(answerOptions);
-
-            GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
-            GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
-
-            int children = optionContainer.transform.childCount;
-            Button[] passageButtons = new Button[answerOptions];
-
-            questionNumber = 0;
-
-            for(int j = 0; j < children; j++ )
-            {
-                Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
-                if (j <= answerOptions-1)
-                {
-                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                    answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
-                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
-                    rightWrongImage.SetActive(false);
-                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0);});
-                    passageButtons[j] = thisButton;
-
-                }
-                else
-                {
-                    thisButton.gameObject.SetActive(false);
-                }
-            }
-
-    }
+    
 
 
     public void SetUpSingleConvoWithMCQ()
@@ -1405,8 +1496,11 @@ IEnumerator DownloadImage(string mediaUrl)
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
         int tag = System.Convert.ToInt32(button.tag);
+        Debug.Log(button.tag + "Button tag");
+        Debug.Log(passageNumber + "passageNumber");
+        Debug.Log(questionNumber + "questionNumber");
         int value = allDetailData.passages[passageNumber].questions[questionNumber].questionOptions[tag].value;
-        Debug.Log(button.tag);
+        
         Debug.Log("value of" + value);
         GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
@@ -1956,17 +2050,17 @@ IEnumerator DownloadImage(string mediaUrl)
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
 
-        // if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true)
-        // {
+        if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true || dataDisplayed["isnewWordOWUWordDone"] == true || dataDisplayed["isDUTDone"] == true)
+        {
                 //Change position of sentence boards
-                Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-                singleSentenceBoardPos.y -= 423f;
-            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+                // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+                // singleSentenceBoardPos.y += 80f;
+            singleSentenceBoard.transform.position = sentenceRealPos;
 
-            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-            multipleSentenceBoardPos.y -= 423f;
-                multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-        // }    
+            // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+            // multipleSentenceBoardPos.y += 80f;
+                multipleSentenceBoard.transform.position = sentenceRealPos;
+        }    
 
         typeOfDay.text = "Idiom";
         
@@ -2177,13 +2271,13 @@ IEnumerator DownloadImage(string mediaUrl)
         if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
         {
             //Change position of sentence boards
-            Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-            singleSentenceBoardPos.y -= 423f;
-            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+            // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+            // singleSentenceBoardPos.y -= 423f;
+            singleSentenceBoard.transform.position = sentenceRealPos;
 
-            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-            multipleSentenceBoardPos.y -= 423f;
-            multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+            // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+            // multipleSentenceBoardPos.y -= 423f;
+            multipleSentenceBoard.transform.position = sentenceRealPos;
         }
 
         Antonym antonymDetails = new Antonym();
@@ -2288,17 +2382,17 @@ IEnumerator DownloadImage(string mediaUrl)
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
 
-        // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
-        // {
+        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
+        {
             //Change position of sentence boards
-            Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-            singleSentenceBoardPos.y -= 423f;
-            singleSentenceBoard.transform.position = singleSentenceBoardPos;
+            // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
+            // singleSentenceBoardPos.y -= 423f;
+            singleSentenceBoard.transform.position = sentenceRealPos;
 
-            Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-            multipleSentenceBoardPos.y -= 423f;
-            multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
-        // } 
+            // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
+            // multipleSentenceBoardPos.y -= 423f;
+            multipleSentenceBoard.transform.position = sentenceRealPos;
+        } 
 
         Synonym synonymDetails = new Synonym();
         int synonymCount = 0;
