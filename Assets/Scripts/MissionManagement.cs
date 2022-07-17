@@ -593,6 +593,8 @@ public class MissionManagement : MonoBehaviour
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
     int questionNumber = 0;
+    int generalMCQcount = 0;
+    int tempGeneralMCQCount = 0;
     // Button[] otherQbuttons;
     // Button[] firstQbuttons;
     
@@ -648,23 +650,23 @@ public class MissionManagement : MonoBehaviour
 
 
 
-IEnumerator DownloadImage(string mediaUrl)
-{   
-    //  var mediaUrl = "http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png";
+    IEnumerator DownloadImage(string mediaUrl)
+    {   
+        //  var mediaUrl = "http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png";
 
-    UnityWebRequest request = UnityWebRequestTexture.GetTexture(mediaUrl);
-    yield return request.SendWebRequest();
-    if(request.isNetworkError || request.isHttpError) 
-        Debug.Log(request.error);
-    else
-    {
-        Texture2D myTexture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+        UnityWebRequest request = UnityWebRequestTexture.GetTexture(mediaUrl);
+        yield return request.SendWebRequest();
+        if(request.isNetworkError || request.isHttpError) 
+            Debug.Log(request.error);
+        else
+        {
+            Texture2D myTexture = ((DownloadHandlerTexture)request.downloadHandler).texture;
 
-        wordImage.sprite = Sprite.Create(myTexture, new Rect(0, 0, myTexture.width, myTexture.height), new Vector2(0, 0));
-    }
-    request.Dispose();
-    
-} 
+            wordImage.sprite = Sprite.Create(myTexture, new Rect(0, 0, myTexture.width, myTexture.height), new Vector2(0, 0));
+        }
+        request.Dispose();
+        
+    } 
 
 
     // void DownloadPicture() => StartCoroutine(DownloadImage(string));
@@ -738,6 +740,8 @@ IEnumerator DownloadImage(string mediaUrl)
             string jsonString = request.downloadHandler.text;
            
             dataCountDetails = JsonUtility.FromJson<DataCount>(jsonString);
+            // 
+            
             calculateTotalCount();
 
         }
@@ -746,7 +750,8 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void calculateTotalCount()
     {
-        totalNumber = dataCountDetails.mcq_count;
+        generalMCQcount = dataCountDetails.mcq_count;
+        // totalNumber = dataCountDetails.mcq_count;
         newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
         dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
         dataCountDetails.new_word_data.more_data[0].adjective_count + dataCountDetails.new_word_data.more_data[0].daily_use_tip_count +
@@ -755,8 +760,9 @@ IEnumerator DownloadImage(string mediaUrl)
         + dataCountDetails.new_word_data.more_data[0].use_multiple_count
         + dataCountDetails.new_word_data.more_data[0].synonym_count
         + dataCountDetails.new_word_data.more_data[0].antonym_count;
+        
         Debug.Log(newWordDataCount);
-        totalNumber = totalNumber + newWordDataCount;
+        totalNumber = generalMCQcount + newWordDataCount;
 
         if  (dataCountDetails.revision_word_data.revison_word_count != 0)
         {
@@ -779,8 +785,13 @@ IEnumerator DownloadImage(string mediaUrl)
         
         Debug.Log(revisionDataCount);
        totalNumber = totalNumber + revisionDataCount + dataCountDetails.conversation_revision_word_count 
-       + dataCountDetails.conversation_new_word_count + dataCountDetails.conversation_mcq_count 
+       + dataCountDetails.conversation_new_word_count  
        + dataCountDetails.passage_data.passage_count;
+
+        if (dataCountDetails.conversation_mcq_count != 0)   // as mcqs related to 1 conversation will be displayed on one screen so it will be counted as 1 only, also as per client requirement - there is one converstaion with mcq only
+        {
+            totalNumber += 1;
+        }
 
        Debug.Log(totalNumber);
          GetAllDetails();
@@ -832,7 +843,7 @@ IEnumerator DownloadImage(string mediaUrl)
        convoWithMCQPrefabsArray.Clear();
     }
 
-    public void revisionWordDataCount(int number)
+    public void RevisionWordDataCount(int number)       //calculation of revision word data count
     {
        rwdataCount = dataCountDetails.revision_word_data.more_data[number].other_way_using_count + 
                      dataCountDetails.revision_word_data.more_data[number].idiom_count
@@ -876,6 +887,11 @@ IEnumerator DownloadImage(string mediaUrl)
             {
                 availableData["isRevisionWordsAvailable"] = true;
             }
+            if (allDetailData.newWords[0].image_url != null)
+            {
+                string imageURL = allDetailData.newWords[0].image_url;
+                StartCoroutine(DownloadImage(imageURL));
+            }
             SetBottomTitleLabel();
             SetUpBaseCanvas();
 
@@ -884,6 +900,7 @@ IEnumerator DownloadImage(string mediaUrl)
 
     void ShowInteractivePopup()
     {
+        SoundManagerScript.playPopUpsound();
         string message = allDetailData.interactive_line_new_word;
         InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
 			//Init popup with params (canvas, text, text, text, action)
@@ -1024,11 +1041,12 @@ IEnumerator DownloadImage(string mediaUrl)
             if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false))
             {
                     // display revision list
-                    baseParentBoard.gameObject.SetActive(false);
-                    revisionWordBoard.gameObject.SetActive(true);
                     revisionDataCount += 1;
-                    revisionWordDataCount(revisionWordReference);
-                    RevisionWordList();
+                    RevisionWordDataCount(revisionWordReference);
+                    parameterValueArray.Add(0);
+                    methodCallArray.Add(RevisionWordList);  
+
+                    RevisionWordList(0);
             }
             else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false)
             {                        
@@ -1102,7 +1120,10 @@ IEnumerator DownloadImage(string mediaUrl)
                 if (dataCountDetails.conversation_mcq_count != 0)
                 {
                     Debug.Log("conversation_mcq_count" + dataCountDetails.conversation_mcq_count);
-                    ConversationWithMCQSetup();
+                    parameterValueArray.Add(0);
+                    methodCallArray.Add(ConversationWithMCQSetup);     
+
+                    ConversationWithMCQSetup(0); // conversation mcq will be one only for now as per requirement from client
                     
                     // // make a method to display these mcqs & dataDisplayed["isConversationMCQDone"] is true after displaying and taking answer
                     // dataDisplayed["isConversationMCQDone"] = true;
@@ -1114,21 +1135,21 @@ IEnumerator DownloadImage(string mediaUrl)
                 {
                         DestroyConvoPrefabs();
                         Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
+                        parameterValueArray.Add(parameterCountControlCheck);
+                         methodCallArray.Add(PassageMCQSetup);  
+
                         PassageMCQSetup(parameterCountControlCheck);
                         // parameterCountControlCheck pending
                 }
             }
             else if (dataDisplayed["isGeneralMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
             {
-                DestroyConvoPrefabs();
                 if (dataCountDetails.mcq_count != 0)
                 {
-                    conversationWithMCQBoard.gameObject.SetActive(false);
-                    generalMCQBoard.gameObject.SetActive(true);
-                    GeneralMCQSetup(0);
-                    // Debug.Log(dataCountDetails.mcq_count);
-                    // Debug.Log(allDetailData.questions[0].title);
-                    // Debug.Log(allDetailData.questions[1].title);
+                      parameterValueArray.Add(tempGeneralMCQCount);
+                         methodCallArray.Add(GeneralMCQSetup);  
+                    GeneralMCQSetup(tempGeneralMCQCount);
+                    
                 }
             } 
         }
@@ -1136,50 +1157,70 @@ IEnumerator DownloadImage(string mediaUrl)
 
     public void GeneralMCQSetup(int parameter)
     {
-        if (dataCountDetails.mcq_count != 0)
+         DestroyConvoPrefabs();
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(true);
+
+        GameObject topImage = generalMCQContent.transform.GetChild(0).gameObject;
+        TMPro.TMP_Text mcqInteractiveStatement = topImage.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+
+        mcqInteractiveStatement.text = allDetailData.interactive_line_mcq;
+
+        GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
+        GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+        TMPro.TMP_Text questionText = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+        questionText.text = allDetailData.questions[parameter].title;
+
+        GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+        GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+        int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
+        Debug.Log(answerOptions);
+
+
+        int children = optionContainer.transform.childCount;
+        
+            Button[] otherMCQbuttons = new Button[answerOptions];
+
+        questionNumber = parameter;
+
+        for(int j = 0; j < children; j++ )
         {
-            GameObject topImage = generalMCQContent.transform.GetChild(0).gameObject;
-            TMPro.TMP_Text mcqInteractiveStatement = topImage.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-
-            mcqInteractiveStatement.text = allDetailData.interactive_line_mcq;
-
-            GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
-            GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
-            TMPro.TMP_Text questionText = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-            questionText.text = allDetailData.questions[parameter].title;
-
-            GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
-            GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
-
-            int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
-            Debug.Log(answerOptions);
-
-
-            int children = optionContainer.transform.childCount;
-            Button[] MCQbuttons = new Button[answerOptions];
-
-            questionNumber = parameter;
-
-            for(int j = 0; j < children; j++ )
+            Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+            if (j <= answerOptions-1)
             {
-                Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
-                if (j <= answerOptions-1)
-                {
-                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                    answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
-                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
-                    rightWrongImage.SetActive(false);
-                    thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber);});
-                    MCQbuttons[j] = thisButton;
+                TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
+                GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                rightWrongImage.SetActive(false);
+                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber);});
+                otherMCQbuttons[j] = thisButton;
 
-                }
-                else
-                {
-                    thisButton.gameObject.SetActive(false);
-                }
             }
-
+            else
+            {
+                thisButton.gameObject.SetActive(false);
+            }
         }
+
+        if (isSettingCanvas == true)
+        {
+            if (tempGeneralMCQCount == generalMCQcount - 1)
+            {
+                Debug.Log("general mcq is complete here");
+                dataDisplayed["isGeneralMCQDone"] = true;
+                tempGeneralMCQCount = 0;     //resetting 
+            }
+            else //if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)
+            {
+                Debug.Log("Working on calling another mcq");
+                tempGeneralMCQCount = tempGeneralMCQCount + 1;
+            }
+            
+             isSettingCanvas = false;
+        }
+
+        
     }
 
     public void CheckRightMCQAnswer(Button button, int questionNumber)
@@ -1196,6 +1237,7 @@ IEnumerator DownloadImage(string mediaUrl)
         if (value == 1)
         {
             myImage.sprite = tickSprite;
+            SoundManagerScript.RightAnswerSound();
         }
         else
         {
@@ -1211,6 +1253,7 @@ IEnumerator DownloadImage(string mediaUrl)
     {
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
+        int passageCount = dataCountDetails.passage_data.passage_count;
 
         if (allDetailData.passages[parameter].questions.Length > 1)
         {
@@ -1291,7 +1334,23 @@ IEnumerator DownloadImage(string mediaUrl)
 
         } 
 
-        dataDisplayed["isPassageMCQDone"] = true;
+        if (isSettingCanvas == true)
+        {
+            if (parameterCountControlCheck == passageCount - 1)
+            {
+                Debug.Log("passage mcq is complete here");
+                dataDisplayed["isPassageMCQDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling another passage mcq");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+            
+             isSettingCanvas = false;
+        }
+        
         
     }
 
@@ -1345,10 +1404,11 @@ IEnumerator DownloadImage(string mediaUrl)
 
     }
 
-    public void ConversationWithMCQSetup()
+    public void ConversationWithMCQSetup(int parameter)
     {
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
+        int convoMCQcount = dataCountDetails.conversation_mcq_count;
 
         if (allDetailData.conversationQuestions.Length > 1)
         {
@@ -1435,7 +1495,24 @@ IEnumerator DownloadImage(string mediaUrl)
 
         } 
         
-        dataDisplayed["isConversationMCQDone"] = true;
+         if (isSettingCanvas == true)
+        {
+            // if (parameterCountControlCheck == convoMCQcount - 1)
+            // {
+            //     Debug.Log("convo mcq is complete here");
+                
+            //     parameterCountControlCheck = 0;     //resetting 
+            // }
+            // else 
+            // {
+            //     Debug.Log("Working on calling another convo mcq");
+            //     parameterCountControlCheck = parameterCountControlCheck + 1;
+            // }
+            dataDisplayed["isConversationMCQDone"] = true;
+             isSettingCanvas = false;
+        }
+
+        
     }
 
     
@@ -1508,6 +1585,7 @@ IEnumerator DownloadImage(string mediaUrl)
         if (value == 1)
         {
             myImage.sprite = tickSprite;
+            SoundManagerScript.RightAnswerSound();
         }
         else
         {
@@ -1532,6 +1610,7 @@ IEnumerator DownloadImage(string mediaUrl)
         if (value == 1)
         {
             myImage.sprite = tickSprite;
+            SoundManagerScript.RightAnswerSound();
         }
         else
         {
@@ -1542,8 +1621,11 @@ IEnumerator DownloadImage(string mediaUrl)
 
     }
 
-    public void RevisionWordList()
+    public void RevisionWordList(int parameter)
     {
+        baseParentBoard.gameObject.SetActive(false);
+        revisionWordBoard.gameObject.SetActive(true);
+
         if (dataCountDetails.interactive_line_revision_word != "")
         {
             GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
