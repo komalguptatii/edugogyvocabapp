@@ -103,98 +103,6 @@ public class MissionManagement : MonoBehaviour
     public GameObject generalMCQContent;
 
     private Vector3 sentenceRealPos;
-  
-
-//     //Verb
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAsVerb;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfVerb;
-
-
-//    //Adverb
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAsAdverb;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfAdverb;
-
-//        //Adjective
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAsAdjective;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfAdjective;
-
-//     //Conversation
-//     [SerializeField]
-//     public TextMeshProUGUI convoDescription;
-
-
-//       //Anotherwayofusingword
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAnotherwayofusingword;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceAnotherwayofusingword;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfDUT;
-
-//  //Idiom
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAsIdiom;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfIdiom;
-
-//      //multiple words
-//     [SerializeField]
-//     public TextMeshProUGUI placeholderMultipleWords;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfMultipleWords;
-
-//     //Synonym
-//     [SerializeField]
-//     public TextMeshProUGUI synonymTitle;
-
-//     [SerializeField]
-//     public TextMeshProUGUI wordOfSynonym;
-
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAsSynonym;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfSynonym;
-
-//     //Antonym
-//     [SerializeField]
-//     public TextMeshProUGUI antonymTitle;
-
-//     [SerializeField]
-//     public TextMeshProUGUI wordOfAntonym;
-//     [SerializeField]
-//     public TextMeshProUGUI meaningAsAntonym;
-
-//     [SerializeField]
-//     public TextMeshProUGUI sentenceOfAntonym;
-
-
-
-   
-
-    // [SerializeField]
-    // public GameObject[] noOfSentences; 
-
-    //  [SerializeField]
-    // public Canvas[] diffBoards; 
-
-    // [SerializeField]
-    // public Transform parent;
-
-
     
     string auth_key;
     int dayLevelId;
@@ -592,12 +500,28 @@ public class MissionManagement : MonoBehaviour
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
+    public List<int> revisionCountArray = new List<int>();
+    Dictionary<int, Button[]> mcqButtonsArray = new Dictionary<int, Button[]>();
+    int buttonArrayNumber = 0;
+    // public List<Button[]> buttonRefArray = new List <Button[]>;
+
+
     int questionNumber = 0;
     int generalMCQcount = 0;
     int tempGeneralMCQCount = 0;
-    // Button[] otherQbuttons;
-    // Button[] firstQbuttons;
-    
+  
+    public class QuestionResponse
+    {
+        public int question_id;
+        public SelectedOption[] selected_options;
+    }
+
+    public class SelectedOption
+    {
+        public int option_id;
+    }
+
+
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
     // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
@@ -637,7 +561,7 @@ public class MissionManagement : MonoBehaviour
         if (PlayerPrefs.HasKey("StartLevelID"))
         {
             dayLevelId = PlayerPrefs.GetInt("StartLevelID");
-            Debug.Log(dayLevelId);
+            Debug.Log("dayLevelId " + dayLevelId);
             // StartMission();
         }
 
@@ -750,7 +674,7 @@ public class MissionManagement : MonoBehaviour
 
     public void calculateTotalCount()
     {
-        generalMCQcount = dataCountDetails.mcq_count;
+        generalMCQcount = dataCountDetails.mcq_count; // 2
         // totalNumber = dataCountDetails.mcq_count;
         newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
         dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
@@ -760,13 +684,14 @@ public class MissionManagement : MonoBehaviour
         + dataCountDetails.new_word_data.more_data[0].use_multiple_count
         + dataCountDetails.new_word_data.more_data[0].synonym_count
         + dataCountDetails.new_word_data.more_data[0].antonym_count;
+        //2 + 2 + 1 + 1 + 1 + 1 + 4
         
         Debug.Log(newWordDataCount);
-        totalNumber = generalMCQcount + newWordDataCount;
+        totalNumber = generalMCQcount + newWordDataCount; // 14
 
         if  (dataCountDetails.revision_word_data.revison_word_count != 0)
         {
-            totalNumber = totalNumber + 1;          //for revision word list
+            totalNumber = totalNumber + 1;          //for revision word list = 15 
             numberOfRevisionWords = dataCountDetails.revision_word_data.revison_word_count;
             for(int i = 0; i < dataCountDetails.revision_word_data.more_data.Length; i++)
             {
@@ -775,6 +700,8 @@ public class MissionManagement : MonoBehaviour
                 + dataCountDetails.revision_word_data.more_data[i].use_multiple_count
                 + dataCountDetails.revision_word_data.more_data[i].synonym_count
                 + dataCountDetails.revision_word_data.more_data[i].antonym_count;
+                //5
+                revisionCountArray.Add(revisionDataCount);
              }
        
         }
@@ -787,12 +714,13 @@ public class MissionManagement : MonoBehaviour
        totalNumber = totalNumber + revisionDataCount + dataCountDetails.conversation_revision_word_count 
        + dataCountDetails.conversation_new_word_count  
        + dataCountDetails.passage_data.passage_count;
+       //15 + 5 + 2
 
         if (dataCountDetails.conversation_mcq_count != 0)   // as mcqs related to 1 conversation will be displayed on one screen so it will be counted as 1 only, also as per client requirement - there is one converstaion with mcq only
         {
             totalNumber += 1;
         }
-
+        // 22 + 1
        Debug.Log(totalNumber);
          GetAllDetails();
 
@@ -1041,12 +969,13 @@ public class MissionManagement : MonoBehaviour
             if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false))
             {
                     // display revision list
-                    revisionDataCount += 1;
-                    RevisionWordDataCount(revisionWordReference);
+                    // revisionDataCount += 1;
+                    // RevisionWordDataCount(revisionWordReference);
                     parameterValueArray.Add(0);
                     methodCallArray.Add(RevisionWordList);  
 
                     RevisionWordList(0);
+                    
             }
             else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false)
             {                        
@@ -1103,16 +1032,19 @@ public class MissionManagement : MonoBehaviour
                     }
                     
                 
-                    if ((tempDataCount == rwdataCount) )
+                    if (tempDataCount == revisionCountArray[revisionWordReference])
                     {
-                        dataDisplayed["isRevisionWordContentDone"] = true;
-                        Debug.Log("isRevisionWordContentDone ");
+                        tempDataCount = 0;
+                        if (numberOfRevisionWords > 1 && revisionWordReference != numberOfRevisionWords - 1)
+                        {
+                            revisionWordReference += 1;
+                        }
+                        else if (revisionWordReference == numberOfRevisionWords - 1)
+                        {
+                            dataDisplayed["isRevisionWordContentDone"] = true;
+                            Debug.Log("isRevisionWordContentDone ");
+                        }   
                     }
-               
-
-                    Debug.Log("tempDataCount " + tempDataCount);
-                    Debug.Log("rwdataCount " + rwdataCount);
-                    Debug.Log("revisionWordReference" + revisionWordReference);   
             }
              else if (dataDisplayed["isRevisionWordContentDone"] == true && dataDisplayed["isConversationMCQDone"] == false)
             {
@@ -1157,7 +1089,8 @@ public class MissionManagement : MonoBehaviour
 
     public void GeneralMCQSetup(int parameter)
     {
-         DestroyConvoPrefabs();
+        DestroyConvoPrefabs();
+        baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(true);
 
@@ -1180,7 +1113,7 @@ public class MissionManagement : MonoBehaviour
 
         int children = optionContainer.transform.childCount;
         
-            Button[] otherMCQbuttons = new Button[answerOptions];
+        Button[] otherMCQbuttons = new Button[answerOptions];
 
         questionNumber = parameter;
 
@@ -1253,6 +1186,8 @@ public class MissionManagement : MonoBehaviour
     {
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
+        generalMCQBoard.gameObject.SetActive(false);
+
         int passageCount = dataCountDetails.passage_data.passage_count;
 
         if (allDetailData.passages[parameter].questions.Length > 1)
@@ -1408,6 +1343,8 @@ public class MissionManagement : MonoBehaviour
     {
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
+        generalMCQBoard.gameObject.SetActive(false);
+
         int convoMCQcount = dataCountDetails.conversation_mcq_count;
 
         if (allDetailData.conversationQuestions.Length > 1)
@@ -1566,6 +1503,8 @@ public class MissionManagement : MonoBehaviour
                 }
             }
 
+
+
     }
 
     public void CheckRightAnswerForPassageQuestion(Button button,int passageNumber, int questionNumber)
@@ -1648,6 +1587,12 @@ public class MissionManagement : MonoBehaviour
 
     public void NounSetup(int parameter)
     {
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
+         conversationBoard.gameObject.SetActive(false);
+        baseParentBoard.gameObject.SetActive(true);
+
+
         typeOfWord.text = "Noun";
         Noun newNoun = new Noun();
         int nounCount = dataCountDetails.new_word_data.more_data[0].noun_count;
@@ -1725,6 +1670,12 @@ public class MissionManagement : MonoBehaviour
     public void VerbSetup(int parameter)
     {
         DestroyPrefabs();
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
+         conversationBoard.gameObject.SetActive(false);
+        baseParentBoard.gameObject.SetActive(true);
+
+
         typeOfWord.text = "Verb";
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
@@ -1800,6 +1751,12 @@ public class MissionManagement : MonoBehaviour
     public void AdverbSetup(int parameter)
     {
         DestroyPrefabs();
+                conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
+         conversationBoard.gameObject.SetActive(false);
+        baseParentBoard.gameObject.SetActive(true);
+
+
         typeOfWord.text = "Adverb";
         Adverb newAdverb = new Adverb();
         int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
@@ -1876,6 +1833,12 @@ public class MissionManagement : MonoBehaviour
     public void AdjectiveSetup(int parameter)
     {
         DestroyPrefabs();
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
+        conversationBoard.gameObject.SetActive(false);
+        baseParentBoard.gameObject.SetActive(true);
+
+
         typeOfWord.text = "Adjective";
         Adjective newAdjective = new Adjective();
         int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
@@ -2038,6 +2001,9 @@ public class MissionManagement : MonoBehaviour
         singleSentenceBoard.gameObject.SetActive(true);
         multipleSentenceBoard.gameObject.SetActive(false);
         
+        singleSentenceBoard.transform.position = sentenceRealPos;
+        multipleSentenceBoard.transform.position = sentenceRealPos;
+
         int owuwCount = 0;
         OtherWayUsingWord newOwuw = new OtherWayUsingWord();
 
@@ -2131,6 +2097,8 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
 
         if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true || dataDisplayed["isnewWordOWUWordDone"] == true || dataDisplayed["isDUTDone"] == true)
         {
@@ -2138,10 +2106,10 @@ public class MissionManagement : MonoBehaviour
                 // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
                 // singleSentenceBoardPos.y += 80f;
             singleSentenceBoard.transform.position = sentenceRealPos;
+            multipleSentenceBoard.transform.position = sentenceRealPos;
 
             // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
             // multipleSentenceBoardPos.y += 80f;
-                multipleSentenceBoard.transform.position = sentenceRealPos;
         }    
 
         typeOfDay.text = "Idiom";
@@ -2242,7 +2210,8 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(false);
-
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
 
         //Change position of sentence boards
         Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
@@ -2349,6 +2318,8 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
 
         if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
         {
@@ -2463,6 +2434,8 @@ public class MissionManagement : MonoBehaviour
          baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+        conversationWithMCQBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
 
         if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
         {

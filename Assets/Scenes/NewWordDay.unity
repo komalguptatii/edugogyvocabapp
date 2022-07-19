@@ -157,8 +157,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.00018310547, y: -1012.73804}
-  m_SizeDelta: {x: 918.251, y: 3422.686}
+  m_AnchoredPosition: {x: -0.00018310547, y: -1647.5173}
+  m_SizeDelta: {x: 918.251, y: 4692.2446}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6800432
 GameObject:
@@ -2359,8 +2359,8 @@ RectTransform:
   m_Father: {fileID: 102009492}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.59178114}
-  m_AnchorMax: {x: 1, y: 0.99999857}
+  m_AnchorMin: {x: 0, y: 0.702231}
+  m_AnchorMax: {x: 1, y: 0.9999989}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3062,6 +3062,7 @@ MonoBehaviour:
   rwdataCount: 0
   tempDataCount: 0
   parameterValueArray: 
+  revisionCountArray: 
 --- !u!4 &192530273
 Transform:
   m_ObjectHideFlags: 0
@@ -11416,8 +11417,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 139857838}
   m_HandleRect: {fileID: 139857837}
   m_Direction: 2
-  m_Value: 0.99999756
-  m_Size: 0.4082174
+  m_Value: 0.99999845
+  m_Size: 0.29776794
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -37316,7 +37317,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4313870326193596393, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 884.2619
+      value: 1512
       objectReference: {fileID: 0}
     - target: {fileID: 4313870326193596393, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -37333,6 +37334,10 @@ PrefabInstance:
     - target: {fileID: 4313870326193596394, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_Name
       value: Content
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313870326193596394, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4313870326254602484, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_text
@@ -37410,7 +37415,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4313870327526061261, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.095447995
+      value: 0.0954478
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 922fbb9e55bff4db2b0459a584f9429d, type: 3}
