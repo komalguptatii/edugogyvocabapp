@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Text;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class MissionManagement : MonoBehaviour
 {
@@ -101,6 +102,9 @@ public class MissionManagement : MonoBehaviour
 
     [SerializeField]
     public GameObject generalMCQContent;
+
+    [SerializeField]
+    public Button submitButton;
 
     private Vector3 sentenceRealPos;
     
@@ -502,26 +506,57 @@ public class MissionManagement : MonoBehaviour
     public List<int> parameterValueArray = new List<int>();
     public List<int> revisionCountArray = new List<int>();
     Dictionary<int, Button[]> mcqButtonsArray = new Dictionary<int, Button[]>();
-    int buttonArrayNumber = 0;
-    // public List<Button[]> buttonRefArray = new List <Button[]>;
 
+    int buttonArrayNumber = 0;
+    public int optionNumber = 0;
 
     int questionNumber = 0;
     int generalMCQcount = 0;
     int tempGeneralMCQCount = 0;
   
+    [Serializable]
     public class QuestionResponse
     {
         public int question_id;
         public SelectedOption[] selected_options;
     }
 
+    [Serializable]
     public class SelectedOption
     {
         public int option_id;
     }
 
+    [Serializable]
+    public class ResponseSubmission
+    {
+        public List<QuestionResponse> response;
+    }
 
+    public List<int> selectedOptionList = new List<int>();
+    public Dictionary<int, List<int>> questionResponseDict = new Dictionary<int, List<int>>();
+
+    [Serializable]
+     public class ResponseResult
+    {
+        public int id;
+        public int student_id;
+        public int day_level_id;
+        public int created_at;
+        public int updated_at;
+        public int age_group_id;
+        public int passed_at;
+        public int is_passed;
+        public double score_percentage;
+        public int total_question;
+    }
+
+
+    
+    // QuestionResponse[] completeResponse;
+
+    // int questionNumberValue = 0;
+    // int chances = 0;
 
     // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
     // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
@@ -1113,7 +1148,7 @@ public class MissionManagement : MonoBehaviour
 
         int children = optionContainer.transform.childCount;
         
-        Button[] otherMCQbuttons = new Button[answerOptions];
+        // Button[] otherMCQbuttons = new Button[answerOptions];
 
         questionNumber = parameter;
 
@@ -1127,7 +1162,7 @@ public class MissionManagement : MonoBehaviour
                 GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                 rightWrongImage.SetActive(false);
                 thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber);});
-                otherMCQbuttons[j] = thisButton;
+                // otherMCQbuttons[j] = thisButton;
 
             }
             else
@@ -1140,6 +1175,7 @@ public class MissionManagement : MonoBehaviour
         {
             if (tempGeneralMCQCount == generalMCQcount - 1)
             {
+                submitButton.gameObject.SetActive(true);
                 Debug.Log("general mcq is complete here");
                 dataDisplayed["isGeneralMCQDone"] = true;
                 tempGeneralMCQCount = 0;     //resetting 
@@ -1167,6 +1203,9 @@ public class MissionManagement : MonoBehaviour
         GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
 
+        int questionId = allDetailData.questions[questionNumber].id;
+        int selectedOptionsId = allDetailData.questions[questionNumber].questionOptions[tag].id;   
+
         if (value == 1)
         {
             myImage.sprite = tickSprite;
@@ -1179,6 +1218,27 @@ public class MissionManagement : MonoBehaviour
        
         rightWrongImage.SetActive(true);
 
+        if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
+        {
+            // if yes check for selected option id otherwise add
+            List<int> tempList = questionResponseDict[questionId];
+            if (tempList.Contains(selectedOptionsId))
+            {
+                //do nothing
+            }
+            else
+            {
+                tempList.Add(selectedOptionsId);
+                questionResponseDict[questionId] = tempList;
+            }
+
+        }
+        else  // if doesn't contain key set key and add selected option id as well
+        {
+            List <int> selectedIdList = new List<int>();
+            selectedIdList.Add(selectedOptionsId);
+            questionResponseDict.Add(questionId, selectedIdList);
+        }
     }
 
 
@@ -1197,6 +1257,8 @@ public class MissionManagement : MonoBehaviour
     
             for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
             {
+                // questionNumberValue += 1;
+                questionNumber = i;
                 if (i == 0)
                 {
                      SetUpSinglePassageWithMCQ();
@@ -1231,11 +1293,11 @@ public class MissionManagement : MonoBehaviour
                     GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
                     int children = optionContainer.transform.childCount;
-                    Button[] otherPassagebuttons = new Button[answerOptions];
+                    // Button[] otherPassagebuttons = new Button[answerOptions];
 
                     Debug.Log("value of i here is " + i);
-                    questionNumber = i;
-
+                    // questionNumber = i;
+                    
                     for(int j = 0; j < children; j++ )
                     {
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
@@ -1245,8 +1307,10 @@ public class MissionManagement : MonoBehaviour
                             answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
                             GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, parameterCountControlCheck,questionNumber);});
-                            otherPassagebuttons[j] = thisButton;
+                            int pcc = parameterCountControlCheck;
+                            int k = i;
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k);});
+                            // otherPassagebuttons[j] = thisButton;
 
                         }
                         else
@@ -1264,7 +1328,7 @@ public class MissionManagement : MonoBehaviour
         }
         else
         {
-            
+            // questionNumberValue += 1;
             SetUpSinglePassageWithMCQ();
 
         } 
@@ -1317,7 +1381,6 @@ public class MissionManagement : MonoBehaviour
             Button[] passageButtons = new Button[answerOptions];
 
             questionNumber = 0;
-
             for(int j = 0; j < children; j++ )
             {
                 Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
@@ -1354,17 +1417,19 @@ public class MissionManagement : MonoBehaviour
     
             for (var i = 0; i < allDetailData.conversationQuestions.Length; i++)
             {
+                //  questionNumber = i;
                 if (i == 0)
                 {
-                     SetUpSingleConvoWithMCQ();
-                     GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+                    // questionNumberValue = 0;
+                    SetUpSingleConvoWithMCQ();
+                    GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
                     int dialogueNumber = i + 1;
                     mytext.text = "Conversation - Dialogue " + dialogueNumber;
                 }
                 else
                 {
-                    
+                    // questionNumberValue += 1;
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
                     GameObject newPrefab = Instantiate(convoContentPrefab).gameObject;
                     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
@@ -1395,10 +1460,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
                     int children = optionContainer.transform.childCount;
-                    Button[] otherQbuttons = new Button[answerOptions];
-
-                    questionNumber = i;
-
+                    // Button[] otherQbuttons = new Button[answerOptions];
                     for(int j = 0; j < children; j++ )
                     {
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
@@ -1408,8 +1470,9 @@ public class MissionManagement : MonoBehaviour
                             answerOption.text = allDetailData.conversationQuestions[i].questionOptions[j].option;
                             GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, questionNumber);});
-                            otherQbuttons[j] = thisButton;
+                            int k = i;
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k);});
+                            // otherQbuttons[j] = thisButton;
 
                         }
                         else
@@ -1427,7 +1490,7 @@ public class MissionManagement : MonoBehaviour
         }
         else
         {
-            
+            // questionNumberValue = 0;
             SetUpSingleConvoWithMCQ();
 
         } 
@@ -1480,9 +1543,9 @@ public class MissionManagement : MonoBehaviour
             GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
             int children = optionContainer.transform.childCount;
-            Button[] firstQbuttons = new Button[answerOptions];
+            // Button[] firstQbuttons = new Button[answerOptions];
 
-            questionNumber = 0;
+            // questionNumber = 0;
 
             for(int j = 0; j < children; j++ )
             {
@@ -1494,7 +1557,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
                     thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0);});
-                    firstQbuttons[j] = thisButton;
+                    // firstQbuttons[j] = thisButton;
 
                 }
                 else
@@ -1521,6 +1584,8 @@ public class MissionManagement : MonoBehaviour
         GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
 
+        int questionId = allDetailData.passages[passageNumber].questions[questionNumber].id;
+        int selectedOptionsId = allDetailData.passages[passageNumber].questions[questionNumber].questionOptions[tag].id;   
         if (value == 1)
         {
             myImage.sprite = tickSprite;
@@ -1533,8 +1598,31 @@ public class MissionManagement : MonoBehaviour
        
         rightWrongImage.SetActive(true);
 
+        
+        if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
+        {
+            // if yes check for selected option id otherwise add
+            List<int> tempList = questionResponseDict[questionId];
+            if (tempList.Contains(selectedOptionsId))
+            {
+                //do nothing
+            }
+            else
+            {
+                tempList.Add(selectedOptionsId);
+                questionResponseDict[questionId] = tempList;
+            }
+
+        }
+        else  // if doesn't contain key set key and add selected option id as well
+        {
+            List <int> selectedIdList = new List<int>();
+            selectedIdList.Add(selectedOptionsId);
+            questionResponseDict.Add(questionId, selectedIdList);
+        }
     }
 
+    private IEnumerator coroutine;
     public void CheckRightAnswerOfQuestion(Button button, int questionNumber)
     {
         // int questionNumber - check the answer value 1 for particular question
@@ -1546,6 +1634,13 @@ public class MissionManagement : MonoBehaviour
         GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
 
+        int questionId = allDetailData.conversationQuestions[questionNumber].id;
+        int selectedOptionsId = allDetailData.conversationQuestions[questionNumber].questionOptions[tag].id;
+        int numberOfOptions = allDetailData.conversationQuestions[questionNumber].questionOptions.Length;
+        // int[] optionArray = new int[numberOfOptions];
+        Debug.Log("question number is " + questionNumber + " & its id is " + questionId);
+
+
         if (value == 1)
         {
             myImage.sprite = tickSprite;
@@ -1554,10 +1649,160 @@ public class MissionManagement : MonoBehaviour
         else
         {
             myImage.sprite = wrongSprite;
+            
         }
        
         rightWrongImage.SetActive(true);
 
+        if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
+        {
+            // if yes check for selected option id otherwise add
+            List<int> tempList = questionResponseDict[questionId];
+            if (tempList.Contains(selectedOptionsId))
+            {
+                //do nothing
+            }
+            else
+            {
+                tempList.Add(selectedOptionsId);
+                questionResponseDict[questionId] = tempList;
+            }
+
+        }
+        else  // if doesn't contain key set key and add selected option id as well
+        {
+            List <int> selectedIdList = new List<int>();
+            selectedIdList.Add(selectedOptionsId);
+            questionResponseDict.Add(questionId, selectedIdList);
+        }
+        // optionArray[0] = selectedOptionsId;
+        // SubmitQuestionResponse(questionId, optionArray);
+        // Debug.Log(questionResponseDict);
+        
+       
+    }
+
+    public void SubmitResponse() => StartCoroutine(PrintResponseDict_Coroutine());
+    public void CompleteMission() => StartCoroutine(CompleteThisMission_Coroutine());
+
+
+    public IEnumerator PrintResponseDict_Coroutine()
+    {
+
+        ResponseSubmission newResponse = new ResponseSubmission();
+        newResponse.response = new List<QuestionResponse>();
+
+
+       foreach(var item in questionResponseDict)
+        {   
+            // Debug.Log("Value of key is " + item.Key);
+
+            for(int i = 0; i < item.Value.Count; i++)
+            {
+                // Debug.Log("Count of items is " + item.Value.Count);
+                List<int> optionList = item.Value;
+                // Debug.Log("value of selected option for " + item.Key + " is " + optionList[i]);
+                QuestionResponse newQuestionResponse = new QuestionResponse();
+                newQuestionResponse.question_id = item.Key;
+                newQuestionResponse.selected_options = new SelectedOption[item.Value.Count];
+                SelectedOption newOption = new SelectedOption{option_id = optionList[i]};
+                newQuestionResponse.selected_options[i] = newOption;
+                // QuestionResponse[] thisResponse = new QuestionResponse[i];
+                // thisResponse[i] = newQuestionResponse;
+                newResponse.response.Add(newQuestionResponse); //= thisResponse;
+
+            }
+        } 
+
+        string json = JsonUtility.ToJson(newResponse);
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = "http://165.22.219.198/edugogy/api/v1/student-results/question-response?day_level_id=7"; //+ dayLevelId;
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        // request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+
+            string userJson = request.downloadHandler.text;
+            ResponseResult result = new ResponseResult();
+            result = JsonUtility.FromJson<ResponseResult>(userJson);
+            
+            string message = "";
+            string scores = result.score_percentage.ToString();
+            if (result.score_percentage >= 70.0)
+            {
+                message = "Congratulations you are now eligible for next level";
+            }
+            else
+            {
+                message = "To get to next level your score should be more than 70%";
+            }
+
+            ScorePopUp popup = UIController.Instance.CreateScorePopUp();
+			popup.Init(UIController.Instance.MainCanvas,
+				scores,
+				message,
+                CompleteMission
+				);
+        }
+
+    }
+
+    void GoBackToDashboard()
+    {
+        SceneManager.LoadScene("Dashboard");
+    }
+
+    public IEnumerator CompleteThisMission_Coroutine()
+    {
+         MissionForm missionFormData = new MissionForm { day_level_id = 7 };
+        string json = JsonUtility.ToJson(missionFormData);
+
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = "http://165.22.219.198/edugogy/api/v1/student-levels/mark-pass";
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        // request.SetRequestHeader("Authorization", auth_key);
+     request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            GoBackToDashboard();
+        }
     }
 
     public void RevisionWordList(int parameter)

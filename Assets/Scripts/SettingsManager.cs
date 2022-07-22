@@ -11,4 +11,10 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.DeleteAll();
          SceneManager.LoadScene("Login");
     }
+
+    public void OnMusicOnOff()
+    {
+        AudioListener.pause = !AudioListener.pause;
+
+    }
 }
