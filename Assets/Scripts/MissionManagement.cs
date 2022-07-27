@@ -1214,6 +1214,8 @@ public class MissionManagement : MonoBehaviour
         else
         {
             myImage.sprite = wrongSprite;
+            SoundManagerScript.WrongAnswerSound();
+
         }
        
         rightWrongImage.SetActive(true);
@@ -1594,6 +1596,8 @@ public class MissionManagement : MonoBehaviour
         else
         {
             myImage.sprite = wrongSprite;
+            SoundManagerScript.WrongAnswerSound();
+
         }
        
         rightWrongImage.SetActive(true);
@@ -1649,6 +1653,7 @@ public class MissionManagement : MonoBehaviour
         else
         {
             myImage.sprite = wrongSprite;
+            SoundManagerScript.WrongAnswerSound();
             
         }
        
@@ -1726,8 +1731,8 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
 
         yield return request.SendWebRequest();
@@ -1749,11 +1754,15 @@ public class MissionManagement : MonoBehaviour
             string scores = result.score_percentage.ToString();
             if (result.score_percentage >= 70.0)
             {
+
                 message = "Congratulations you are now eligible for next level";
+                SoundManagerScript.SuccessSound();
             }
             else
             {
                 message = "To get to next level your score should be more than 70%";
+                SoundManagerScript.UnsucessSound();
+
             }
 
             ScorePopUp popup = UIController.Instance.CreateScorePopUp();
@@ -1787,8 +1796,8 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-     request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", auth_key);
+    //  request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
 
         yield return request.SendWebRequest();

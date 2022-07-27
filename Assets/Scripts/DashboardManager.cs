@@ -34,13 +34,10 @@ public class DashboardManager : MonoBehaviour
     }
 
     string levelId;
-    void Start()
-    {
-        
-        
-
-        // Debug.Log(availableData["passages"]);
-    }
+    // void Start()
+    // {
+     
+    // }
 
     public void OnButtonClick()
     {
@@ -83,14 +80,14 @@ public class DashboardManager : MonoBehaviour
 
             PlayerPrefs.SetInt("StartLevelID", allDetailData.id);
             //Move to scene type accordingly and start level 
-            if (allDetailData.type == 1)
-            {
+            // if (allDetailData.type == 1)
+            // {
                 SceneManager.LoadScene("NewWordDay");
-            }
-            else 
-            {
-                 SceneManager.LoadScene("RevisionWordDay");
-            }
+            // }
+            // else 
+            // {
+            //      SceneManager.LoadScene("RevisionWordDay");
+            // }
 
                   
         }
