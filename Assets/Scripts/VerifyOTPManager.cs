@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 public class VerifyOTPManager : MonoBehaviour
 {
-        public TMP_InputField firstDigit;
+    public TMP_InputField firstDigit;
     public TMP_InputField secondDigit;
     public TMP_InputField thirdDigit;
     public TMP_InputField fourthDigit;
@@ -52,6 +52,9 @@ public class VerifyOTPManager : MonoBehaviour
         public Student student;
     }
 
+    [SerializeField]
+    public TextMeshProUGUI description; 
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -71,6 +74,27 @@ public class VerifyOTPManager : MonoBehaviour
 
         }
 
+       
+    }
+
+    private void Start() {
+        // phoneNumber = "9855940600";
+        int phoneLength = phoneNumber.Length;
+        string returnNumber = "";
+
+        for (int i = 1; i <= 5; i++)
+        {
+            int value = phoneLength - i;
+            Debug.Log(value);
+            returnNumber = phoneNumber.Remove(value);
+            if (i == 5)
+            {
+                returnNumber = returnNumber + "XXXXX";
+            }
+        }
+
+        Debug.Log(returnNumber);
+        description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for  your space flight.";
     }
 
     void SetInputCharacterLength()

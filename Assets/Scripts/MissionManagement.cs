@@ -110,6 +110,7 @@ public class MissionManagement : MonoBehaviour
     
     string auth_key;
     int dayLevelId;
+    int levelId;
 
     int nextNumber = 1;
     int parameterCount = 0; //set after checking values
@@ -597,7 +598,8 @@ public class MissionManagement : MonoBehaviour
         {
             dayLevelId = PlayerPrefs.GetInt("StartLevelID");
             Debug.Log("dayLevelId " + dayLevelId);
-            // StartMission();
+            levelId = PlayerPrefs.GetInt("LevelId");
+            StartMission();
         }
 
     }
@@ -658,7 +660,9 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+
 
         yield return request.SendWebRequest();
 
@@ -675,7 +679,7 @@ public class MissionManagement : MonoBehaviour
 
     IEnumerator GetDataCount_Coroutine()
     {
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/data-count/4";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/data-count/" + levelId.ToString();
 
         var request = new UnityWebRequest(uri, "GET");
 
@@ -817,7 +821,7 @@ public class MissionManagement : MonoBehaviour
 
     IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
     {
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/4?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId.ToString() + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
 
         var request = new UnityWebRequest(uri, "GET");
 
@@ -1724,15 +1728,15 @@ public class MissionManagement : MonoBehaviour
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-results/question-response?day_level_id=7"; //+ dayLevelId;
+        string uri = "http://165.22.219.198/edugogy/api/v1/student-results/question-response?day_level_id=" + dayLevelId.ToString(); //+ dayLevelId;
 
         var request = new UnityWebRequest(uri, "POST");
 
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
-        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        // request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
 
         yield return request.SendWebRequest();
@@ -1755,12 +1759,12 @@ public class MissionManagement : MonoBehaviour
             if (result.score_percentage >= 70.0)
             {
 
-                message = "Congratulations you are now eligible for next level";
+                message = "Congratulations,  Mission accomplished!";
                 SoundManagerScript.SuccessSound();
             }
             else
             {
-                message = "To get to next level your score should be more than 70%";
+                message = "Let’s give it another shot!";
                 SoundManagerScript.UnsucessSound();
 
             }
@@ -1782,7 +1786,7 @@ public class MissionManagement : MonoBehaviour
 
     public IEnumerator CompleteThisMission_Coroutine()
     {
-         MissionForm missionFormData = new MissionForm { day_level_id = 7 };
+         MissionForm missionFormData = new MissionForm { day_level_id = dayLevelId };
         string json = JsonUtility.ToJson(missionFormData);
 
         Debug.Log(json);
@@ -1796,8 +1800,8 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
-    //  request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        // request.SetRequestHeader("Authorization", auth_key);
+     request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
 
         yield return request.SendWebRequest();
@@ -2264,7 +2268,7 @@ public class MissionManagement : MonoBehaviour
         if (dataDisplayed["isRevisionWordListDone"] == true)
         {
             typeOfDay.text = "Another way of using";
-            typeOfWord.text = "Brief/Note";
+            typeOfWord.text = "Brief";
              owuwCount = dataCountDetails.revision_word_data.more_data[0].other_way_using_count;
              newOwuw = revisionWordDetails.otherWayUsingWords[parameter];
              meaningAsNoun.text = newOwuw.description;
@@ -2272,7 +2276,7 @@ public class MissionManagement : MonoBehaviour
         else
         {
             typeOfDay.text = "Another way of using";
-            typeOfWord.text = "Brief/Note";
+            typeOfWord.text = "Brief";
              owuwCount = dataCountDetails.new_word_data.more_data[0].other_way_using_count;
              newOwuw = newWordDetails.otherWayUsingWords[parameter];
              meaningAsNoun.text = newOwuw.description;
@@ -2481,7 +2485,7 @@ public class MissionManagement : MonoBehaviour
         
         if (dataDisplayed["isRevisionWordListDone"] == true)
         {
-             typeOfDay.text = "Using multiple words in a sentence";
+             typeOfDay.text = "Lets’ try to use these together!";
         
              
             multipleWordCount = dataCountDetails.revision_word_data.more_data[0].use_multiple_count;
@@ -2490,7 +2494,7 @@ public class MissionManagement : MonoBehaviour
         }
         else
         {
-             typeOfDay.text = "Using multiple words in a sentence";
+             typeOfDay.text = "Lets’ try to use these together!";
         
             multipleWordCount = dataCountDetails.new_word_data.more_data[0].use_multiple_count;
              multipleWordDetails = newWordDetails.useMultipleWords[parameter];

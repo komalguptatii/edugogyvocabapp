@@ -19,9 +19,7 @@ public class DashboardManager : MonoBehaviour
         public string name;
         public string phone;
         public int country_code_id;
-
         public int age_group_id;
-
     }
 
     [Serializable]
@@ -34,10 +32,10 @@ public class DashboardManager : MonoBehaviour
     }
 
     string levelId;
-    // void Start()
-    // {
-     
-    // }
+    void Start()
+    {
+        Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
+    }
 
     public void OnButtonClick()
     {
@@ -46,8 +44,30 @@ public class DashboardManager : MonoBehaviour
         TMP_Text mytext = textobj.GetComponent<TMP_Text>();
         levelId = mytext.text;
         Debug.Log(levelId);
+
+        // method to set lock image active inactive - need modification
+        GameObject button = EventSystem.current.currentSelectedGameObject.GetComponent<Button>().gameObject;
+        GameObject lockImage = EventSystem.current.currentSelectedGameObject.transform.GetChild(1).gameObject;
+        if (button.tag == "Locked")
+        {
+            lockImage.SetActive(true);
+        }
+        else
+        {
+            lockImage.SetActive(false);
+        }
+        //
         GetAllDetails();
         
+    }
+
+    public void CheckForDateTimePeriod()
+    {
+        //Keep reference of last "level Id", Its date time when passed 
+        // date time at new clicked level id 
+        //if difference between date time is > 0 then carry on with 2nd levels
+        //set quota done if two levels are completed - as per day only 2 levels are allowed
+
     }
 
     void GetAllDetails() => StartCoroutine(GetAllDetailsForLevel_Coroutine());
@@ -79,6 +99,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(allDetailData.type);      //1
 
             PlayerPrefs.SetInt("StartLevelID", allDetailData.id);
+            PlayerPrefs.SetInt("LevelId",int.Parse(levelId));
             //Move to scene type accordingly and start level 
             // if (allDetailData.type == 1)
             // {

@@ -239,7 +239,7 @@ public class LoginAPIManager : MonoBehaviour
     IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
     {
 
-        ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = "9855940600", country_code_id = 88, otp = 6875 };
+        ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumberInput.text, country_code_id = selectedCountryCode, otp = 6875 };
         string json = JsonUtility.ToJson(validateOTPFormData);
 
         Debug.Log(json);

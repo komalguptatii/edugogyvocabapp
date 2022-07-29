@@ -899,7 +899,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'To continue, please enter the number below
+  m_text: 'To continue, please enter the digits you see written in the word form
+    below.
 
 '
   m_isRightToLeft: 0
