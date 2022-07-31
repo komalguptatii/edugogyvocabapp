@@ -1814,7 +1814,25 @@ public class MissionManagement : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            string userJson = request.downloadHandler.text;
+            ResponseResult result = new ResponseResult();
+            result = JsonUtility.FromJson<ResponseResult>(userJson);
+
+            if (result.is_passed == 1)
+            {
+                // PlayerPrefs.SetBool("isPassed", true);
+            }
+            else
+            {
+                // PlayerPrefs.SetBool("isPassed", false);
+            }
+            int nextLevel = levelId + 1;
+            PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
+            DateTime completionDateTime = System.DateTime.Now;
+            PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
             GoBackToDashboard();
+
+            
         }
     }
 

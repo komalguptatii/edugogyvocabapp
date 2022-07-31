@@ -31,34 +31,101 @@ public class DashboardManager : MonoBehaviour
         public int level;
     }
 
+    public GameObject pathPrefab;
+    public Transform contentParent;
+    [SerializeField] public Button[] levelButtonArray = new Button[5];
+
     string levelId;
+
     void Start()
     {
         Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
+        SpawnPath();
+
+        //scroll to specific level - unlock next level, check for time period
+        //calculate time difference between previousLevel and in next level 
+    }
+
+    public void SpawnPath()
+    {
+        Vector2 currentPosition = pathPrefab.transform.position;
+        // float height = pathPrefab.transform.localScale.height;
+        // Debug.Log(height);
+        int z = 0;
+
+        for(int i = 0; i < 36; i++)
+        {
+            GameObject nextPath = Instantiate(pathPrefab).gameObject;
+            nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y + 1939f));
+             // + pathPrefab.localScale.height);
+             nextPath.transform.SetParent(contentParent, true);
+            currentPosition = nextPath.transform.position;
+
+            for (int j = 0; j < nextPath.transform.childCount; j++ )
+            {
+                Button button = nextPath.transform.GetChild(j).GetComponent<Button>();
+                TMPro.TMP_Text levelNumber = button.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+                button.tag = "Locked";
+                button.onClick.AddListener(delegate{OnButtonClick();});
+                int k = z + 1;
+                levelNumber.text = k.ToString();
+                if (k == 1)
+                {
+                    GameObject lockImage = button.transform.GetChild(1).gameObject;
+                    lockImage.SetActive(false);
+                    button.tag = "Unlocked";
+                }
+                z = k;
+            }
+       
+        }
     }
 
     public void OnButtonClick()
     {
-        //Get button text
+        //Get button text to paas level id
         GameObject textobj = EventSystem.current.currentSelectedGameObject.transform.GetChild(0).gameObject;
         TMP_Text mytext = textobj.GetComponent<TMP_Text>();
         levelId = mytext.text;
         Debug.Log(levelId);
 
-        // method to set lock image active inactive - need modification
-        GameObject button = EventSystem.current.currentSelectedGameObject.GetComponent<Button>().gameObject;
-        GameObject lockImage = EventSystem.current.currentSelectedGameObject.transform.GetChild(1).gameObject;
-        if (button.tag == "Locked")
+        if (PlayerPrefs.HasKey("NextLevelWillBe"))
         {
-            lockImage.SetActive(true);
+            string nextLevelWillbe = PlayerPrefs.GetString("NextLevelWillBe");
+            if (levelId == nextLevelWillbe)
+            {
+                DateTime thisTime = System.DateTime.Now;
+
+                long temp = Convert.ToInt64(PlayerPrefs.GetString("completionDateTime"));
+                DateTime oldDate = DateTime.FromBinary(temp);
+                Debug.Log(oldDate);
+                TimeSpan difference = thisTime.Subtract(oldDate);
+                Debug.Log(difference);
+                //Check for difference here
+            }
         }
         else
         {
-            lockImage.SetActive(false);
+            //complete previous level - 
         }
-        //
+
+        //next level will be
+        if (levelId == "8")
+        {
+            Debug.Log("Check for subscription id"); //pop up - start with level , you haven't subscribed, complete previous level 
+        }
+        
+        // // save & get details only if entering to level also unlock it based on conditions
+        SaveDataForPreviousLevel(); 
         GetAllDetails();
         
+    }
+
+    public void SaveDataForPreviousLevel()
+    {
+        PlayerPrefs.SetString("PreviousLevelId", levelId);
+        DateTime dateTimeOfPreviousLevel = System.DateTime.Now;
+        PlayerPrefs.SetString("dateTimeOfPreviousLevel", dateTimeOfPreviousLevel.ToString());
     }
 
     public void CheckForDateTimePeriod()
