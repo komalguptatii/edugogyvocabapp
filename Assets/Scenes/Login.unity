@@ -455,8 +455,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1830038369}
-  - {fileID: 1904023148}
   - {fileID: 429200195}
+  - {fileID: 1904023148}
   - {fileID: 641569416}
   m_Father: {fileID: 1587905814}
   m_RootOrder: 2
@@ -1028,7 +1028,7 @@ RectTransform:
   m_Children:
   - {fileID: 1651310005}
   m_Father: {fileID: 197756141}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3850,7 +3850,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 197756141}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

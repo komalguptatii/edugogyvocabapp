@@ -34,7 +34,7 @@ public class IAPShop : MonoBehaviour
             Debug.Log(auth_key);
 
         }
-        AddSubscriptionData(); // otherwise call on receipt validation and information received
+        // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
 

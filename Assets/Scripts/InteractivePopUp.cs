@@ -27,7 +27,5 @@ public class InteractivePopUp : MonoBehaviour
 			GameObject.Destroy(this.gameObject);
 		});
 
-		
-
 	}
 }

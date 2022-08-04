@@ -599,7 +599,7 @@ public class MissionManagement : MonoBehaviour
             dayLevelId = PlayerPrefs.GetInt("StartLevelID");
             Debug.Log("dayLevelId " + dayLevelId);
             levelId = PlayerPrefs.GetInt("LevelId");
-            StartMission();
+            // StartMission();
         }
 
     }
@@ -717,7 +717,7 @@ public class MissionManagement : MonoBehaviour
         // totalNumber = dataCountDetails.mcq_count;
         newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
         dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
-        dataCountDetails.new_word_data.more_data[0].adjective_count + dataCountDetails.new_word_data.more_data[0].daily_use_tip_count +
+        dataCountDetails.new_word_data.more_data[0].adjective_count +
         dataCountDetails.new_word_data.more_data[0].other_way_using_count
         + dataCountDetails.new_word_data.more_data[0].idiom_count
         + dataCountDetails.new_word_data.more_data[0].use_multiple_count
@@ -725,6 +725,11 @@ public class MissionManagement : MonoBehaviour
         + dataCountDetails.new_word_data.more_data[0].antonym_count;
         //2 + 2 + 1 + 1 + 1 + 1 + 4
         
+        if (dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0)
+        {
+            newWordDataCount = newWordDataCount + 1;
+        }
+
         Debug.Log(newWordDataCount);
         totalNumber = generalMCQcount + newWordDataCount; // 14
 
@@ -760,8 +765,8 @@ public class MissionManagement : MonoBehaviour
             totalNumber += 1;
         }
         // 22 + 1
-       Debug.Log(totalNumber);
-         GetAllDetails();
+       Debug.Log("total number is" + totalNumber);
+        GetAllDetails();
 
 
     }
@@ -1698,6 +1703,13 @@ public class MissionManagement : MonoBehaviour
     public IEnumerator PrintResponseDict_Coroutine()
     {
 
+         //temporary
+             int nextLevel = dayLevelId + 1;
+            PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
+            DateTime completionDateTime = System.DateTime.Now;
+            PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
+                        GoBackToDashboard();
+
         ResponseSubmission newResponse = new ResponseSubmission();
         newResponse.response = new List<QuestionResponse>();
 
@@ -1754,6 +1766,9 @@ public class MissionManagement : MonoBehaviour
             ResponseResult result = new ResponseResult();
             result = JsonUtility.FromJson<ResponseResult>(userJson);
             
+           
+
+
             string message = "";
             string scores = result.score_percentage.ToString();
             if (result.score_percentage >= 70.0)
@@ -2225,7 +2240,7 @@ public class MissionManagement : MonoBehaviour
         if (newWordDetails.dailyUseTips.Length > 1)
         {
         
-        sentencePrefabsArray.Add(sentencePrefab);
+        sentencePrefabsArray.Add(dutSentencePrefab);    // have changed sentencePrefab to dutSentencePrefab
 
             for (var i = 0; i < newWordDetails.dailyUseTips.Length; i++)
             {

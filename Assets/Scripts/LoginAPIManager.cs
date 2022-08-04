@@ -231,7 +231,7 @@ public class LoginAPIManager : MonoBehaviour
 
    
 
-     void MoveToVerifyOTP()
+    void MoveToVerifyOTP()
     {
         SceneManager.LoadScene("VerifyOTP");
     }

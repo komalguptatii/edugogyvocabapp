@@ -40,6 +40,7 @@ public class UpdateAge : MonoBehaviour
     public Sprite buttonSprite;
     public Sprite deactivateButtonSprite;
     private int selectedButton;
+    public bool isAgeSelected = false;
     
     void Start()
     {
@@ -68,6 +69,11 @@ public class UpdateAge : MonoBehaviour
             Debug.Log(ageGroupId);
             UpdateKidsAgeGroup();
         }
+        else
+        {
+            // Display Validation
+            Debug.Log("Please select age group");
+        }
     }
 
     public void OnClick(Button button)
@@ -93,6 +99,7 @@ public class UpdateAge : MonoBehaviour
 
     public void UpdateOnClick()
     {
+
         GetKidsAgeGroup();
     }
 
@@ -109,7 +116,7 @@ public class UpdateAge : MonoBehaviour
     IEnumerator GetAgeGroupList_Coroutine()
     {
         // outputArea.text = "Loading...";
-    AgeGroupList agegrouplist = new AgeGroupList();
+        AgeGroupList agegrouplist = new AgeGroupList();
 
         string uri = "http://165.22.219.198/edugogy/api/v1/age-groups";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
@@ -135,6 +142,7 @@ public class UpdateAge : MonoBehaviour
     {
 
         Debug.Log(ageGroupId);
+        isAgeSelected = true;
         SelectAgeForm validAgeGroupForm = new SelectAgeForm { age_group_id = ageGroupId };
         string json = JsonUtility.ToJson(validAgeGroupForm);
 
@@ -165,7 +173,9 @@ public class UpdateAge : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode);
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            PlayerPrefs.SetInt("isAgeSelected", isAgeSelected ? 1 : 0);
             MoveToNextScreen();
+
         }
 
     }

@@ -210,7 +210,9 @@ public class CodeDisplay : MonoBehaviour
         if (codeSequence == generatedCodeSequence)
         {
             Debug.Log("Working");
-            SceneManager.LoadScene("Login");
+            CheckInformation();
+            // Add check to move to correct screen
+            // SceneManager.LoadScene("Login");
         }
         else
         {
@@ -230,6 +232,37 @@ public class CodeDisplay : MonoBehaviour
         }
     }
 
+
+    public void CheckInformation()
+    {
+        if (PlayerPrefs.HasKey("auth_key"))
+        {
+            string auth_key = PlayerPrefs.GetString("auth_key");
+            if (auth_key != null)
+            {
+                if (PlayerPrefs.HasKey("childName"))
+                {
+                    if (PlayerPrefs.HasKey("isAgeSelected"))
+                    {
+                        SceneManager.LoadScene("SelectAge");
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene("Dashboard");
+                    }
+
+                }
+                else
+                {
+                    SceneManager.LoadScene("KidsName");
+                }
+            }
+        }
+        else
+        {
+            SceneManager.LoadScene("Login");
+        }
+    }
 
     // Action resetAction = resetActionMethod;
     void resetAction()

@@ -31,11 +31,33 @@ public class DashboardManager : MonoBehaviour
         public int level;
     }
 
+    [Serializable]
+    public class ProfileDetails
+    {
+        public int id;
+        public string name;
+        public string phone;
+        public int age_group_id;
+        public int country_code_id;
+        public object social_id;
+        public object social_media;
+        public object email;
+        public int total_level;
+        public int total_passed_level;
+        public int available_level;
+    }
+
     public GameObject pathPrefab;
     public Transform contentParent;
     [SerializeField] public Button[] levelButtonArray = new Button[5];
 
     string levelId;
+    int numberOfLevelsPerDay = 0;
+    int totalNumberOfLevels = 0;
+
+    private void Awake() {
+        GetUserProfile();
+    }
 
     void Start()
     {
@@ -89,35 +111,74 @@ public class DashboardManager : MonoBehaviour
         levelId = mytext.text;
         Debug.Log(levelId);
 
+        if (numberOfLevelsPerDay == 2) // combine this with checking for next level ID
+        {
+            // quota over for the day
+            //save datetime here and check for next level date time, when entered next date set  quota to 0
+             InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+			    popup.Init(UIController.Instance.MainCanvas,
+				"Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+				"Ok"
+				);
+        }
+
         if (PlayerPrefs.HasKey("NextLevelWillBe"))
         {
             string nextLevelWillbe = PlayerPrefs.GetString("NextLevelWillBe");
+            Debug.Log(nextLevelWillbe);
             if (levelId == nextLevelWillbe)
             {
                 DateTime thisTime = System.DateTime.Now;
-
+                Debug.Log("this date is " + thisTime);
                 long temp = Convert.ToInt64(PlayerPrefs.GetString("completionDateTime"));
                 DateTime oldDate = DateTime.FromBinary(temp);
-                Debug.Log(oldDate);
+                Debug.Log("old date is " + oldDate);
                 TimeSpan difference = thisTime.Subtract(oldDate);
-                Debug.Log(difference);
+                Debug.Log("difference is " + difference);
                 //Check for difference here
             }
         }
         else
         {
             //complete previous level - 
+        //      // // save & get details only if entering to level also unlock it based on conditions
+            if (button.tag == "Unlocked")
+            {
+                SaveDataForPreviousLevel(); 
+                GetAllDetails();
+                numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
+                PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+            }
+            
         }
 
+        int sevendsDaysBefore = totalNumberOfLevels - 7;
+        int dayBefore = totalNumberOfLevels - 1;
         //next level will be
-        if (levelId == "8")
+        if (levelId == totalNumberOfLevels.ToString()) // for free trial
         {
-            Debug.Log("Check for subscription id"); //pop up - start with level , you haven't subscribed, complete previous level 
+            Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
+            // check for subscription period - 30, 90, 180 may change adding free trial
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+			    popup.Init(UIController.Instance.MainCanvas,
+				"Your subscription is over, today is the last day",
+				"Ok"
+				);
+            
+        } 
+        else if (levelId == sevendsDaysBefore.ToString() || levelId == dayBefore.ToString())
+        {
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+			    popup.Init(UIController.Instance.MainCanvas,
+				"Your subscription is getting over",
+				"Ok"
+				);
         }
         
-        // // save & get details only if entering to level also unlock it based on conditions
-        SaveDataForPreviousLevel(); 
-        GetAllDetails();
+        // for testing purpose
+         GetAllDetails();
+            numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
+            PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
         
     }
 
@@ -167,32 +228,26 @@ public class DashboardManager : MonoBehaviour
 
             PlayerPrefs.SetInt("StartLevelID", allDetailData.id);
             PlayerPrefs.SetInt("LevelId",int.Parse(levelId));
-            //Move to scene type accordingly and start level 
-            // if (allDetailData.type == 1)
-            // {
-                SceneManager.LoadScene("NewWordDay");
-            // }
-            // else 
-            // {
-            //      SceneManager.LoadScene("RevisionWordDay");
-            // }
-
+            
+            SceneManager.LoadScene("NewWordDay");
+            
                   
         }
     }
 
+    void GetUserProfile() => StartCoroutine(GetUserProfile_Coroutine());
 
     // called this API for dev purpose only - may be remove it later
     IEnumerator GetUserProfile_Coroutine()
     {
-
+        ProfileDetails profileData = new ProfileDetails();
         string uri = "http://165.22.219.198/edugogy/api/v1/students/view";
 
         var request = new UnityWebRequest(uri, "GET");
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer 3VcmTskZ5jRINDiaO_489b0pdVsbTEy6");
+        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
         yield return request.SendWebRequest();
 
@@ -204,6 +259,24 @@ public class DashboardManager : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+
+            string responseJson = request.downloadHandler.text;
+            profileData = JsonUtility.FromJson<ProfileDetails>(responseJson);
+
+            if (profileData.total_passed_level == 0)
+            {
+                InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+			    popup.Init(UIController.Instance.MainCanvas,
+				"Welcome aboard, astronaut! Your space mission is about to begin.",
+				"Ready to take off?"
+				);
+            }
+            else
+            {
+                Debug.Log(profileData.total_passed_level);
+            }
+
+            totalNumberOfLevels = profileData.total_level;
 
             // {"id":3,"name":"Komal","phone":"9855940600","age_group_id":2,"country_code_id":88,"total_level":2,"total_passed_level":0,"available_level":30}
 

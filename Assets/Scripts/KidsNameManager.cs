@@ -54,6 +54,7 @@ public class KidsNameManager : MonoBehaviour
     }
 
     void UpdateKidsName() => StartCoroutine(ProcessKidsName_Coroutine());
+
     IEnumerator ProcessKidsName_Coroutine()  //validate otp
     {
 
@@ -86,6 +87,8 @@ public class KidsNameManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode);
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            PlayerPrefs.SetString("childName", validKidNameForm.name);
+
             MoveToNextScreen();
         }
 
