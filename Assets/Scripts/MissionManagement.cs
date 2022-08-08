@@ -482,7 +482,8 @@ public class MissionManagement : MonoBehaviour
         {"isRevisionWordContentDone", false},
         {"isConversationMCQDone",false},
         {"isPassageMCQDone",false},
-        {"isGeneralMCQDone", false}
+        {"isGeneralMCQDone", false},
+        {"isNewWordDetailsDone", false}
     };
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
@@ -502,6 +503,7 @@ public class MissionManagement : MonoBehaviour
     public int numberOfRevisionWords = 0;
     public int rwdataCount = 0;
     public int tempDataCount = 0;
+    public bool revisionListDisplayed = false;
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
@@ -551,27 +553,6 @@ public class MissionManagement : MonoBehaviour
         public double score_percentage;
         public int total_question;
     }
-
-
-    
-    // QuestionResponse[] completeResponse;
-
-    // int questionNumberValue = 0;
-    // int chances = 0;
-
-    // public string nounDetails = "newWords,newWords.nouns,newWords.nouns.nounSentences";
-    // public string verbDetails = "newWords,newWords.verbs,newWords.verbs.verbSentences";
-    // public string adverbDetails = "newWords,newWords.adverbs,newWords.adverbs.adverbSentences";
-    // public string adjectiveDetails = "newWords,newWords.adjectives,newWords.adjectives.adjectiveSentences";
-    // public string dailyTipsDetails = "newWords,newWords.dailyUseTips";
-    // public string otherWayUsingWords = "newWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences";
-    // public string idioms = "newWords,newWords.idioms,newWords.idioms.idiomSentences";
-    // public string useMultipleWords = "newWords,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences";
-    // public string synonyms = "newWords,newWords.synonyms,newWords.synonyms.synonymSentences";
-    // public string antonyms = "newWords,newWords.synonyms,newWords.antonyms,newWords.antonyms.antonymSentences";
-    // public string questions = "questions,questions.questionOptions";
-    // public string conversation = "conversation,conversationQuestions,conversationQuestions.questionOptions";
-    // public string passages = "passages,passages.questions,passages.questions.questionOptions";
 
     string fixJson(string value)            // Added object type to JSON
     {
@@ -715,22 +696,29 @@ public class MissionManagement : MonoBehaviour
     {
         generalMCQcount = dataCountDetails.mcq_count; // 2
         // totalNumber = dataCountDetails.mcq_count;
-        newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
-        dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
-        dataCountDetails.new_word_data.more_data[0].adjective_count +
-        dataCountDetails.new_word_data.more_data[0].other_way_using_count
-        + dataCountDetails.new_word_data.more_data[0].idiom_count
-        + dataCountDetails.new_word_data.more_data[0].use_multiple_count
-        + dataCountDetails.new_word_data.more_data[0].synonym_count
-        + dataCountDetails.new_word_data.more_data[0].antonym_count;
+        if  (dataCountDetails.new_word_data.new_word_count != 0)
+        {
+                newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
+            dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
+            dataCountDetails.new_word_data.more_data[0].adjective_count +
+            dataCountDetails.new_word_data.more_data[0].other_way_using_count
+            + dataCountDetails.new_word_data.more_data[0].idiom_count
+            + dataCountDetails.new_word_data.more_data[0].use_multiple_count
+            + dataCountDetails.new_word_data.more_data[0].synonym_count
+            + dataCountDetails.new_word_data.more_data[0].antonym_count
+            + dataCountDetails.conversation_new_word_count;
+
+             if (dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0)
+            {
+                newWordDataCount = newWordDataCount + 1;
+            }
+        }
+        
         //2 + 2 + 1 + 1 + 1 + 1 + 4
         
-        if (dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0)
-        {
-            newWordDataCount = newWordDataCount + 1;
-        }
+       
 
-        Debug.Log(newWordDataCount);
+        Debug.Log("newWordDataCount is " + newWordDataCount);
         totalNumber = generalMCQcount + newWordDataCount; // 14
 
         if  (dataCountDetails.revision_word_data.revison_word_count != 0)
@@ -748,6 +736,10 @@ public class MissionManagement : MonoBehaviour
                 revisionCountArray.Add(revisionDataCount);
              }
        
+            if (dataCountDetails.conversation_revision_word_count != 0)
+            {
+                revisionDataCount = revisionDataCount + 1;
+            }
         }
 
         //no. of revision words i.e. dataCountDetails.revision_word_data.revison_word_count
@@ -755,9 +747,7 @@ public class MissionManagement : MonoBehaviour
         // for back button  - working on calling method with parameter
         
         Debug.Log(revisionDataCount);
-       totalNumber = totalNumber + revisionDataCount + dataCountDetails.conversation_revision_word_count 
-       + dataCountDetails.conversation_new_word_count  
-       + dataCountDetails.passage_data.passage_count;
+       totalNumber = totalNumber + revisionDataCount + dataCountDetails.passage_data.passage_count;
        //15 + 5 + 2
 
         if (dataCountDetails.conversation_mcq_count != 0)   // as mcqs related to 1 conversation will be displayed on one screen so it will be counted as 1 only, also as per client requirement - there is one converstaion with mcq only
@@ -767,7 +757,6 @@ public class MissionManagement : MonoBehaviour
         // 22 + 1
        Debug.Log("total number is" + totalNumber);
         GetAllDetails();
-
 
     }
 
@@ -859,11 +848,15 @@ public class MissionManagement : MonoBehaviour
             {
                 availableData["isRevisionWordsAvailable"] = true;
             }
-            if (allDetailData.newWords[0].image_url != null)
-            {
-                string imageURL = allDetailData.newWords[0].image_url;
-                StartCoroutine(DownloadImage(imageURL));
-            }
+
+             if  (dataCountDetails.new_word_data.new_word_count != 0)
+             {
+                if (allDetailData.newWords[0].image_url != null)
+                {
+                    string imageURL = allDetailData.newWords[0].image_url;
+                    StartCoroutine(DownloadImage(imageURL));
+                }
+             }
             SetBottomTitleLabel();
             SetUpBaseCanvas();
 
@@ -887,6 +880,7 @@ public class MissionManagement : MonoBehaviour
        isSettingCanvas = true;  //bool to differentiate if setting canvas or making next or back calls
         if ( availableData["isNewWordAvailable"] == true && newWordDataCount != newWordNumber)
         {
+            Debug.Log("new word details");
             newWordDetails = allDetailData.newWords[0];
             if (newWordDetails.type == 1)
             {
@@ -902,7 +896,8 @@ public class MissionManagement : MonoBehaviour
                
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(NounSetup);
-                NounSetup(parameterCountControlCheck);                
+                NounSetup(parameterCountControlCheck);  
+                return;              
             }
             else if ((dataCountDetails.new_word_data.more_data[0].verb_count != 0)  && (dataDisplayed["isVerbDone"] == false))
             {
@@ -912,6 +907,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(VerbSetup);
                 VerbSetup(parameterCountControlCheck);
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adverb_count != 0)  && (dataDisplayed["isAdverbDone"] == false))
             {
@@ -921,6 +917,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdverbSetup);
                 AdverbSetup(parameterCountControlCheck);
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adjective_count != 0)  && (dataDisplayed["isAdjectiveDone"] == false))
             {
@@ -930,6 +927,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdjectiveSetup);
                 AdjectiveSetup(parameterCountControlCheck);
+                return;
             }
             else if ((dataCountDetails.conversation_new_word_count != 0) && (dataDisplayed["isNewWordConverstaionDone"] == false))
             {
@@ -938,15 +936,16 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(ConversationSetup);
                 ConversationSetup(parameterCountControlCheck);
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0) && (dataDisplayed["isDUTDone"] == false))
             {
-               
+               Debug.Log("dut board covered");
                 newWordNumber += 1;
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(DailyTipsSetup);
                 DailyTipsSetup(parameterCountControlCheck);
-
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].other_way_using_count != 0) && (dataDisplayed["isnewWordOWUWordDone"] == false))
             {
@@ -955,7 +954,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AnotherWayOfUsingWordSetup);
                 AnotherWayOfUsingWordSetup(parameterCountControlCheck);
-
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].idiom_count != 0) && (dataDisplayed["isnewWordIdiomDone"] == false))
             {
@@ -964,7 +963,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(IdiomSetup);
                 IdiomSetup(parameterCountControlCheck);
-
+                return;
             }
              else if ((dataCountDetails.new_word_data.more_data[0].use_multiple_count != 0) && (dataDisplayed["isnewWordUsingMultipleWordsDone"] == false))
             {
@@ -973,7 +972,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(MultipleWordSetup);
                 MultipleWordSetup(parameterCountControlCheck);
-
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].antonym_count != 0) && (dataDisplayed["isnewWordAntonymDone"] == false))
             {
@@ -982,7 +981,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AntonymSetup);
                 AntonymSetup(parameterCountControlCheck);
-
+                return;
             }
             else if ((dataCountDetails.new_word_data.more_data[0].synonym_count != 0) && (dataDisplayed["isnewWordSynonymDone"] == false))
             {
@@ -991,6 +990,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(SynonymSetup);
                 SynonymSetup(parameterCountControlCheck);
+                return;
             }
             // else 
             if (newWordNumber == 1 && dataCountDetails.interactive_line_new_word != "")
@@ -999,30 +999,30 @@ public class MissionManagement : MonoBehaviour
                 }
         }
 
-        Debug.Log("Checking for revision world" + newWordNumber);
+        Debug.Log("Checking for revision world " + newWordNumber + newWordDataCount);
         if ((newWordDataCount != 0 && newWordNumber == newWordDataCount) || newWordDataCount == 0) 
         {
+            dataDisplayed["isNewWordDetailsDone"] = true;
+
              HideSpeakerAndImage();
 
             DestroyPrefabs();
             // new word displaying is done start checking for revision word list and related data
-            Debug.Log("Entering to revision world");
+            Debug.Log("Entering to revision world & value of " + dataDisplayed["isRevisionWordListDone"] + " " + dataDisplayed["isRevisionWordContentDone"]);
 
             // if list is displayed run for loop, all methods for first word and so on
             // if (dataDisplayed["isRevisionWordListDone"] == true && revisionDataCount == 1) 
-            if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false))
-            {
-                    // display revision list
-                    // revisionDataCount += 1;
-                    // RevisionWordDataCount(revisionWordReference);
-                    parameterValueArray.Add(0);
-                    methodCallArray.Add(RevisionWordList);  
-
-                    RevisionWordList(0);
-                    
+            if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false) )
+            {          
+                parameterValueArray.Add(0);
+                methodCallArray.Add(RevisionWordList);  
+                RevisionWordList(0);    
+                return;
+               
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false)
-            {                        
+            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionDataCount > 0)
+            {          
+                              
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
                     Debug.Log(revisionWordDetails.id);
 
@@ -1033,6 +1033,7 @@ public class MissionManagement : MonoBehaviour
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(SynonymSetup);  
                         SynonymSetup(parameterCountControlCheck);
+                        return;
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count != 0) && (dataDisplayed["isRevisionWordAntonymDone"] == false))
                     {
@@ -1041,6 +1042,7 @@ public class MissionManagement : MonoBehaviour
                           parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(AntonymSetup);   
                         AntonymSetup(parameterCountControlCheck);
+                        return;
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
                     {
@@ -1049,6 +1051,7 @@ public class MissionManagement : MonoBehaviour
                     parameterValueArray.Add(parameterCountControlCheck);
                     methodCallArray.Add(AnotherWayOfUsingWordSetup); 
                     AnotherWayOfUsingWordSetup(parameterCountControlCheck);
+                    return;
 
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count != 0) && (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == false))
@@ -1058,6 +1061,7 @@ public class MissionManagement : MonoBehaviour
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
+                        return;
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
                     {                          
@@ -1065,6 +1069,7 @@ public class MissionManagement : MonoBehaviour
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(IdiomSetup); 
                         IdiomSetup(parameterCountControlCheck);
+                        return;
                     }
                     else if ((dataCountDetails.conversation_revision_word_count != 0) && (dataDisplayed["isRevisionWordConversationDone"] == false))
                     {
@@ -1073,10 +1078,15 @@ public class MissionManagement : MonoBehaviour
                          parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(ConversationSetup);     
                         ConversationSetup(parameterCountControlCheck);
+                        return;
                     }
                     
-                
-                    if (tempDataCount == revisionCountArray[revisionWordReference])
+                    if (tempDataCount == 1 && numberOfRevisionWords == 1 && revisionCountArray[revisionWordReference] == 0)
+                    {
+                        dataDisplayed["isRevisionWordContentDone"] = true;
+                        Debug.Log("isRevisionWordContentDone ");
+                    }
+                    else if (tempDataCount == revisionCountArray[revisionWordReference] && tempDataCount != 0)
                     {
                         tempDataCount = 0;
                         if (numberOfRevisionWords > 1 && revisionWordReference != numberOfRevisionWords - 1)
@@ -1089,44 +1099,46 @@ public class MissionManagement : MonoBehaviour
                             Debug.Log("isRevisionWordContentDone ");
                         }   
                     }
+                    
             }
-             else if (dataDisplayed["isRevisionWordContentDone"] == true && dataDisplayed["isConversationMCQDone"] == false)
+             else if (dataDisplayed["isConversationMCQDone"] == false && dataCountDetails.conversation_mcq_count != 0 ) //dataDisplayed["isRevisionWordContentDone"] == true && dataDisplayed["isConversationMCQDone"] == false)
             {
+                Debug.Log("Check for convo mcq ");
                 //call for mcq
-                if (dataCountDetails.conversation_mcq_count != 0)
-                {
+                
                     Debug.Log("conversation_mcq_count" + dataCountDetails.conversation_mcq_count);
                     parameterValueArray.Add(0);
                     methodCallArray.Add(ConversationWithMCQSetup);     
 
                     ConversationWithMCQSetup(0); // conversation mcq will be one only for now as per requirement from client
-                    
+                    return;
                     // // make a method to display these mcqs & dataDisplayed["isConversationMCQDone"] is true after displaying and taking answer
                     // dataDisplayed["isConversationMCQDone"] = true;
-                }
+                
              }
-            else if (dataDisplayed["isPassageMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // && dataDisplayed["isConversationMCQDone"] == true)
+            else if (dataDisplayed["isPassageMCQDone"] == false && dataCountDetails.passage_data.passage_count != 0) // && dataDisplayed["isRevisionWordContentDone"] == true) // && dataDisplayed["isConversationMCQDone"] == true)
             {
-                if (dataCountDetails.passage_data.passage_count != 0)
-                {
-                        DestroyConvoPrefabs();
-                        Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
-                        parameterValueArray.Add(parameterCountControlCheck);
-                         methodCallArray.Add(PassageMCQSetup);  
+                Debug.Log("Check for passage mcq");
+               
+                DestroyConvoPrefabs();
+                Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
+                parameterValueArray.Add(parameterCountControlCheck);
+                    methodCallArray.Add(PassageMCQSetup);  
 
-                        PassageMCQSetup(parameterCountControlCheck);
-                        // parameterCountControlCheck pending
-                }
+                PassageMCQSetup(parameterCountControlCheck);
+                return;
+
+                // parameterCountControlCheck pending
+              
             }
-            else if (dataDisplayed["isGeneralMCQDone"] == false && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
+            else if (dataDisplayed["isGeneralMCQDone"] == false && dataCountDetails.mcq_count != 0 ) // && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
             {
-                if (dataCountDetails.mcq_count != 0)
-                {
-                      parameterValueArray.Add(tempGeneralMCQCount);
-                         methodCallArray.Add(GeneralMCQSetup);  
-                    GeneralMCQSetup(tempGeneralMCQCount);
-                    
-                }
+            
+                 Debug.Log("Check for general mcq");
+                parameterValueArray.Add(tempGeneralMCQCount);
+                methodCallArray.Add(GeneralMCQSetup);  
+                GeneralMCQSetup(tempGeneralMCQCount);
+                return;
             } 
         }
     }
@@ -1137,6 +1149,8 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+
 
         GameObject topImage = generalMCQContent.transform.GetChild(0).gameObject;
         TMPro.TMP_Text mcqInteractiveStatement = topImage.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
@@ -1258,6 +1272,7 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
         generalMCQBoard.gameObject.SetActive(false);
+        revisionWordBoard.gameObject.SetActive(false);
 
         int passageCount = dataCountDetails.passage_data.passage_count;
 
@@ -1418,6 +1433,8 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
         generalMCQBoard.gameObject.SetActive(false);
+        revisionWordBoard.gameObject.SetActive(false);
+
 
         int convoMCQcount = dataCountDetails.conversation_mcq_count;
 
@@ -1853,26 +1870,31 @@ public class MissionManagement : MonoBehaviour
 
     public void RevisionWordList(int parameter)
     {
-        baseParentBoard.gameObject.SetActive(false);
-        revisionWordBoard.gameObject.SetActive(true);
-
-        if (dataCountDetails.interactive_line_revision_word != "")
+        if (revisionListDisplayed == false)
         {
-            GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
-                TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                mytext.text = allDetailData.interactive_line_revision_word;
+            baseParentBoard.gameObject.SetActive(false);
+            revisionWordBoard.gameObject.SetActive(true);
+
+            if (dataCountDetails.interactive_line_revision_word != "")
+            {
+                GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = allDetailData.interactive_line_revision_word;
+            }
+        
+
+            for(int i = 0; i < allDetailData.revisionWords.Length; i++)
+                {
+                    string revisionWord = allDetailData.revisionWords[i].name;
+                    Debug.Log(revisionWord);
+                    listOfrevisionWords = listOfrevisionWords + revisionWord + "\n";
+                    Debug.Log(listOfrevisionWords);
+                }
+            revisionWordList.text = listOfrevisionWords;
+            dataDisplayed["isRevisionWordListDone"] = true;
+            revisionListDisplayed = true;
         }
        
-
-         for(int i = 0; i < allDetailData.revisionWords.Length; i++)
-            {
-                string revisionWord = allDetailData.revisionWords[i].name;
-                Debug.Log(revisionWord);
-                listOfrevisionWords = listOfrevisionWords + revisionWord + "\n";
-                Debug.Log(listOfrevisionWords);
-            }
-        revisionWordList.text = listOfrevisionWords;
-        dataDisplayed["isRevisionWordListDone"] = true;
     }
     
 
@@ -2390,6 +2412,7 @@ public class MissionManagement : MonoBehaviour
         generalBaseBoard.gameObject.SetActive(true);
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
+        dutBoard.gameObject.SetActive(false);
 
         if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true || dataDisplayed["isnewWordOWUWordDone"] == true || dataDisplayed["isDUTDone"] == true)
         {
@@ -2497,7 +2520,7 @@ public class MissionManagement : MonoBehaviour
          DestroyPrefabs();
         HideSpeakerAndImage();
            
-
+        dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(false);
@@ -2607,6 +2630,7 @@ public class MissionManagement : MonoBehaviour
         DestroyPrefabs();
          HideSpeakerAndImage();
         baseParentBoard.gameObject.SetActive(true);
+        dutBoard.gameObject.SetActive(false);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -2722,6 +2746,7 @@ public class MissionManagement : MonoBehaviour
 
          DestroyPrefabs();
         HideSpeakerAndImage();
+        dutBoard.gameObject.SetActive(false);
          baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
@@ -2866,6 +2891,7 @@ public class MissionManagement : MonoBehaviour
             }
             else
             {
+                Debug.Log("calling to set base canvas only");
                 SetUpBaseCanvas();
             }
             

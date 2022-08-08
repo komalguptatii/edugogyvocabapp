@@ -74,11 +74,14 @@ public class VerifyOTPManager : MonoBehaviour
 
         }
 
-       
+
     }
 
-    private void Start() {
+    void Start() {
         // phoneNumber = "9855940600";
+
+       
+
         int phoneLength = phoneNumber.Length;
         string returnNumber = "";
 
@@ -92,6 +95,7 @@ public class VerifyOTPManager : MonoBehaviour
                 returnNumber = returnNumber + "XXXXX";
             }
         }
+
 
         Debug.Log(returnNumber);
         description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for  your space flight.";

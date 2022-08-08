@@ -89,6 +89,7 @@ public class DashboardManager : MonoBehaviour
                 TMPro.TMP_Text levelNumber = button.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
                 button.tag = "Locked";
                 button.onClick.AddListener(delegate{OnButtonClick();});
+                Debug.Log("Adding Listener");
                 int k = z + 1;
                 levelNumber.text = k.ToString();
                 if (k == 1)
@@ -142,44 +143,44 @@ public class DashboardManager : MonoBehaviour
         {
             //complete previous level - 
         //      // // save & get details only if entering to level also unlock it based on conditions
-            if (button.tag == "Unlocked")
-            {
+            // if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
+            // {
                 SaveDataForPreviousLevel(); 
                 GetAllDetails();
                 numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
                 PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-            }
+            // }
             
         }
 
         int sevendsDaysBefore = totalNumberOfLevels - 7;
         int dayBefore = totalNumberOfLevels - 1;
         //next level will be
-        if (levelId == totalNumberOfLevels.ToString()) // for free trial
-        {
-            Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
-            // check for subscription period - 30, 90, 180 may change adding free trial
-            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-			    popup.Init(UIController.Instance.MainCanvas,
-				"Your subscription is over, today is the last day",
-				"Ok"
-				);
+        // if (levelId == totalNumberOfLevels.ToString()) // for free trial
+        // {
+        //     Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
+        //     // check for subscription period - 30, 90, 180 may change adding free trial
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+		// 	    popup.Init(UIController.Instance.MainCanvas,
+		// 		"Your subscription is over, today is the last day",
+		// 		"Ok"
+		// 		);
             
-        } 
-        else if (levelId == sevendsDaysBefore.ToString() || levelId == dayBefore.ToString())
-        {
-            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-			    popup.Init(UIController.Instance.MainCanvas,
-				"Your subscription is getting over",
-				"Ok"
-				);
-        }
+        // } 
+        // else if (levelId == sevendsDaysBefore.ToString() || levelId == dayBefore.ToString())
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+		// 	    popup.Init(UIController.Instance.MainCanvas,
+		// 		"Your subscription is getting over",
+		// 		"Ok"
+		// 		);
+        // }
         
         // for testing purpose
          GetAllDetails();
-            numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
-            PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-        
+        numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
+        PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+    
     }
 
     public void SaveDataForPreviousLevel()
