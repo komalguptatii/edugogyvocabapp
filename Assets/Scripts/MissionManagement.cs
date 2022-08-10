@@ -897,7 +897,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(NounSetup);
                 NounSetup(parameterCountControlCheck);  
-                return;              
+                        
             }
             else if ((dataCountDetails.new_word_data.more_data[0].verb_count != 0)  && (dataDisplayed["isVerbDone"] == false))
             {
@@ -907,7 +907,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(VerbSetup);
                 VerbSetup(parameterCountControlCheck);
-                return;
+                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adverb_count != 0)  && (dataDisplayed["isAdverbDone"] == false))
             {
@@ -917,7 +917,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdverbSetup);
                 AdverbSetup(parameterCountControlCheck);
-                return;
+               
             }
             else if ((dataCountDetails.new_word_data.more_data[0].adjective_count != 0)  && (dataDisplayed["isAdjectiveDone"] == false))
             {
@@ -927,7 +927,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdjectiveSetup);
                 AdjectiveSetup(parameterCountControlCheck);
-                return;
+               
             }
             else if ((dataCountDetails.conversation_new_word_count != 0) && (dataDisplayed["isNewWordConverstaionDone"] == false))
             {
@@ -936,7 +936,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(ConversationSetup);
                 ConversationSetup(parameterCountControlCheck);
-                return;
+                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0) && (dataDisplayed["isDUTDone"] == false))
             {
@@ -945,7 +945,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(DailyTipsSetup);
                 DailyTipsSetup(parameterCountControlCheck);
-                return;
+                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].other_way_using_count != 0) && (dataDisplayed["isnewWordOWUWordDone"] == false))
             {
@@ -954,7 +954,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AnotherWayOfUsingWordSetup);
                 AnotherWayOfUsingWordSetup(parameterCountControlCheck);
-                return;
+               
             }
             else if ((dataCountDetails.new_word_data.more_data[0].idiom_count != 0) && (dataDisplayed["isnewWordIdiomDone"] == false))
             {
@@ -963,7 +963,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(IdiomSetup);
                 IdiomSetup(parameterCountControlCheck);
-                return;
+                
             }
              else if ((dataCountDetails.new_word_data.more_data[0].use_multiple_count != 0) && (dataDisplayed["isnewWordUsingMultipleWordsDone"] == false))
             {
@@ -972,7 +972,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(MultipleWordSetup);
                 MultipleWordSetup(parameterCountControlCheck);
-                return;
+                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].antonym_count != 0) && (dataDisplayed["isnewWordAntonymDone"] == false))
             {
@@ -981,7 +981,7 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AntonymSetup);
                 AntonymSetup(parameterCountControlCheck);
-                return;
+                
             }
             else if ((dataCountDetails.new_word_data.more_data[0].synonym_count != 0) && (dataDisplayed["isnewWordSynonymDone"] == false))
             {
@@ -990,13 +990,15 @@ public class MissionManagement : MonoBehaviour
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(SynonymSetup);
                 SynonymSetup(parameterCountControlCheck);
-                return;
+                
             }
-            // else 
+            
             if (newWordNumber == 1 && dataCountDetails.interactive_line_new_word != "")
-                {
-                    ShowInteractivePopup();
-                }
+            {
+                ShowInteractivePopup();
+            }
+            return;
+            
         }
 
         Debug.Log("Checking for revision world " + newWordNumber + newWordDataCount);
@@ -1033,7 +1035,7 @@ public class MissionManagement : MonoBehaviour
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(SynonymSetup);  
                         SynonymSetup(parameterCountControlCheck);
-                        return;
+                       
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count != 0) && (dataDisplayed["isRevisionWordAntonymDone"] == false))
                     {
@@ -1042,17 +1044,16 @@ public class MissionManagement : MonoBehaviour
                           parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(AntonymSetup);   
                         AntonymSetup(parameterCountControlCheck);
-                        return;
+                        
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
                     {
                     
-                    tempDataCount += 1;
-                    parameterValueArray.Add(parameterCountControlCheck);
-                    methodCallArray.Add(AnotherWayOfUsingWordSetup); 
-                    AnotherWayOfUsingWordSetup(parameterCountControlCheck);
-                    return;
-
+                        tempDataCount += 1;
+                        parameterValueArray.Add(parameterCountControlCheck);
+                        methodCallArray.Add(AnotherWayOfUsingWordSetup); 
+                        AnotherWayOfUsingWordSetup(parameterCountControlCheck);
+                    
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count != 0) && (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == false))
                     {
@@ -1061,7 +1062,7 @@ public class MissionManagement : MonoBehaviour
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
-                        return;
+                        
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
                     {                          
@@ -1069,26 +1070,33 @@ public class MissionManagement : MonoBehaviour
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(IdiomSetup); 
                         IdiomSetup(parameterCountControlCheck);
-                        return;
+                        
                     }
                     else if ((dataCountDetails.conversation_revision_word_count != 0) && (dataDisplayed["isRevisionWordConversationDone"] == false))
                     {
                                                   
                          tempDataCount += 1; 
-                         parameterValueArray.Add(parameterCountControlCheck);
+                        parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(ConversationSetup);     
                         ConversationSetup(parameterCountControlCheck);
-                        return;
+                       
                     }
                     
-                    if (tempDataCount == 1 && numberOfRevisionWords == 1 && revisionCountArray[revisionWordReference] == 0)
+                    Debug.Log(tempDataCount + "tempDataCount");
+                    Debug.Log(numberOfRevisionWords + " numberOfRevisionWords");
+
+
+                    if (tempDataCount == 1 && revisionCountArray[revisionWordReference] == 0)
                     {
                         dataDisplayed["isRevisionWordContentDone"] = true;
-                        Debug.Log("isRevisionWordContentDone ");
+                        Debug.Log("isRevisionWordContentDone with conversation");
                     }
-                    else if (tempDataCount == revisionCountArray[revisionWordReference] && tempDataCount != 0)
+                     
+                    if (tempDataCount == revisionCountArray[revisionWordReference] && tempDataCount != 0)
                     {
                         tempDataCount = 0;
+                         Debug.Log("isRevisionWordContentDone with ");
+
                         if (numberOfRevisionWords > 1 && revisionWordReference != numberOfRevisionWords - 1)
                         {
                             revisionWordReference += 1;
@@ -1099,6 +1107,7 @@ public class MissionManagement : MonoBehaviour
                             Debug.Log("isRevisionWordContentDone ");
                         }   
                     }
+                     return;
                     
             }
              else if (dataDisplayed["isConversationMCQDone"] == false && dataCountDetails.conversation_mcq_count != 0 ) //dataDisplayed["isRevisionWordContentDone"] == true && dataDisplayed["isConversationMCQDone"] == false)
@@ -1150,12 +1159,20 @@ public class MissionManagement : MonoBehaviour
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
+        conversationBoard.gameObject.SetActive(false);
 
 
         GameObject topImage = generalMCQContent.transform.GetChild(0).gameObject;
         TMPro.TMP_Text mcqInteractiveStatement = topImage.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
 
-        mcqInteractiveStatement.text = allDetailData.interactive_line_mcq;
+        if (allDetailData.interactive_line_mcq != "")
+        {
+            mcqInteractiveStatement.text = allDetailData.interactive_line_mcq;
+        }
+        else
+        {
+            mcqInteractiveStatement.text = "Let's revise what we have already learnt.";
+        }
 
         GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
         GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
@@ -1721,11 +1738,11 @@ public class MissionManagement : MonoBehaviour
     {
 
          //temporary
-             int nextLevel = dayLevelId + 1;
-            PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
-            DateTime completionDateTime = System.DateTime.Now;
-            PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
-                        GoBackToDashboard();
+        // int nextLevel = dayLevelId + 1;
+        // PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
+        // DateTime completionDateTime = System.DateTime.Now;
+        // PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
+        // GoBackToDashboard();
 
         ResponseSubmission newResponse = new ResponseSubmission();
         newResponse.response = new List<QuestionResponse>();
@@ -1733,20 +1750,16 @@ public class MissionManagement : MonoBehaviour
 
        foreach(var item in questionResponseDict)
         {   
-            // Debug.Log("Value of key is " + item.Key);
 
             for(int i = 0; i < item.Value.Count; i++)
             {
-                // Debug.Log("Count of items is " + item.Value.Count);
                 List<int> optionList = item.Value;
-                // Debug.Log("value of selected option for " + item.Key + " is " + optionList[i]);
                 QuestionResponse newQuestionResponse = new QuestionResponse();
                 newQuestionResponse.question_id = item.Key;
                 newQuestionResponse.selected_options = new SelectedOption[item.Value.Count];
                 SelectedOption newOption = new SelectedOption{option_id = optionList[i]};
                 newQuestionResponse.selected_options[i] = newOption;
-                // QuestionResponse[] thisResponse = new QuestionResponse[i];
-                // thisResponse[i] = newQuestionResponse;
+                
                 newResponse.response.Add(newQuestionResponse); //= thisResponse;
 
             }
@@ -1782,8 +1795,6 @@ public class MissionManagement : MonoBehaviour
             string userJson = request.downloadHandler.text;
             ResponseResult result = new ResponseResult();
             result = JsonUtility.FromJson<ResponseResult>(userJson);
-            
-           
 
 
             string message = "";
@@ -1860,7 +1871,7 @@ public class MissionManagement : MonoBehaviour
             }
             int nextLevel = levelId + 1;
             PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
-            DateTime completionDateTime = System.DateTime.Now;
+            DateTime completionDateTime = System.DateTime.Now.Date;
             PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
             GoBackToDashboard();
 
@@ -1880,6 +1891,12 @@ public class MissionManagement : MonoBehaviour
                 GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = allDetailData.interactive_line_revision_word;
+            }
+            else
+            {
+                 GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = "Revision words for the Day";
             }
         
 
