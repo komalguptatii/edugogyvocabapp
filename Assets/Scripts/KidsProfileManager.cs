@@ -77,7 +77,8 @@ public class KidsProfileManager : MonoBehaviour
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", "Bearer M0hLI8d5GVceaFh32XrOsiaiFvFgxxRz");
+             request.SetRequestHeader("Authorization", auth_key);
+            // request.SetRequestHeader("Authorization", "Bearer M0hLI8d5GVceaFh32XrOsiaiFvFgxxRz");
 
             yield return request.SendWebRequest();
             
@@ -145,7 +146,8 @@ public class KidsProfileManager : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer M0hLI8d5GVceaFh32XrOsiaiFvFgxxRz");
+         request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", "Bearer M0hLI8d5GVceaFh32XrOsiaiFvFgxxRz");
 
         yield return request.SendWebRequest();
 

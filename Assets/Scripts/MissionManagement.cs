@@ -554,6 +554,8 @@ public class MissionManagement : MonoBehaviour
         public int total_question;
     }
 
+    public TextMeshProUGUI missionTitle;
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -580,7 +582,8 @@ public class MissionManagement : MonoBehaviour
             dayLevelId = PlayerPrefs.GetInt("StartLevelID");
             Debug.Log("dayLevelId " + dayLevelId);
             levelId = PlayerPrefs.GetInt("LevelId");
-            // StartMission();
+            missionTitle.text = "Mission " + levelId.ToString();
+            StartMission();
         }
 
     }
@@ -596,17 +599,24 @@ public class MissionManagement : MonoBehaviour
     {   
         //  var mediaUrl = "http://165.22.219.198/edugogy/frontend/web/uploads/word/thumb-Screen_Shot_2022-04-28_at_10.44.30_AM-4.png";
 
-        UnityWebRequest request = UnityWebRequestTexture.GetTexture(mediaUrl);
-        yield return request.SendWebRequest();
-        if(request.isNetworkError || request.isHttpError) 
-            Debug.Log(request.error);
+        if (mediaUrl != "")
+        {
+            UnityWebRequest request = UnityWebRequestTexture.GetTexture(mediaUrl);
+            yield return request.SendWebRequest();
+            if(request.isNetworkError || request.isHttpError) 
+                Debug.Log(request.error);
+            else
+            {
+                Texture2D myTexture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+
+                wordImage.sprite = Sprite.Create(myTexture, new Rect(0, 0, myTexture.width, myTexture.height), new Vector2(0, 0));
+            }
+            request.Dispose();
+        }
         else
         {
-            Texture2D myTexture = ((DownloadHandlerTexture)request.downloadHandler).texture;
-
-            wordImage.sprite = Sprite.Create(myTexture, new Rect(0, 0, myTexture.width, myTexture.height), new Vector2(0, 0));
+            wordImage.gameObject.SetActive(false);
         }
-        request.Dispose();
         
     } 
 
@@ -642,7 +652,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", "Bearer uxVuqn-wKwm7AoJbQCmhbC4HcnzGeDq6");
 
 
         yield return request.SendWebRequest();
@@ -667,7 +677,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", "Bearer uxVuqn-wKwm7AoJbQCmhbC4HcnzGeDq6");
 
 
         yield return request.SendWebRequest();
@@ -769,7 +779,20 @@ public class MissionManagement : MonoBehaviour
      public void DisplaySpeakerandImage()
     {
         speakerButton.gameObject.SetActive(true);
-        wordImage.gameObject.SetActive(true);
+        Debug.Log(allDetailData.newWords[0].image_url);
+                if (allDetailData.newWords[0].image_url != null)
+                {
+                    string imageURL = allDetailData.newWords[0].image_url;
+                    wordImage.gameObject.SetActive(true);
+                    StartCoroutine(DownloadImage(imageURL));
+                }
+                else if (allDetailData.newWords[0].image_url == null)
+                {
+                    Debug.Log("url is null");
+                    wordImage.gameObject.SetActive(false);
+                    
+                }
+        // wordImage.gameObject.SetActive(true);
     }
 
     public void HideSentences()
@@ -838,7 +861,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", "Bearer uxVuqn-wKwm7AoJbQCmhbC4HcnzGeDq6");
 
 
         yield return request.SendWebRequest();
@@ -867,10 +890,18 @@ public class MissionManagement : MonoBehaviour
 
              if  (dataCountDetails.new_word_data.new_word_count != 0)
              {
+                Debug.Log(allDetailData.newWords[0].image_url);
                 if (allDetailData.newWords[0].image_url != null)
                 {
                     string imageURL = allDetailData.newWords[0].image_url;
+                    
                     StartCoroutine(DownloadImage(imageURL));
+                }
+                else if (allDetailData.newWords[0].image_url == null)
+                {
+                    Debug.Log("url is null");
+                    wordImage.gameObject.SetActive(false);
+                    
                 }
              }
             SetBottomTitleLabel();
@@ -1806,7 +1837,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", "Bearer uxVuqn-wKwm7AoJbQCmhbC4HcnzGeDq6");
 
 
         yield return request.SendWebRequest();
@@ -1872,7 +1903,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-     request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+     request.SetRequestHeader("Authorization", "Bearer uxVuqn-wKwm7AoJbQCmhbC4HcnzGeDq6");
 
 
         yield return request.SendWebRequest();

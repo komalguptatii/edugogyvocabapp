@@ -59,8 +59,14 @@ public class DashboardManager : MonoBehaviour
 
     
     private Animator animator;
+    string auth_key;
 
     private void Awake() {
+         if (PlayerPrefs.HasKey("auth_key"))
+        {
+            auth_key = PlayerPrefs.GetString("auth_key");
+            Debug.Log(auth_key);
+        }
         GetUserProfile();
     }
 
@@ -210,7 +216,8 @@ public class DashboardManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+         request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
         yield return request.SendWebRequest();
 
@@ -247,7 +254,8 @@ public class DashboardManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+         request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
         yield return request.SendWebRequest();
 

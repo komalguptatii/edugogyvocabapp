@@ -33,6 +33,9 @@ public class HelpManager : MonoBehaviour
     public Transform ScrollContentParent;
     public List<GameObject> collapsablePrefabArray = new List<GameObject>();
 
+
+     string auth_key;
+     
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -44,6 +47,13 @@ public class HelpManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+         if (PlayerPrefs.HasKey("auth_key"))
+        {
+            auth_key = PlayerPrefs.GetString("auth_key");
+            
+            Debug.Log(auth_key);
+
+        }
         GetFAQs();
     }
 
@@ -57,8 +67,8 @@ public class HelpManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        request.SetRequestHeader("Authorization", auth_key);
+        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
 
 
         yield return request.SendWebRequest();
