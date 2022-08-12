@@ -57,6 +57,9 @@ public class DashboardManager : MonoBehaviour
     int levelsPassed = 0;
     DateTime lastTimeClicked;
 
+    
+    private Animator animator;
+
     private void Awake() {
         GetUserProfile();
     }
@@ -87,26 +90,28 @@ public class DashboardManager : MonoBehaviour
             if (difference.TotalHours == 0)
             {
                 
-                if (numberOfLevelsPerDay != 2)
-                {
+                // if (numberOfLevelsPerDay != 2)
+                // {
                     // unlock
                     //show unlock animation and move character to that level
                     Debug.Log("unlock next level");
                     Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
                      GameObject lockImage = button.transform.GetChild(1).gameObject;
-                    lockImage.SetActive(false);
+                    // lockImage.SetActive(false);
                     button.tag = "Unlocked";
-                }
-                else 
-                {
+                    animator = lockImage.GetComponent<Animator>();
+                    animator.Play("UnlockLock");
+                // }
+                // else 
+                // {
                 
-                            //     //save datetime here and check for next level date time, when entered next date set  quota to 0
-                    InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                    popup.Init(UIController.Instance.MainCanvas,
-                    "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
-                    "Ok"
-                    );
-                }
+                //             //     //save datetime here and check for next level date time, when entered next date set  quota to 0
+                //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                //     popup.Init(UIController.Instance.MainCanvas,
+                //     "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+                //     "Ok"
+                //     );
+                // }
             }
                 
             // }
@@ -162,31 +167,18 @@ public class DashboardManager : MonoBehaviour
         levelId = mytext.text;
         Debug.Log("level id is " + levelId);
 
-        if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
-        {
+        // if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
+        // {
             SaveDataForPreviousLevel(); 
             GetAllDetails();
             numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
             PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-        }
-        else
-        {
-            Debug.Log("Can't unlock this mission yet");
-        }
-            
-
-        
+        // }
         // else
         // {
-            //complete previous level - 
-        //      // // save & get details only if entering to level also unlock it based on conditions
-            
+        //     Debug.Log("Can't unlock this mission yet");
         // }
         
-        // for testing purpose
-        // GetAllDetails();
-        // numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
-        // PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
     
     }
 
@@ -285,41 +277,41 @@ public class DashboardManager : MonoBehaviour
         int sevendsDaysBefore = totalNumberOfLevels - 7;
         int dayBefore = totalNumberOfLevels - 1;
 
-        if (levelsPassed == 0)
-        {
-            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-            popup.Init(UIController.Instance.MainCanvas,
-            "Welcome aboard, astronaut! Your space mission is about to begin.",
-            "Ready to take off?"
-            );
-        }
-        else  if (levelsPassed == totalNumberOfLevels) // for free trial
-        {
-            Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
-            // check for subscription period - 30, 90, 180 may change adding free trial
-            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                "Your subscription is over, today is the last day",
-                "Ok"
-                );
+        // if (levelsPassed == 0)
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //     popup.Init(UIController.Instance.MainCanvas,
+        //     "Welcome aboard, astronaut! Your space mission is about to begin.",
+        //     "Ready to take off?"
+        //     );
+        // }
+        // else  if (levelsPassed == totalNumberOfLevels) // for free trial
+        // {
+        //     Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
+        //     // check for subscription period - 30, 90, 180 may change adding free trial
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //         popup.Init(UIController.Instance.MainCanvas,
+        //         "Your subscription is over, today is the last day",
+        //         "Ok"
+        //         );
             
-        } 
-        else if (levelsPassed == dayBefore)
-        {
-            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                "Your subscription is getting over in a day",
-                "Ok"
-                );
-        }
-        else if (levelsPassed == sevendsDaysBefore)
-        {
-            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                "Your subscription is getting over in coming 7 days",
-                "Ok"
-                );
-        }
+        // } 
+        // else if (levelsPassed == dayBefore)
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //         popup.Init(UIController.Instance.MainCanvas,
+        //         "Your subscription is getting over in a day",
+        //         "Ok"
+        //         );
+        // }
+        // else if (levelsPassed == sevendsDaysBefore)
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //         popup.Init(UIController.Instance.MainCanvas,
+        //         "Your subscription is getting over in coming 7 days",
+        //         "Ok"
+        //         );
+        // }
     }
    
 }

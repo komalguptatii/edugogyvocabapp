@@ -766,6 +766,12 @@ public class MissionManagement : MonoBehaviour
         wordImage.gameObject.SetActive(false);
     }
 
+     public void DisplaySpeakerandImage()
+    {
+        speakerButton.gameObject.SetActive(true);
+        wordImage.gameObject.SetActive(true);
+    }
+
     public void HideSentences()
     {
         speakerButton.gameObject.SetActive(false);
@@ -782,6 +788,16 @@ public class MissionManagement : MonoBehaviour
             {
                     Debug.Log("value of i " + i);
                     Destroy(parent.transform.GetChild(i).gameObject);
+            }
+       }
+
+       int dutPrefabCount = dutParent.transform.childCount;
+       if (dutPrefabCount > 1)
+       {
+            for (int i = 1; i < dutPrefabCount; i++)
+            {
+                    Debug.Log("value of i " + i);
+                    Destroy(dutParent.transform.GetChild(i).gameObject);
             }
        }
        
@@ -1176,7 +1192,7 @@ public class MissionManagement : MonoBehaviour
 
         GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
         GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
-        TMPro.TMP_Text questionText = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+        TMPro.TMP_Text questionText = questionBoard.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
         questionText.text = allDetailData.questions[parameter].title;
 
         GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
@@ -1195,6 +1211,7 @@ public class MissionManagement : MonoBehaviour
         for(int j = 0; j < children; j++ )
         {
             Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+            thisButton.gameObject.SetActive(true);
             if (j <= answerOptions-1)
             {
                 TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1208,6 +1225,20 @@ public class MissionManagement : MonoBehaviour
             else
             {
                 thisButton.gameObject.SetActive(false);
+                
+                // var rectTransform = optionBoard.GetComponent<RectTransform>();
+                // if (rectTransform != null)
+                // {
+                //     rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, rectTransform.sizeDelta.y - 155.2f);
+                // }
+
+                // var rectTransform2 = mcqBoard.GetComponent<RectTransform>();
+                // if (rectTransform2 != null)
+                // {
+                //     rectTransform2.sizeDelta = new Vector2(rectTransform2.sizeDelta.x, rectTransform2.sizeDelta.y - 155.2f);
+                // }
+                
+                
             }
         }
 
@@ -1344,6 +1375,7 @@ public class MissionManagement : MonoBehaviour
                     for(int j = 0; j < children; j++ )
                     {
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                          thisButton.gameObject.SetActive(true);
                         if (j <= answerOptions-1)
                         {
                             TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1427,6 +1459,7 @@ public class MissionManagement : MonoBehaviour
             for(int j = 0; j < children; j++ )
             {
                 Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                  thisButton.gameObject.SetActive(true);
                 if (j <= answerOptions-1)
                 {
                     TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1509,6 +1542,7 @@ public class MissionManagement : MonoBehaviour
                     for(int j = 0; j < children; j++ )
                     {
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                          thisButton.gameObject.SetActive(true);
                         if (j <= answerOptions-1)
                         {
                             TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1595,6 +1629,7 @@ public class MissionManagement : MonoBehaviour
             for(int j = 0; j < children; j++ )
             {
                 Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+                  thisButton.gameObject.SetActive(true);
                 if (j <= answerOptions-1)
                 {
                     TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1737,13 +1772,6 @@ public class MissionManagement : MonoBehaviour
     public IEnumerator PrintResponseDict_Coroutine()
     {
 
-         //temporary
-        // int nextLevel = dayLevelId + 1;
-        // PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
-        // DateTime completionDateTime = System.DateTime.Now;
-        // PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
-        // GoBackToDashboard();
-
         ResponseSubmission newResponse = new ResponseSubmission();
         newResponse.response = new List<QuestionResponse>();
 
@@ -1864,15 +1892,16 @@ public class MissionManagement : MonoBehaviour
             if (result.is_passed == 1)
             {
                 // PlayerPrefs.SetBool("isPassed", true);
+                 int nextLevel = levelId + 1;
+                PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
+                DateTime completionDateTime = System.DateTime.Now.Date;
+                PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
             }
             else
             {
                 // PlayerPrefs.SetBool("isPassed", false);
             }
-            int nextLevel = levelId + 1;
-            PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
-            DateTime completionDateTime = System.DateTime.Now.Date;
-            PlayerPrefs.SetString("completionDateTime", completionDateTime.ToString());
+           
             GoBackToDashboard();
 
             
@@ -1917,12 +1946,17 @@ public class MissionManagement : MonoBehaviour
 
     public void NounSetup(int parameter)
     {
+        DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
          conversationBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
+        dutBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(true);
 
 
+
+        typeOfDay.text = "New Word";
         typeOfWord.text = "Noun";
         Noun newNoun = new Noun();
         int nounCount = dataCountDetails.new_word_data.more_data[0].noun_count;
@@ -2000,12 +2034,16 @@ public class MissionManagement : MonoBehaviour
     public void VerbSetup(int parameter)
     {
         DestroyPrefabs();
+        DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
          conversationBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
+         dutBoard.gameObject.SetActive(false);
+         generalBaseBoard.gameObject.SetActive(true);
 
 
+        typeOfDay.text = "New Word";
         typeOfWord.text = "Verb";
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
@@ -2081,12 +2119,17 @@ public class MissionManagement : MonoBehaviour
     public void AdverbSetup(int parameter)
     {
         DestroyPrefabs();
-                conversationWithMCQBoard.gameObject.SetActive(false);
+        DisplaySpeakerandImage();
+        conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
          conversationBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
+         dutBoard.gameObject.SetActive(false);
+         generalBaseBoard.gameObject.SetActive(true);
 
 
+
+        typeOfDay.text = "New Word";
         typeOfWord.text = "Adverb";
         Adverb newAdverb = new Adverb();
         int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
@@ -2163,12 +2206,16 @@ public class MissionManagement : MonoBehaviour
     public void AdjectiveSetup(int parameter)
     {
         DestroyPrefabs();
+        DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
+        dutBoard.gameObject.SetActive(false);
+        generalBaseBoard.gameObject.SetActive(true);
 
 
+        typeOfDay.text = "New Word";
         typeOfWord.text = "Adjective";
         Adjective newAdjective = new Adjective();
         int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
@@ -2244,8 +2291,13 @@ public class MissionManagement : MonoBehaviour
     public void ConversationSetup(int parameter)
     {
         DestroyPrefabs();
+        
         baseParentBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(true);
+        generalMCQBoard.gameObject.SetActive(false);
+        revisionWordBoard.gameObject.SetActive(false);
+        dutBoard.gameObject.SetActive(false);
+
 
         Conversation convo = new Conversation();
         convo = allDetailData.conversation;
@@ -2262,19 +2314,18 @@ public class MissionManagement : MonoBehaviour
            
     }
 
-
-
-
     public void DailyTipsSetup(int parameter)
     {
 
         DestroyPrefabs();
+        typeOfDay.text = "New Word";
         baseParentBoard.gameObject.SetActive(true);
         conversationBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(true);
         singleSentenceBoard.gameObject.SetActive(false);
         multipleSentenceBoard.gameObject.SetActive(false);
+        generalMCQBoard.gameObject.SetActive(false);
         
         if (newWordDetails.dailyUseTips.Length > 1)
         {
@@ -2324,6 +2375,7 @@ public class MissionManagement : MonoBehaviour
     {
         DestroyPrefabs();
         HideSpeakerAndImage();
+        generalMCQBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
         conversationBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
@@ -2430,6 +2482,7 @@ public class MissionManagement : MonoBehaviour
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
+
 
         if (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == true || dataDisplayed["isnewWordOWUWordDone"] == true || dataDisplayed["isDUTDone"] == true)
         {
@@ -2891,25 +2944,36 @@ public class MissionManagement : MonoBehaviour
         //Check screen count   
         if (button.tag == "Next")
         {
-            screenCount = screenCount + 1;
-            
-            Debug.Log(screenCount + " screen count" + methodCallArray.Count);
+            if (screenCount != totalNumber)
+            {
+                    // submitButton.gameObject.SetActive(false);
 
-            if (screenCount > 0 && screenCount <= methodCallArray.Count)
-            {
-                
-                Debug.Log(screenCount + " screen count" + methodCallArray.Count);
-                
-                int parameter = parameterValueArray[screenCount-1];
-                Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
-                Action<int> unityAction = methodCallArray[screenCount-1];
-                SendInt(unityAction,parameter);
-            
+                    screenCount = screenCount + 1;
+                    
+                    Debug.Log(screenCount + " screen count" + methodCallArray.Count);
+
+                    if (screenCount > 0 && screenCount <= methodCallArray.Count)
+                    {
+                        
+                        Debug.Log(screenCount + " screen count" + methodCallArray.Count);
+                        
+                        int parameter = parameterValueArray[screenCount-1];
+                        Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
+                        Action<int> unityAction = methodCallArray[screenCount-1];
+                        SendInt(unityAction,parameter);
+                    
+                    }
+                    else
+                    {
+                        Debug.Log("calling to set base canvas only");
+                        SetUpBaseCanvas();
+                    }
             }
-            else
+            else 
             {
-                Debug.Log("calling to set base canvas only");
-                SetUpBaseCanvas();
+                Debug.Log("we are on last screen");
+                submitButton.gameObject.SetActive(true);
+
             }
             
         }
@@ -2928,6 +2992,11 @@ public class MissionManagement : MonoBehaviour
             else
             {
                 Debug.Log("we are on first screen");
+            }
+
+            if (screenCount != totalNumber)
+            {
+                submitButton.gameObject.SetActive(false);
             }
         }
 
