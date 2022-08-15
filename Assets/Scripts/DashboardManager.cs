@@ -61,6 +61,10 @@ public class DashboardManager : MonoBehaviour
     private Animator animator;
     string auth_key;
 
+    public GameObject astronaut;
+    private Animator characterAnim;
+
+
     private void Awake() {
          if (PlayerPrefs.HasKey("auth_key"))
         {
@@ -72,6 +76,8 @@ public class DashboardManager : MonoBehaviour
 
     void Start()
     {
+        
+
         var dateAndTime = DateTime.Now;
         var date = dateAndTime.Date;
         Debug.Log(date);
@@ -106,7 +112,9 @@ public class DashboardManager : MonoBehaviour
                     // lockImage.SetActive(false);
                     button.tag = "Unlocked";
                     animator = lockImage.GetComponent<Animator>();
-                    animator.Play("UnlockLock");
+                    animator.Play("LockUnlock");
+                    characterAnim = astronaut.GetComponent<Animator>();
+                    characterAnim.Play("AstroMoving");
                 // }
                 // else 
                 // {
@@ -216,8 +224,8 @@ public class DashboardManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-         request.SetRequestHeader("Authorization", auth_key);
-        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        //  request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
 
         yield return request.SendWebRequest();
 
@@ -254,8 +262,8 @@ public class DashboardManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-         request.SetRequestHeader("Authorization", auth_key);
-        // request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+        //  request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
 
         yield return request.SendWebRequest();
 
