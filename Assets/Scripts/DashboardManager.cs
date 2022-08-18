@@ -55,14 +55,21 @@ public class DashboardManager : MonoBehaviour
     int numberOfLevelsPerDay = 0;
     int totalNumberOfLevels = 0;
     int levelsPassed = 0;
+
     DateTime lastTimeClicked;
 
-    
     private Animator animator;
     string auth_key;
 
     public GameObject astronaut;
     private Animator characterAnim;
+
+    bool islevelUnlocked = false;
+    public float speed = 40.0f;
+    Vector3 targetPosition;
+     Camera cam;
+     Vector3 screenPos;
+     Vector2 newPosition;
 
 
     private void Awake() {
@@ -77,7 +84,7 @@ public class DashboardManager : MonoBehaviour
     void Start()
     {
         
-
+        // cam = GetComponent<Camera>();
         var dateAndTime = DateTime.Now;
         var date = dateAndTime.Date;
         Debug.Log(date);
@@ -89,6 +96,9 @@ public class DashboardManager : MonoBehaviour
             Debug.Log("Checking for TimeSpan");
             string nextLevelWillbe = PlayerPrefs.GetString("NextLevelWillBe");
             Debug.Log(nextLevelWillbe);
+            int levelNumber = int.Parse(nextLevelWillbe);
+            Debug.Log("level number is " + levelNumber);
+            
             // if (levelId == nextLevelWillbe)
             // {
             DateTime thisTime = System.DateTime.Now.Date;
@@ -115,6 +125,25 @@ public class DashboardManager : MonoBehaviour
                     animator.Play("LockUnlock");
                     characterAnim = astronaut.GetComponent<Animator>();
                     characterAnim.Play("AstroMoving");
+                    islevelUnlocked = true;
+
+                    // targetPosition = lockImage.transform.position;
+                    // screenPos = cam.ScreenToWorldPoint(targetPosition);
+
+                    if (levelNumber%2 == 0)
+                    {
+                        newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
+
+                    }
+                    else
+                    {
+                        newPosition = new Vector2(astronaut.transform.position.x - 44f, astronaut.transform.position.y + 403f);
+
+                    }
+
+                    // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
+                    // astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
+                    // Vector2.Lerp(previousButtonPosition, newPosition, 0.2f);
                 // }
                 // else 
                 // {
@@ -135,6 +164,25 @@ public class DashboardManager : MonoBehaviour
         //calculate time difference between previousLevel and in next level 
     }
 
+    void Update() {
+        // if (islevelUnlocked)
+        // {
+            
+
+           
+                characterAnim.Play("AstroMoving");
+                astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
+
+                // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, -screenPos, Time.deltaTime * speed );// 
+           
+            // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
+            // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
+            //  astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
+            // islevelUnlocked = false;
+        // }
+
+    }
+    
     public void SpawnPath()
     {
         Vector2 currentPosition = pathPrefab.transform.position;
@@ -161,12 +209,22 @@ public class DashboardManager : MonoBehaviour
                 int k = z + 1;
                 button.name = k.ToString();
                 levelNumber.text = k.ToString();
+                int removeStartNumber = (k - (i * 5));
                 if (k == 1)
                 {
                     GameObject lockImage = button.transform.GetChild(1).gameObject;
                     lockImage.SetActive(false);
                     button.tag = "Unlocked";
+
+                    
                 }
+                else if (removeStartNumber == 1)
+                {
+                    GameObject startButton = button.transform.GetChild(2).gameObject;
+                    startButton.SetActive(false);
+                }
+               
+                
                 z = k;
             }
        
@@ -218,14 +276,15 @@ public class DashboardManager : MonoBehaviour
     {
 
         AllDetail allDetailData = new AllDetail();
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
+        // "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
         Debug.Log(uri);
         var request = new UnityWebRequest(uri, "GET");
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         //  request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
         yield return request.SendWebRequest();
 
@@ -263,7 +322,7 @@ public class DashboardManager : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         //  request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
         yield return request.SendWebRequest();
 

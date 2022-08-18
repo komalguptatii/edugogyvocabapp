@@ -2131,8 +2131,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -311, y: -154}
-  m_SizeDelta: {x: 265, y: 154}
+  m_AnchoredPosition: {x: -250.95, y: -161.25}
+  m_SizeDelta: {x: 385.11, y: 168.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1077882800
 MonoBehaviour:
@@ -2154,7 +2154,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Set your Pin
+  m_text: Set your secret pin
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}

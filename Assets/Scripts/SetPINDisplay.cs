@@ -19,10 +19,10 @@ public class SetPINDisplay : MonoBehaviour
     
     private void Awake() {
         // // FinalPIN
-        // if (PlayerPrefs.HasKey("FinalPIN"))
-        // {
-        //     setPINDescription.text = "Enter PIN";
-        // }
+        if (PlayerPrefs.HasKey("FinalPIN"))
+        {
+            setPINDescription.text = "Enter your secret pin";
+        }
     }
     
     void Start()
@@ -133,13 +133,13 @@ public class SetPINDisplay : MonoBehaviour
     {
         Debug.Log(codeSequence);
         
-        if (setPINDescription.text == "Set your Pin")
+        if (setPINDescription.text == "Set your secret pin")
         {
             //Save set pin
             PlayerPrefs.SetString("SetPIN", codeSequence);
             isReset = true;
             ResetDisplay();
-            setPINDescription.text = "Confirm PIN";
+            setPINDescription.text = "Confirm your secret pin";
 
         }
         else if (PlayerPrefs.HasKey("SetPIN"))

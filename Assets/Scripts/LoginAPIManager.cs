@@ -13,6 +13,8 @@ public class LoginAPIManager : MonoBehaviour
     public TMP_Dropdown countryCodeDropdown;
     
     public TMP_InputField phoneNumberInput;
+    public TMP_InputField countryCodeInput;
+
 
     public GameObject fbBtn;
     public GameObject appleBtn;
@@ -142,9 +144,27 @@ public class LoginAPIManager : MonoBehaviour
     public void dropDownItemSelected(){
         int index = countryCodeDropdown.value;
         selectedCountryCode = listObject.items[index].id;
+        // countryCodeInput.text = listObject.items[index].dial_code;
+
         Debug.Log(selectedCountryCode);
     }
 
+    public void OnValueChanged(string code)
+    {
+
+        if (code == "")
+        {
+            GetCountryCodeListData();
+             countryCodeDropdown.onValueChanged.AddListener(delegate {dropDownItemSelected();});
+
+        }
+        countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
+        
+        // int index = countryCodeDropdown.value;
+        // selectedCountryCode = listObject.items[index].id;
+        // countryCodeInput.text = listObject.items[index].dial_code;
+        // Debug.Log(selectedCountryCode);
+    }
     
 
     private void ChangeButtonPosition()

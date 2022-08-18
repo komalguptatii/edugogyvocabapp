@@ -130,9 +130,19 @@ public class MissionManagement : MonoBehaviour
         public NewWord[] newWords;
         public RevisionWord[] revisionWords;
         public Conversation conversation;
+        public RevisionConversation revisionConversation;
         public Question[] questions;
         public ConversationQuestion[] conversationQuestions;
         public Passage[] passages;
+    }
+
+    [Serializable]
+    public class RevisionConversation
+    {
+        public int id;
+        public int day_level_id;
+        public string description;
+        public int type;
     }
 
     [Serializable]
@@ -505,6 +515,7 @@ public class MissionManagement : MonoBehaviour
     public int tempDataCount = 0;
     public bool revisionListDisplayed = false;
 
+
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
     public List<int> revisionCountArray = new List<int>();
@@ -555,6 +566,8 @@ public class MissionManagement : MonoBehaviour
     }
 
     public TextMeshProUGUI missionTitle;
+    int noOfAttempts = 0;
+    int answerClicked = 0;
 
     string fixJson(string value)            // Added object type to JSON
     {
@@ -652,7 +665,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
 
         yield return request.SendWebRequest();
@@ -677,7 +690,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
 
         yield return request.SendWebRequest();
@@ -854,14 +867,15 @@ public class MissionManagement : MonoBehaviour
 
     IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
     {
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId.ToString() + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
+        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId.ToString() + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
+        // "newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
 
         var request = new UnityWebRequest(uri, "GET");
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
 
         yield return request.SendWebRequest();
@@ -1230,12 +1244,24 @@ public class MissionManagement : MonoBehaviour
         GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
+        
         Debug.Log(answerOptions);
+
+        for(int x = 0; x < answerOptions; x++)
+        {
+            int value = allDetailData.questions[parameter].questionOptions[x].value;
+
+            if (value == 1)
+            {
+                noOfAttempts += 1;
+            }
+        }
 
 
         int children = optionContainer.transform.childCount;
         
-        // Button[] otherMCQbuttons = new Button[answerOptions];
+        Button[] otherMCQbuttons = new Button[answerOptions];
+
 
         questionNumber = parameter;
 
@@ -1243,15 +1269,15 @@ public class MissionManagement : MonoBehaviour
         {
             Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
             thisButton.gameObject.SetActive(true);
+            thisButton.interactable = true;
             if (j <= answerOptions-1)
             {
                 TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                 answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
                 GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                 rightWrongImage.SetActive(false);
-                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber);});
-                // otherMCQbuttons[j] = thisButton;
-
+                otherMCQbuttons[j] = thisButton;
+                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons);});
             }
             else
             {
@@ -1294,10 +1320,12 @@ public class MissionManagement : MonoBehaviour
         
     }
 
-    public void CheckRightMCQAnswer(Button button, int questionNumber)
+    public void CheckRightMCQAnswer(Button button, int questionNumber, Button[] mcqButtonArray)
     {
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
+        Button[] buttonArray = mcqButtonArray;
+        
         int tag = System.Convert.ToInt32(button.tag);
         int value = allDetailData.questions[questionNumber].questionOptions[tag].value;
         Debug.Log(button.tag);
@@ -1307,20 +1335,34 @@ public class MissionManagement : MonoBehaviour
 
         int questionId = allDetailData.questions[questionNumber].id;
         int selectedOptionsId = allDetailData.questions[questionNumber].questionOptions[tag].id;   
+        
 
         if (value == 1)
         {
+            answerClicked += 1;
             myImage.sprite = tickSprite;
             SoundManagerScript.RightAnswerSound();
         }
         else
         {
+            answerClicked += 1;
             myImage.sprite = wrongSprite;
             SoundManagerScript.WrongAnswerSound();
+        }
+        rightWrongImage.SetActive(true);
 
+
+        if (answerClicked == noOfAttempts)
+        {
+            for (int j = 0; j < buttonArray.Length; j++)
+            {
+                buttonArray[j].interactable = false;
+            }
+            answerClicked = 0;
+            noOfAttempts = 0;
+            // Destroy(buttonArray);
         }
        
-        rightWrongImage.SetActive(true);
 
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
@@ -1837,7 +1879,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
 
         yield return request.SendWebRequest();
@@ -1903,7 +1945,7 @@ public class MissionManagement : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         // request.SetRequestHeader("Authorization", auth_key);
-     request.SetRequestHeader("Authorization", "Bearer HTE8yUA4ioj0sA5xHb4OkQCR61k-jUWF");
+     request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
 
 
         yield return request.SendWebRequest();
@@ -2321,6 +2363,7 @@ public class MissionManagement : MonoBehaviour
 
     public void ConversationSetup(int parameter)
     {
+        Debug.Log("ConversationHappening");
         DestroyPrefabs();
         
         baseParentBoard.gameObject.SetActive(false);
@@ -2328,14 +2371,27 @@ public class MissionManagement : MonoBehaviour
         generalMCQBoard.gameObject.SetActive(false);
         revisionWordBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
-
-
-        Conversation convo = new Conversation();
-        convo = allDetailData.conversation;
-        conversationText.text = convo.description;
+        conversationText.gameObject.SetActive(true);
+       
+        
+        // if (revisionListDisplayed == true)
+        // {
+           
+        // }
+        // else
+        // {
+             Conversation convo = new Conversation();
+            convo = allDetailData.conversation;
+            conversationText.text = convo.description;
+        // }
 
         if (dataDisplayed["isRevisionWordListDone"] == true)
         {
+            RevisionConversation revConvo = new RevisionConversation();
+            revConvo = allDetailData.revisionConversation;
+            conversationText.text = revConvo.description;
+            Debug.Log(revConvo.description);
+            Debug.Log(conversationText.text);
             dataDisplayed["isRevisionWordConversationDone"] = true;
         }   
         else

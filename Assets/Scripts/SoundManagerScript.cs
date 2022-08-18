@@ -18,8 +18,8 @@ public class SoundManagerScript : MonoBehaviour
     void Start()
     {
         popUpsound = Resources.Load <AudioClip> ("popUp");
-        rightAnswersound = Resources.Load <AudioClip> ("rightAnswer_1");
-        wrongAnswersound = Resources.Load <AudioClip> ("wronganswer");
+        rightAnswersound = Resources.Load <AudioClip> ("right");
+        wrongAnswersound = Resources.Load <AudioClip> ("wrong");
         successsound = Resources.Load <AudioClip> ("success70");
         unsucesssound = Resources.Load <AudioClip> ("unsuccess70");
         audioSrc = GetComponent <AudioSource> ();
