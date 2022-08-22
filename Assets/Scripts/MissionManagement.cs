@@ -588,6 +588,7 @@ public class MissionManagement : MonoBehaviour
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
+            // auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
         }
 
         if (PlayerPrefs.HasKey("StartLevelID"))
@@ -664,8 +665,7 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -689,8 +689,7 @@ public class MissionManagement : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -721,6 +720,7 @@ public class MissionManagement : MonoBehaviour
         // totalNumber = dataCountDetails.mcq_count;
         if  (dataCountDetails.new_word_data.new_word_count != 0)
         {
+        
                 newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
             dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
             dataCountDetails.new_word_data.more_data[0].adjective_count +
@@ -874,8 +874,7 @@ public class MissionManagement : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -1269,7 +1268,7 @@ public class MissionManagement : MonoBehaviour
         {
             Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
             thisButton.gameObject.SetActive(true);
-            thisButton.interactable = true;
+            thisButton.enabled = true;
             if (j <= answerOptions-1)
             {
                 TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1356,7 +1355,7 @@ public class MissionManagement : MonoBehaviour
         {
             for (int j = 0; j < buttonArray.Length; j++)
             {
-                buttonArray[j].interactable = false;
+                buttonArray[j].enabled = false;
             }
             answerClicked = 0;
             noOfAttempts = 0;
@@ -1878,8 +1877,7 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -1944,8 +1942,7 @@ public class MissionManagement : MonoBehaviour
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        // request.SetRequestHeader("Authorization", auth_key);
-     request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+        request.SetRequestHeader("Authorization", auth_key);
 
 
         yield return request.SendWebRequest();
@@ -1991,14 +1988,17 @@ public class MissionManagement : MonoBehaviour
             if (dataCountDetails.interactive_line_revision_word != "")
             {
                 GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
-                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                GameObject childOfFirstParent = childObj.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childOfFirstParent.GetComponent<TMPro.TMP_Text>();
                     mytext.text = allDetailData.interactive_line_revision_word;
             }
             else
             {
                  GameObject childObj = revisionWordBoard.transform.GetChild(0).gameObject;
-                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = "Revision words for the Day";
+                GameObject childOfFirstParent = childObj.transform.GetChild(0).gameObject;
+
+                TMPro.TMP_Text mytext = childOfFirstParent.GetComponent<TMPro.TMP_Text>();
+                mytext.text = "Revision words for the Day";
             }
         
 
@@ -2806,24 +2806,30 @@ public class MissionManagement : MonoBehaviour
         }
 
         Antonym antonymDetails = new Antonym();
+
         int antonymCount = 0;
         if (dataDisplayed["isRevisionWordListDone"] == true)
         {
-            typeOfDay.text = "Antonym of " + revisionWordDetails.antonyms[revisionWordReference].description;
+            // typeOfDay.text = "Antonym of " + revisionWordDetails.antonyms[revisionWordReference].description;
+            typeOfDay.text = "Antonym of " + revisionWordDetails.name;
+
             typeOfWord.text = "Meaning";
             
             antonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count;
             antonymDetails = revisionWordDetails.antonyms[parameter];
             meaningAsNoun.text = antonymDetails.meaning;
+
+            word.text = revisionWordDetails.antonyms[revisionWordReference].description;
         }
         else
         {
-            typeOfDay.text = "Antonym of " + newWordDetails.antonyms[0].description;
+            typeOfDay.text = "Antonym of " + newWordDetails.name;
             typeOfWord.text = "Meaning";
             
             antonymCount = dataCountDetails.new_word_data.more_data[0].antonym_count;
             antonymDetails = newWordDetails.antonyms[parameter];
             meaningAsNoun.text = antonymDetails.meaning;
+            word.text = newWordDetails.antonyms[0].description;
         }
 
 

@@ -132,40 +132,69 @@ public class LoginAPIManager : MonoBehaviour
             listObject = JsonUtility.FromJson<CountryCodeList>(jsonString);
 
             for (var i = 0; i < listObject.items.Length; i++) {
-                // Debug.Log(listObject.items.Length);
-                // Debug.Log(listObject.items[i]);
-                // Debug.Log("country code is " + listObject.items[i].code);
-                // Debug.Log("country id is " + listObject.items[i].id);
+    
                 countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
             }
         }
     }
 
     public void dropDownItemSelected(){
-        int index = countryCodeDropdown.value;
-        selectedCountryCode = listObject.items[index].id;
-        // countryCodeInput.text = listObject.items[index].dial_code;
+        // countryCodeDropdown.Show();
 
-        Debug.Log(selectedCountryCode);
+        int index = countryCodeDropdown.value;
+        var selectedValue = countryCodeDropdown.options[countryCodeDropdown.value].text;
+        Debug.Log(countryCodeDropdown.options[countryCodeDropdown.value].text);
+        
+        // selectedCountryCode = listObject.items[index].id;
+
+        for(int x = 0; x < listObject.items.Length;x++)
+        {
+               if (selectedValue == listObject.items[x].dial_code)
+               {
+                    selectedCountryCode = listObject.items[x].id;
+                    countryCodeInput.text = selectedValue.ToString();
+                    return;
+               }
+
+        }
+        
+
+        Debug.Log("selectedCountryCode is" + selectedCountryCode);
     }
 
     public void OnValueChanged(string code)
     {
-
         if (code == "")
         {
-            GetCountryCodeListData();
-             countryCodeDropdown.onValueChanged.AddListener(delegate {dropDownItemSelected();});
+            Debug.Log("code is empty now");
+            countryCodeDropdown.ClearOptions();
+            // for(int x = 0; x < countryCodeDropdown.options.Count;x++)
+            // {
+            //     countryCodeDropdown.options.RemoveAt(x);
+                
+
+            // }
+
+            for (var i = 0; i < listObject.items.Length; i++) {
+                countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
+            }
 
         }
-        countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
-        
-        // int index = countryCodeDropdown.value;
-        // selectedCountryCode = listObject.items[index].id;
-        // countryCodeInput.text = listObject.items[index].dial_code;
-        // Debug.Log(selectedCountryCode);
+        else
+        {
+            countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
+        }
+        countryCodeDropdown.Show();
+        // dropDownItemSelected();
+         
     }
-    
+
+    private void LateUpdate()
+    {
+        countryCodeInput.MoveTextEnd(true);
+    }
+
+     
 
     private void ChangeButtonPosition()
     {

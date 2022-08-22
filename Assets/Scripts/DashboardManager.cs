@@ -69,7 +69,14 @@ public class DashboardManager : MonoBehaviour
     Vector3 targetPosition;
      Camera cam;
      Vector3 screenPos;
+     Vector3 worldPosition;
      Vector2 newPosition;
+    public ScrollRect scrollRect;
+    public RectTransform scrollRectTransform;
+    public RectTransform contentPanel;
+    Button lastReachedLevel;
+    RectTransform maskTransform;
+    float offset = -1500.0f;
 
 
     private void Awake() {
@@ -77,10 +84,31 @@ public class DashboardManager : MonoBehaviour
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
+            auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
         }
-        GetUserProfile();
+
+        // GetUserProfile();
     }
 
+    private void Reset(Button levelButton)
+    {
+        if (maskTransform == null)
+        {
+            var mask = GetComponentInChildren<Mask>(true);
+            if (mask)
+            {
+                maskTransform = mask.rectTransform;
+            }
+            if (maskTransform == null)
+            {
+                var mask2D = GetComponentInChildren<RectMask2D>(true);
+                if (mask2D)
+                {
+                    maskTransform = mask2D.rectTransform;
+                }
+            }
+        }
+    }
     void Start()
     {
         
@@ -90,6 +118,12 @@ public class DashboardManager : MonoBehaviour
         Debug.Log(date);
         Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
         SpawnPath();
+
+        lastReachedLevel = GameObject.Find("10").GetComponent<Button>();
+        RectTransform target = lastReachedLevel.GetComponent<RectTransform>();
+        Reset(lastReachedLevel);
+        Debug.Log("Position is " + transform.position);
+        SnapTo(target);
 
         if (PlayerPrefs.HasKey("NextLevelWillBe"))
         {
@@ -107,7 +141,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(lastTimeClicked); //08/09/2022 13:33:38
 
             TimeSpan difference = thisTime.Subtract(lastTimeClicked);
-            Debug.Log("difference is " + difference); // 00:00:32.3895120
+            // Debug.Log("difference is " + difference); // 00:00:32.3895120
 
             if (difference.TotalHours == 0)
             {
@@ -167,11 +201,9 @@ public class DashboardManager : MonoBehaviour
     void Update() {
         // if (islevelUnlocked)
         // {
-            
-
-           
-                characterAnim.Play("AstroMoving");
-                astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
+        
+                // characterAnim.Play("AstroMoving");
+                // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
 
                 // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, -screenPos, Time.deltaTime * speed );// 
            
@@ -183,6 +215,99 @@ public class DashboardManager : MonoBehaviour
 
     }
     
+    public void SnapTo(RectTransform target)
+    {
+        var itemCenterPositionInScroll = GetWorldPointInWidget(scrollRectTransform, GetWidgetWorldPoint(target));
+
+        var targetPositionInScroll = GetWorldPointInWidget(scrollRectTransform, GetWidgetWorldPoint(maskTransform));
+
+        var difference = targetPositionInScroll + itemCenterPositionInScroll;
+        difference.z = 0f;
+
+
+        if (!scrollRect.horizontal)
+        {
+            difference.x = 0f;
+        }
+
+        var normalizedDifference = new Vector2(
+            difference.x / (contentPanel.rect.size.x - scrollRectTransform.rect.size.x),
+            difference.y / (contentPanel.rect.size.y - scrollRectTransform.rect.size.y));
+        Debug.Log(normalizedDifference.y);
+
+        var newNormalizedPosition = scrollRect.normalizedPosition - normalizedDifference;
+
+         if (scrollRect.movementType != ScrollRect.MovementType.Unrestricted)
+        {
+            newNormalizedPosition.x = Mathf.Clamp01(newNormalizedPosition.x);
+            newNormalizedPosition.y = Mathf.Clamp01(newNormalizedPosition.y);
+        }
+
+        var diff = contentPanel.rect.size.y - scrollRectTransform.rect.size.y;
+    
+        // scrollRect.verticalScrollbar.value = normalizedDifference.y;
+        //  scrollRect.normalizedPosition = newNormalizedPosition;
+         var xPosition = contentPanel.anchoredPosition.x;
+        var yPosition = contentPanel.anchoredPosition.y + targetPositionInScroll.y + normalizedDifference.y;//difference.y + offset;
+        Debug.Log("itemCenterPositionInScroll " + itemCenterPositionInScroll); // -736
+        Debug.Log("targetPositionInScroll " + targetPositionInScroll); // -1266
+        Debug.Log("yPosition " + yPosition);
+        Debug.Log("contentPanel.anchoredPosition.y " + contentPanel.anchoredPosition.y);
+        Debug.Log("difference.y " + difference.y);
+        Debug.Log("diff is " + diff);
+        Debug.Log("targetPositionInScroll.y " + targetPositionInScroll.y);
+
+        // var ratio = difference.y/yPosition; // 0.3463131
+        // Debug.Log("ratio is " + ratio);
+
+        var ratio = newNormalizedPosition.y/yPosition; // diff/yPos = 0.4365715
+        Debug.Log("ratio is " + ratio);
+        contentPanel.anchoredPosition = new Vector2(xPosition, yPosition); // asking for level 20 , taking to level 6
+        // scrollRect.verticalScrollbar.value = newNormalizedPosition.y;
+        // scrollRect.verticalNormalizedPosition = ratio;
+
+
+        // Debug.Log("target position is " + target.position);
+        // Canvas.ForceUpdateCanvases();
+
+        // screenPos = GetWidgetWorldPoint(target);
+        // Debug.Log("screen position is " + screenPos); 
+
+        // worldPosition = GetWorldPointInWidget(target, screenPos);
+        //  Debug.Log("world position is " + worldPosition); 
+
+        // var difference = screenPos - worldPosition;
+
+      
+ 
+
+        // scrollRect.normalizedPosition = newNormalizedPosition;
+        // float scrollValue = target.anchoredPosition.y;
+        // /contentPanel.transform.position.y;
+        // scrollRect.verticalScrollbar.value = worldPosition.y;
+
+        // contentPanel.anchoredPosition = 
+        //         (Vector2)scrollRect.transform.InverseTransformPoint(contentPanel.position)
+                // - (Vector2)scrollRect.transform.InverseTransformPoint(worldPosition);
+    }
+
+
+    private Vector3 GetWidgetWorldPoint(RectTransform target)
+    {
+        //pivot position + item size has to be included
+        var pivotOffset = new Vector3(
+            (0.5f - target.pivot.x) * target.rect.size.x,
+            (0.5f - target.pivot.y) * target.rect.size.y,
+            0f);
+        var localPosition = target.localPosition + pivotOffset;
+        return target.parent.TransformPoint(localPosition);
+    }
+
+    private Vector3 GetWorldPointInWidget(RectTransform target, Vector3 worldPoint)
+    {
+        return target.InverseTransformPoint(worldPoint);
+    }
+
     public void SpawnPath()
     {
         Vector2 currentPosition = pathPrefab.transform.position;
@@ -283,8 +408,7 @@ public class DashboardManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        //  request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+         request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 
@@ -321,8 +445,7 @@ public class DashboardManager : MonoBehaviour
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        //  request.SetRequestHeader("Authorization", auth_key);
-        request.SetRequestHeader("Authorization", "Bearer MaKLCWXbSS8yl9CA_UrnrZJmu-gYlFTK");
+         request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 

@@ -10,7 +10,7 @@ public class SwipeImages : MonoBehaviour
     float scroll_pos = 0;
     float[] pos;
     int currentValue = 0;
-    int nextValue = 0;
+    int nextValue = 1;
    
     // Update is called once per frame
     void Update()
@@ -59,8 +59,10 @@ public class SwipeImages : MonoBehaviour
 
     public void NextImage()
     {
-        transform.GetChild(nextValue).localScale = Vector2.Lerp(transform.GetChild(nextValue).localScale, new Vector2(0.8f,0.8f),0.1f);
         scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[currentValue], 0.1f);
-        transform.GetChild(currentValue).localScale = Vector2.Lerp(transform.GetChild(currentValue).localScale, new Vector2(1f,1f),0.1f);
+        transform.GetChild(nextValue).localScale = Vector2.Lerp(transform.GetChild(nextValue).localScale, new Vector2(0.8f,0.8f),0.1f);
+        nextValue += 1;
+        currentValue += 1;
+        // transform.GetChild(currentValue).localScale = Vector2.Lerp(transform.GetChild(currentValue).localScale, new Vector2(1f,1f),0.1f);
     }
 }

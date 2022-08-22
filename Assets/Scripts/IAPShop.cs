@@ -8,13 +8,18 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Text;
 using TMPro;
+using System;
+using Random=UnityEngine.Random;
+using UnityEngine.SceneManagement;
+
 
 public class IAPShop : MonoBehaviour
 {
-    private string timePeriod = "com.techies.edugogy.onemonth";
+    private string timePeriod = "com.techies.edugogy.sixmonth";
     private string subPeriod = "com.techies.edugogy.threemonth";
     string auth_key;
     [SerializeField] public TextMeshProUGUI transactionId;
+
 
     public class SubscriptionForm
     {
@@ -27,22 +32,23 @@ public class IAPShop : MonoBehaviour
     private void Start()
     {
         //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
-         if (PlayerPrefs.HasKey("auth_key"))
+        if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
-            
             Debug.Log(auth_key);
-
+            // auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
         }
         // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
 
-    void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
+    public void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
 
     IEnumerator AddSubscription_Coroutine()
     {
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = "14277687", platform = "apple", platform_plan_id = "com.techies.edugogy.onemonth" };
+        int randomNumber = Random.Range(2000, 3000);
+
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "com.techies.edugogy.sixmonth" };
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
@@ -68,7 +74,7 @@ public class IAPShop : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-
+            SceneManager.LoadScene("KidsName");
             // {"transaction_id":"14277687","platform":"apple","platform_plan_id":"com.techies.edugogy.onemonth","student_id":3,"age_group_id":2,"plan_id":2,"plan_title":"1 Month","plan_term":"30 day","number_of_level":30,"start_at":1655356249,"expire_at":1657948249,"created_at":1652797078,"updated_at":1652797078,"id":4}
         }
     }
