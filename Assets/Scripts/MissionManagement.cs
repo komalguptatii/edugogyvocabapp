@@ -588,7 +588,7 @@ public class MissionManagement : MonoBehaviour
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            // auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
+            auth_key = "Bearer aiVBowambEIYKvQBW6i8VD5NspqDz5lk";
         }
 
         if (PlayerPrefs.HasKey("StartLevelID"))
@@ -627,10 +627,10 @@ public class MissionManagement : MonoBehaviour
             }
             request.Dispose();
         }
-        else
-        {
-            wordImage.gameObject.SetActive(false);
-        }
+        // else
+        // {
+        //     wordImage.gameObject.SetActive(false);
+        // }
         
     } 
 
@@ -802,7 +802,7 @@ public class MissionManagement : MonoBehaviour
                 else if (allDetailData.newWords[0].image_url == null)
                 {
                     Debug.Log("url is null");
-                    wordImage.gameObject.SetActive(false);
+                    // wordImage.gameObject.SetActive(false);
                     
                 }
         // wordImage.gameObject.SetActive(true);
@@ -1438,8 +1438,17 @@ public class MissionManagement : MonoBehaviour
                     GameObject optionBoard = newPrefab.transform.GetChild(1).gameObject;
                     GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
+                    for(int x = 0; x < answerOptions; x++)
+                    {
+                        int value = allDetailData.passages[parameter].questions[i].questionOptions[x].value;
+
+                        if (value == 1)
+                        {
+                            noOfAttempts += 1;
+                        }
+                    }
                     int children = optionContainer.transform.childCount;
-                    // Button[] otherPassagebuttons = new Button[answerOptions];
+                    Button[] otherPassagebuttons = new Button[answerOptions];
 
                     Debug.Log("value of i here is " + i);
                     // questionNumber = i;
@@ -1448,6 +1457,7 @@ public class MissionManagement : MonoBehaviour
                     {
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
                           thisButton.gameObject.SetActive(true);
+                          thisButton.enabled = true;
                         if (j <= answerOptions-1)
                         {
                             TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1456,8 +1466,9 @@ public class MissionManagement : MonoBehaviour
                             rightWrongImage.SetActive(false);
                             int pcc = parameterCountControlCheck;
                             int k = i;
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k);});
-                            // otherPassagebuttons[j] = thisButton;
+                            otherPassagebuttons[j] = thisButton;
+
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k,otherPassagebuttons);});
 
                         }
                         else
@@ -1521,6 +1532,15 @@ public class MissionManagement : MonoBehaviour
             int answerOptions = allDetailData.passages[0].questions[0].questionOptions.Length;
             Debug.Log(answerOptions);
 
+            for(int x = 0; x < answerOptions; x++)
+            {
+                int value = allDetailData.passages[0].questions[0].questionOptions[x].value;
+
+                if (value == 1)
+                {
+                    noOfAttempts += 1;
+                }
+            }
             GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
             GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
@@ -1532,14 +1552,17 @@ public class MissionManagement : MonoBehaviour
             {
                 Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
                   thisButton.gameObject.SetActive(true);
+                  thisButton.enabled = true;
+
                 if (j <= answerOptions-1)
                 {
                     TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
                     GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
-                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0);});
                     passageButtons[j] = thisButton;
+
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0, passageButtons);});
 
                 }
                 else
@@ -1606,15 +1629,27 @@ public class MissionManagement : MonoBehaviour
                     int answerOptions = allDetailData.conversationQuestions[i].questionOptions.Length;
                     Debug.Log(answerOptions);
 
+                     for(int x = 0; x < answerOptions; x++)
+                    {
+                        int value = allDetailData.conversationQuestions[i].questionOptions[x].value;
+
+                        if (value == 1)
+                        {
+                            noOfAttempts += 1;
+                        }
+                    }
+
                     GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
                     GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
+                        
                     int children = optionContainer.transform.childCount;
-                    // Button[] otherQbuttons = new Button[answerOptions];
+                    Button[] otherQbuttons = new Button[answerOptions];
                     for(int j = 0; j < children; j++ )
                     {
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
                           thisButton.gameObject.SetActive(true);
+                          thisButton.enabled = true;
                         if (j <= answerOptions-1)
                         {
                             TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -1622,8 +1657,9 @@ public class MissionManagement : MonoBehaviour
                             GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
                             int k = i;
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k);});
-                            // otherQbuttons[j] = thisButton;
+                            otherQbuttons[j] = thisButton;
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k, otherQbuttons);});
+                            
 
                         }
                         else
@@ -1690,11 +1726,21 @@ public class MissionManagement : MonoBehaviour
             int answerOptions = allDetailData.conversationQuestions[0].questionOptions.Length;
             Debug.Log(answerOptions);
 
+            for(int x = 0; x < answerOptions; x++)
+            {
+                int value = allDetailData.conversationQuestions[0].questionOptions[x].value;
+
+                if (value == 1)
+                {
+                    noOfAttempts += 1;
+                }
+            }
+
             GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
             GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
 
             int children = optionContainer.transform.childCount;
-            // Button[] firstQbuttons = new Button[answerOptions];
+            Button[] firstQbuttons = new Button[answerOptions];
 
             // questionNumber = 0;
 
@@ -1702,14 +1748,16 @@ public class MissionManagement : MonoBehaviour
             {
                 Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
                   thisButton.gameObject.SetActive(true);
+                  thisButton.enabled = true;
                 if (j <= answerOptions-1)
                 {
                     TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     answerOption.text = allDetailData.conversationQuestions[0].questionOptions[j].option;
                     GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
-                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0);});
-                    // firstQbuttons[j] = thisButton;
+                    firstQbuttons[j] = thisButton;
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0, firstQbuttons);});
+                    
 
                 }
                 else
@@ -1722,8 +1770,10 @@ public class MissionManagement : MonoBehaviour
 
     }
 
-    public void CheckRightAnswerForPassageQuestion(Button button,int passageNumber, int questionNumber)
+    public void CheckRightAnswerForPassageQuestion(Button button,int passageNumber, int questionNumber, Button[] mcqButtonArray)
     {
+        Button[] btnArray = mcqButtonArray;
+        int rightAnswers = noOfAttempts;
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
         int tag = System.Convert.ToInt32(button.tag);
@@ -1740,18 +1790,29 @@ public class MissionManagement : MonoBehaviour
         int selectedOptionsId = allDetailData.passages[passageNumber].questions[questionNumber].questionOptions[tag].id;   
         if (value == 1)
         {
+            answerClicked += 1;
             myImage.sprite = tickSprite;
             SoundManagerScript.RightAnswerSound();
         }
         else
         {
+            answerClicked += 1;
             myImage.sprite = wrongSprite;
             SoundManagerScript.WrongAnswerSound();
 
-        }
-       
+        }       
         rightWrongImage.SetActive(true);
 
+        if (answerClicked == rightAnswers)
+        {
+            for (int j = 0; j < btnArray.Length; j++)
+            {
+                btnArray[j].enabled = false;
+            }
+            answerClicked = 0;
+            noOfAttempts = 0;
+            // Destroy(buttonArray);
+        }
         
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
@@ -1777,8 +1838,10 @@ public class MissionManagement : MonoBehaviour
     }
 
     private IEnumerator coroutine;
-    public void CheckRightAnswerOfQuestion(Button button, int questionNumber)
+    public void CheckRightAnswerOfQuestion(Button button, int questionNumber, Button[] mcqButtonArray)
     {
+         Button[] btnArray = mcqButtonArray;
+        int rightAnswers = noOfAttempts;
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
         int tag = System.Convert.ToInt32(button.tag);
@@ -1797,17 +1860,30 @@ public class MissionManagement : MonoBehaviour
 
         if (value == 1)
         {
+            answerClicked += 1;
             myImage.sprite = tickSprite;
             SoundManagerScript.RightAnswerSound();
         }
         else
         {
+            answerClicked += 1;
             myImage.sprite = wrongSprite;
             SoundManagerScript.WrongAnswerSound();
             
         }
        
         rightWrongImage.SetActive(true);
+
+        if (answerClicked == rightAnswers)
+        {
+            for (int j = 0; j < btnArray.Length; j++)
+            {
+                btnArray[j].enabled = false;
+            }
+            answerClicked = 0;
+            noOfAttempts = 0;
+            // Destroy(buttonArray);
+        }
 
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
@@ -1897,7 +1973,14 @@ public class MissionManagement : MonoBehaviour
 
 
             string message = "";
-            string scores = result.score_percentage.ToString();
+            // string scores = result.score_percentage.ToString();
+            double scores = result.score_percentage;
+            // scores = Mathf.Round((float)scores * 100f) / 100f;
+            // string roundedScore = scores.ToString();
+            int thousandths = (int)(Mathf.Round((float)scores * 100f) / 100f);
+            string roundedScore = thousandths.ToString();
+
+
             if (result.score_percentage >= 70.0)
             {
 
@@ -1913,12 +1996,24 @@ public class MissionManagement : MonoBehaviour
 
             ScorePopUp popup = UIController.Instance.CreateScorePopUp();
 			popup.Init(UIController.Instance.MainCanvas,
-				scores,
+				roundedScore,
 				message,
-                CompleteMission
+                CompleteMission,
+                Reset
 				);
         }
 
+    }
+
+    void Reset()
+    {
+        questionResponseDict.Clear();
+        screenCount = 1;
+        Action<int> unityAction = methodCallArray[0];
+        SendInt(unityAction,0);
+        submitButton.gameObject.SetActive(false);
+        SetUpBaseCanvas();
+        SetBottomTitleLabel();
     }
 
     void GoBackToDashboard()

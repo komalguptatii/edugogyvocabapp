@@ -168,12 +168,6 @@ public class LoginAPIManager : MonoBehaviour
         {
             Debug.Log("code is empty now");
             countryCodeDropdown.ClearOptions();
-            // for(int x = 0; x < countryCodeDropdown.options.Count;x++)
-            // {
-            //     countryCodeDropdown.options.RemoveAt(x);
-                
-
-            // }
 
             for (var i = 0; i < listObject.items.Length; i++) {
                 countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
@@ -185,7 +179,7 @@ public class LoginAPIManager : MonoBehaviour
             countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
         }
         countryCodeDropdown.Show();
-        // dropDownItemSelected();
+        dropDownItemSelected();
          
     }
 

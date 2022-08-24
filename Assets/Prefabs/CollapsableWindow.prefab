@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4131521712342955882}
   - component: {fileID: 4131521712342955884}
   - component: {fileID: 4131521712342955885}
+  - component: {fileID: 5610219236125901272}
   m_Layer: 5
   m_Name: WindowContents
   m_TagString: Untagged
@@ -80,6 +81,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!222 &5610219236125901272
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4131521712342955883}
+  m_CullTransparentMesh: 1
 --- !u!1 &4131521712461625432
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +376,7 @@ MonoBehaviour:
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 24
+  m_fontSizeMin: 32
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
@@ -835,7 +844,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1205,9 +1214,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 5
-    m_Right: 5
-    m_Top: 5
+    m_Left: 20
+    m_Right: 20
+    m_Top: 10
     m_Bottom: 5
   m_ChildAlignment: 0
   m_Spacing: 5

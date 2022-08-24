@@ -84,7 +84,7 @@ public class DashboardManager : MonoBehaviour
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
+            auth_key = "Bearer aiVBowambEIYKvQBW6i8VD5NspqDz5lk";
         }
 
         // GetUserProfile();
@@ -119,11 +119,12 @@ public class DashboardManager : MonoBehaviour
         Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
         SpawnPath();
 
-        lastReachedLevel = GameObject.Find("10").GetComponent<Button>();
+        lastReachedLevel = GameObject.Find("37").GetComponent<Button>();
         RectTransform target = lastReachedLevel.GetComponent<RectTransform>();
-        Reset(lastReachedLevel);
-        Debug.Log("Position is " + transform.position);
+        // Reset(lastReachedLevel);
+        Debug.Log("Position is " + target.position);
         SnapTo(target);
+        // ScrollToCenter(scrollRect, target);
 
         if (PlayerPrefs.HasKey("NextLevelWillBe"))
         {
@@ -245,10 +246,10 @@ public class DashboardManager : MonoBehaviour
 
         var diff = contentPanel.rect.size.y - scrollRectTransform.rect.size.y;
     
-        // scrollRect.verticalScrollbar.value = normalizedDifference.y;
+        scrollRect.verticalScrollbar.value = normalizedDifference.y;
         //  scrollRect.normalizedPosition = newNormalizedPosition;
          var xPosition = contentPanel.anchoredPosition.x;
-        var yPosition = contentPanel.anchoredPosition.y + targetPositionInScroll.y + normalizedDifference.y;//difference.y + offset;
+        var yPosition = contentPanel.anchoredPosition.y +  difference.y + normalizedDifference.y + offset;//difference.y + offset + targetPositionInScroll.y +;
         Debug.Log("itemCenterPositionInScroll " + itemCenterPositionInScroll); // -736
         Debug.Log("targetPositionInScroll " + targetPositionInScroll); // -1266
         Debug.Log("yPosition " + yPosition);
@@ -262,7 +263,11 @@ public class DashboardManager : MonoBehaviour
 
         var ratio = newNormalizedPosition.y/yPosition; // diff/yPos = 0.4365715
         Debug.Log("ratio is " + ratio);
-        contentPanel.anchoredPosition = new Vector2(xPosition, yPosition); // asking for level 20 , taking to level 6
+        Vector2 calculatedOffset = new Vector2(xPosition, yPosition);
+        contentPanel.anchoredPosition = calculatedOffset; // asking for level 20 , taking to level 6
+
+
+
         // scrollRect.verticalScrollbar.value = newNormalizedPosition.y;
         // scrollRect.verticalNormalizedPosition = ratio;
 
@@ -288,7 +293,7 @@ public class DashboardManager : MonoBehaviour
 
         // contentPanel.anchoredPosition = 
         //         (Vector2)scrollRect.transform.InverseTransformPoint(contentPanel.position)
-                // - (Vector2)scrollRect.transform.InverseTransformPoint(worldPosition);
+        //         - (Vector2)scrollRect.transform.InverseTransformPoint(calculatedOffset);
     }
 
 

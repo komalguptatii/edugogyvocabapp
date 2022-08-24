@@ -71,6 +71,7 @@ public class FacebookLogin : MonoBehaviour
 
 
         FB.LogInWithReadPermissions(permissions, AuthCallBack);
+        //FB.Login("email,publish_actions", callback);
     }
     // Start is called before the first frame update
     void AuthCallBack(IResult result)

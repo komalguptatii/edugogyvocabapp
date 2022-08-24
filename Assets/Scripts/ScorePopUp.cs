@@ -17,7 +17,7 @@ public class ScorePopUp : MonoBehaviour
 
 
 
-	public void Init(Transform canvas, string score, string popupMessage, Action action) {
+	public void Init(Transform canvas, string score, string popupMessage, Action action, Action action2) {
 		_popupText.text = popupMessage;
 		_scoresText.text = score;
 		// _button1Text.text = btn1txt;
@@ -34,7 +34,7 @@ public class ScorePopUp : MonoBehaviour
 		});
 
 		_button2.onClick.AddListener(() => {
-			// action();
+			action2();
 			GameObject.Destroy(this.gameObject);
 		});
 
