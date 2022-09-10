@@ -41,6 +41,11 @@ public class GoogleSignInService : MonoBehaviour
     public string name = "";
     public bool isSignInDone = false;
 
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
     private void Awake()
     {
         configuration = new GoogleSignInConfiguration { WebClientId = webClientId, RequestEmail = true, RequestIdToken = true };
@@ -244,7 +249,7 @@ public class GoogleSignInService : MonoBehaviour
         Debug.Log(json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/social-login";
+        string uri = baseURL + "students/social-login";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

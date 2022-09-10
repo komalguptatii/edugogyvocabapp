@@ -37,6 +37,13 @@ public class AppleManager : MonoBehaviour
     string id = "";
     string email = "";
     string name = "";
+    bool showingResults = false;
+
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1";
+
 
     void Start()
     {
@@ -55,7 +62,11 @@ public class AppleManager : MonoBehaviour
     void Update()
     {
 
-        // Updates the AppleAuthManager instance to execute
+        if (showingResults == true)
+        {
+            socialLoginRequest();
+        }
+            // Updates the AppleAuthManager instance to execute
         // pending callbacks inside Unity's execution loop
         if (this.appleAuthManager != null)
         {
@@ -108,8 +119,9 @@ public class AppleManager : MonoBehaviour
                     Debug.Log(fullName);
                     Debug.Log(identityToken);
                     Debug.Log("It's done");
+                    showingResults = true;
                     // MoveToSubscription();
-                    socialLoginRequest();
+                    // socialLoginRequest();
                     // SocialLogin_Coroutine(userId, email, fullName.ToString());
                     // socialLoginRequest();
                     // SceneManager.LoadScene("IAPCatalog");
@@ -131,6 +143,7 @@ public class AppleManager : MonoBehaviour
 
     IEnumerator SocialLogin_Coroutine(string id, string email, string name)
     {
+        showingResults = false;
         GetAuthKey getKey = new GetAuthKey();
 
         SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "apple", app_validate_key = "0H9K@FbQ3k*6", email = email, name = name};
@@ -140,7 +153,7 @@ public class AppleManager : MonoBehaviour
         Debug.Log(json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/social-login";
+        string uri = baseURL + "students/social-login";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

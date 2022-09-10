@@ -55,6 +55,11 @@ public class VerifyOTPManager : MonoBehaviour
     [SerializeField]
     public TextMeshProUGUI description; 
 
+     string baseURL = "https://api.edugogy.app/v1/";
+    //     string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -79,8 +84,6 @@ public class VerifyOTPManager : MonoBehaviour
 
     void Start() {
         // phoneNumber = "9855940600";
-
-       
 
         int phoneLength = phoneNumber.Length;
         string returnNumber = "";
@@ -187,7 +190,7 @@ public class VerifyOTPManager : MonoBehaviour
         Debug.Log(json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/validate-otp";
+        string uri = baseURL + "students/validate-otp";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -231,7 +234,7 @@ public class VerifyOTPManager : MonoBehaviour
 
         Debug.Log(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/resend-otp";
+        string uri = baseURL + "students/resend-otp";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

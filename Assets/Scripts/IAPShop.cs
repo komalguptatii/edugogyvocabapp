@@ -20,6 +20,10 @@ public class IAPShop : MonoBehaviour
     string auth_key;
     [SerializeField] public TextMeshProUGUI transactionId;
 
+     string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
     public class SubscriptionForm
     {
@@ -55,7 +59,7 @@ public class IAPShop : MonoBehaviour
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-subscriptions";
+        string uri = baseURL + "student-subscriptions";
 
         var request = new UnityWebRequest(uri, "POST");
 

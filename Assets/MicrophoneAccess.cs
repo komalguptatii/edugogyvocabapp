@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Android;
 
 public class MicrophoneAccess : MonoBehaviour
 {
@@ -8,13 +9,12 @@ public class MicrophoneAccess : MonoBehaviour
     void Start()
     {
 
-        //  #if PLATFORM_ANDROID
-        //  if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
-        //  {
-        //     Permission.RequestUserPermission(Permission.Microphone);
-        //  }
-        // #el
-        #if UNITY_IOS
+         #if PLATFORM_ANDROID
+         if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
+         {
+            Permission.RequestUserPermission(Permission.Microphone);
+         }
+        #elif UNITY_IOS
          if (!Application.HasUserAuthorization(UserAuthorization.Microphone))
          {
              Application.RequestUserAuthorization(UserAuthorization.Microphone);

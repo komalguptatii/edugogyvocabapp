@@ -33,8 +33,12 @@ public class HelpManager : MonoBehaviour
     public Transform ScrollContentParent;
     public List<GameObject> collapsablePrefabArray = new List<GameObject>();
 
-
      string auth_key;
+
+     string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
      
     string fixJson(string value)            // Added object type to JSON
     {
@@ -61,7 +65,7 @@ public class HelpManager : MonoBehaviour
 
      IEnumerator GetFAQs_Coroutine()
     {
-        string uri = "http://165.22.219.198/edugogy/api/v1/faqs?per-page=20";
+        string uri = baseURL + "faqs?per-page=20";
 
         var request = new UnityWebRequest(uri, "GET");
 

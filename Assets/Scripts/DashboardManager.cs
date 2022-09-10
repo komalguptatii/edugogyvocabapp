@@ -78,16 +78,24 @@ public class DashboardManager : MonoBehaviour
     RectTransform maskTransform;
     float offset = -1500.0f;
 
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
 
-    private void Awake() {
-         if (PlayerPrefs.HasKey("auth_key"))
+    // string baseURL = "http://165.22.219.198/edugogy/api/v1/";
+
+    private void Awake() 
+    {
+        if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            auth_key = "Bearer aiVBowambEIYKvQBW6i8VD5NspqDz5lk";
         }
 
-        // GetUserProfile();
+        auth_key = "Bearer 81vqh-fMFkMM9pwx2Xstfif6fUQSQSrD";  // Ridhima - Mehak Key
+                //   auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3";
+
+
+        GetUserProfile();
     }
 
     private void Reset(Button levelButton)
@@ -109,9 +117,9 @@ public class DashboardManager : MonoBehaviour
             }
         }
     }
+
     void Start()
     {
-        
         // cam = GetComponent<Camera>();
         var dateAndTime = DateTime.Now;
         var date = dateAndTime.Date;
@@ -123,7 +131,7 @@ public class DashboardManager : MonoBehaviour
         RectTransform target = lastReachedLevel.GetComponent<RectTransform>();
         // Reset(lastReachedLevel);
         Debug.Log("Position is " + target.position);
-        SnapTo(target);
+        // SnapTo(target);
         // ScrollToCenter(scrollRect, target);
 
         if (PlayerPrefs.HasKey("NextLevelWillBe"))
@@ -318,12 +326,26 @@ public class DashboardManager : MonoBehaviour
         Vector2 currentPosition = pathPrefab.transform.position;
         // float height = pathPrefab.transform.localScale.height;
         // Debug.Log(height);
+        //  RectTransform rt = pathPrefab.GetComponent<Image>().rectTransform;
+        // float height = rt.rect.height;
+
+        Debug.Log("local scale is" + pathPrefab.transform.localScale.y);
         int z = 0;
 
         for(int i = 0; i < 36; i++)
         {
             GameObject nextPath = Instantiate(pathPrefab).gameObject;
-            nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y + 1939f));
+            // if (Screen.height > 2000)
+            // {
+            //     Debug.Log("Less than 2000");
+            //     nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y));
+            // }
+            // else
+            // {
+                Debug.Log("greater than 2000");
+                nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y + 1939f));//pathPrefab.transform.localScale.y));//+ 1939f));
+
+            // }
              // + pathPrefab.localScale.height);
              nextPath.transform.SetParent(contentParent, true);
             currentPosition = nextPath.transform.position;
@@ -406,7 +428,8 @@ public class DashboardManager : MonoBehaviour
     {
 
         AllDetail allDetailData = new AllDetail();
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
+        string uri = baseURL + "day-levels/" + levelId + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
+
         // "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
         Debug.Log(uri);
         var request = new UnityWebRequest(uri, "GET");
@@ -444,13 +467,13 @@ public class DashboardManager : MonoBehaviour
     IEnumerator GetUserProfile_Coroutine()
     {
         ProfileDetails profileData = new ProfileDetails();
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/view";
+        string uri = baseURL + "students/view";
 
         var request = new UnityWebRequest(uri, "GET");
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-         request.SetRequestHeader("Authorization", auth_key);
+        request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 

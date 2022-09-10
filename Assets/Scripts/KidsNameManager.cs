@@ -17,6 +17,11 @@ public class KidsNameManager : MonoBehaviour
     {
         public string name;
     }
+     
+    string baseURL = "https://api.edugogy.app/v1/";
+        // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
     // Start is called before the first frame update
 
@@ -49,8 +54,23 @@ public class KidsNameManager : MonoBehaviour
             Debug.Log(theName);
             UpdateKidsName();
         }
+        else
+        {
+            Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter kid's name",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+        }
 
         // textDisplay.GetComponent<TextMeshProUGUI>().text = theName;
+    }
+
+    public void resetAction()
+    {
+        Debug.Log("empty textfield");
     }
 
     void UpdateKidsName() => StartCoroutine(ProcessKidsName_Coroutine());
@@ -64,7 +84,7 @@ public class KidsNameManager : MonoBehaviour
         Debug.Log(json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/update";
+        string uri = baseURL + "students/update";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

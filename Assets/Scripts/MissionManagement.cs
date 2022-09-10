@@ -70,6 +70,12 @@ public class MissionManagement : MonoBehaviour
     [SerializeField]
     public GameObject dutSentencePrefab;
 
+     [SerializeField]
+    public GameObject dutSentencePrefab2;
+     [SerializeField]
+    public GameObject dutSentencePrefab3;
+
+
     [SerializeField]
     public Transform dutParent;
 
@@ -469,7 +475,7 @@ public class MissionManagement : MonoBehaviour
             {"Passages", false}
         };
 
-     Dictionary<string, bool> dataDisplayed = new Dictionary<string, bool>()
+     public Dictionary<string, bool> dataDisplayed = new Dictionary<string, bool>()
     {
          {"isNounDone", false},
         {"isVerbDone", false},
@@ -495,6 +501,42 @@ public class MissionManagement : MonoBehaviour
         {"isGeneralMCQDone", false},
         {"isNewWordDetailsDone", false}
     };
+
+    public Dictionary<string, bool> copyOfdataDisplayed = new Dictionary<string, bool>()
+    {
+         {"isNounDone", false},
+        {"isVerbDone", false},
+        {"isAdverbDone",false},
+        {"isAdjectiveDone",false},
+        {"isNewWordConverstaionDone",false},
+        {"isDUTDone",false},
+        {"isnewWordOWUWordDone",false},
+        {"isnewWordIdiomDone",false},
+        {"isnewWordUsingMultipleWordsDone",false},
+        {"isnewWordSynonymDone",false},
+        {"isnewWordAntonymDone",false},
+        {"isRevisionWordListDone", false},
+        {"isRevisionWordSynonymDone", false},
+        {"isRevisionWordAntonymDone", false},
+        {"isRevisionWordOWUWordDone", false},
+        {"isRevisionWordUsingMultipleWordsDone", false},
+        {"isRevisionWordIdiomsDone", false},
+        {"isRevisionWordConversationDone", false},
+        {"isRevisionWordContentDone", false},
+        {"isConversationMCQDone",false},
+        {"isPassageMCQDone",false},
+        {"isGeneralMCQDone", false},
+        {"isNewWordDetailsDone", false}
+    };
+
+    Dictionary<string, bool> copyOfavailableData = new Dictionary<string, bool>()
+     {
+            {"isNewWordAvailable", false},
+            {"isRevisionWordsAvailable", false},
+            {"Questions", false},
+            {"Conversation", false},
+            {"Passages", false}
+        };
 
     public List<GameObject> sentencePrefabsArray = new List<GameObject>();
     public List<GameObject> convoWithMCQPrefabsArray = new List<GameObject>();
@@ -568,12 +610,20 @@ public class MissionManagement : MonoBehaviour
     public TextMeshProUGUI missionTitle;
     int noOfAttempts = 0;
     int answerClicked = 0;
+    bool updateDUTSentencePosition = false;
+    float calHeight = 0.0f;
 
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
         return value;
     }
+
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+  
+    // string baseURL = "http://165.22.219.198/edugogy/api/v1/";
+
 
     // Start is called before the first frame update
     void Awake()
@@ -588,8 +638,10 @@ public class MissionManagement : MonoBehaviour
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            auth_key = "Bearer aiVBowambEIYKvQBW6i8VD5NspqDz5lk";
         }
+
+        auth_key = "Bearer 81vqh-fMFkMM9pwx2Xstfif6fUQSQSrD";  // Ridhima - Mehak Key
+        //   auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3";
 
         if (PlayerPrefs.HasKey("StartLevelID"))
         {
@@ -608,6 +660,15 @@ public class MissionManagement : MonoBehaviour
     }
 
 
+    // void Update()
+    // {
+    //     if (updateDUTSentencePosition == true)
+    //     {
+    //         dutSentencePrefab2.transform.position = new Vector2(dutSentencePrefab.transform.position.x, calHeight);
+    //         updateDUTSentencePosition = false;
+
+    //     }
+    // }
 
     IEnumerator DownloadImage(string mediaUrl)
     {   
@@ -658,7 +719,8 @@ public class MissionManagement : MonoBehaviour
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-levels/start-level";
+        string uri = baseURL + "student-levels/start-level";
+        Debug.Log(uri);
 
         var request = new UnityWebRequest(uri, "POST");
 
@@ -672,18 +734,19 @@ public class MissionManagement : MonoBehaviour
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.Log("Error: " + request.error);
+            Debug.Log("Error: in start mission" + request.error);
+            Debug.Log(request.downloadHandler.text);
         }
         else
         {
-            Debug.Log(request.result);
+            Debug.Log("Start Mission " + request.result);
             Debug.Log(request.downloadHandler.text);
         }
     }
 
     IEnumerator GetDataCount_Coroutine()
     {
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/data-count/" + levelId.ToString();
+        string uri = baseURL + "day-levels/data-count/" + levelId.ToString();
 
         var request = new UnityWebRequest(uri, "GET");
 
@@ -827,15 +890,15 @@ public class MissionManagement : MonoBehaviour
             }
        }
 
-       int dutPrefabCount = dutParent.transform.childCount;
-       if (dutPrefabCount > 1)
-       {
-            for (int i = 1; i < dutPrefabCount; i++)
-            {
-                    Debug.Log("value of i " + i);
-                    Destroy(dutParent.transform.GetChild(i).gameObject);
-            }
-       }
+    //    int dutPrefabCount = dutParent.transform.childCount;
+    //    if (dutPrefabCount > 1)
+    //    {
+    //         for (int i = 1; i < dutPrefabCount; i++)
+    //         {
+    //                 Debug.Log("value of i " + i);
+    //                 Destroy(dutParent.transform.GetChild(i).gameObject);
+    //         }
+    //    }
        
        sentencePrefabsArray.Clear();
     }
@@ -867,7 +930,7 @@ public class MissionManagement : MonoBehaviour
 
     IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
     {
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId.ToString() + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
+        string uri = baseURL + "day-levels/" + levelId.ToString() + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
         // "newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
 
         var request = new UnityWebRequest(uri, "GET");
@@ -891,7 +954,16 @@ public class MissionManagement : MonoBehaviour
             string jsonString = request.downloadHandler.text;
            
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
-            if (allDetailData.newWords.Length > 0)
+            DecideTypeOfDataAvailable();
+            SetBottomTitleLabel();
+            SetUpBaseCanvas();
+
+        }
+    }
+
+    public void DecideTypeOfDataAvailable()
+    {
+        if (allDetailData.newWords.Length > 0)
             {
                 availableData["isNewWordAvailable"] = true;
                 //new word length will always be 1
@@ -917,10 +989,6 @@ public class MissionManagement : MonoBehaviour
                     
                 }
              }
-            SetBottomTitleLabel();
-            SetUpBaseCanvas();
-
-        }
     }
 
     void ShowInteractivePopup()
@@ -1365,6 +1433,8 @@ public class MissionManagement : MonoBehaviour
 
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
+             Debug.Log("Adding for next time" + selectedOptionsId);
+
             // if yes check for selected option id otherwise add
             List<int> tempList = questionResponseDict[questionId];
             if (tempList.Contains(selectedOptionsId))
@@ -1373,13 +1443,15 @@ public class MissionManagement : MonoBehaviour
             }
             else
             {
-                tempList.Add(selectedOptionsId);
-                questionResponseDict[questionId] = tempList;
+                
+                    tempList.Add(selectedOptionsId);
+                    questionResponseDict[questionId] = tempList;               
             }
 
         }
         else  // if doesn't contain key set key and add selected option id as well
         {
+            Debug.Log("Adding for first time " + selectedOptionsId);
             List <int> selectedIdList = new List<int>();
             selectedIdList.Add(selectedOptionsId);
             questionResponseDict.Add(questionId, selectedIdList);
@@ -1824,6 +1896,7 @@ public class MissionManagement : MonoBehaviour
             }
             else
             {
+
                 tempList.Add(selectedOptionsId);
                 questionResponseDict[questionId] = tempList;
             }
@@ -1927,16 +2000,40 @@ public class MissionManagement : MonoBehaviour
        foreach(var item in questionResponseDict)
         {   
 
+            Debug.Log("Checking for Item");
             for(int i = 0; i < item.Value.Count; i++)
             {
+
+                Debug.Log("Value of i");
                 List<int> optionList = item.Value;
                 QuestionResponse newQuestionResponse = new QuestionResponse();
                 newQuestionResponse.question_id = item.Key;
+
+                Debug.Log("Count of option List " + optionList.Count);
                 newQuestionResponse.selected_options = new SelectedOption[item.Value.Count];
-                SelectedOption newOption = new SelectedOption{option_id = optionList[i]};
-                newQuestionResponse.selected_options[i] = newOption;
+
+
+                for (int j = 0; j < optionList.Count; j++)
+                {
+                     Debug.Log("Value of j");
+                    SelectedOption newOption = new SelectedOption{option_id = optionList[j]};
+                    newQuestionResponse.selected_options[j] = newOption;
+                }
                 
-                newResponse.response.Add(newQuestionResponse); //= thisResponse;
+                newResponse.response.Add(newQuestionResponse);
+               
+                //  newQuestionResponse.selected_options = new SelectedOption[item.Value.Count];
+                
+                //     Debug.Log("optionList " + optionList[i]);
+                //     if (optionList[i] != 0)
+                //     {
+                //         SelectedOption newOption = new SelectedOption{option_id = optionList[i]};
+                //         Debug.Log("newOption " + newOption.option_id);
+                    
+                //         newQuestionResponse.selected_options[i] = newOption;
+                //         newResponse.response.Add(newQuestionResponse);
+                //     }
+                 //= thisResponse;
 
             }
         } 
@@ -1946,7 +2043,9 @@ public class MissionManagement : MonoBehaviour
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-results/question-response?day_level_id=" + dayLevelId.ToString(); //+ dayLevelId;
+        string uri = baseURL + "student-results/question-response?day_level_id=" + dayLevelId.ToString(); //+ dayLevelId;
+
+        Debug.Log(uri);
 
         var request = new UnityWebRequest(uri, "POST");
 
@@ -1961,6 +2060,11 @@ public class MissionManagement : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.Log("Error: " + request.error);
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+             string userJson = request.downloadHandler.text;
+             Debug.Log(userJson);
+
         }
         else
         {
@@ -1984,7 +2088,7 @@ public class MissionManagement : MonoBehaviour
             if (result.score_percentage >= 70.0)
             {
 
-                message = "Congratulations,  Mission accomplished!";
+                message = "Congratulations! Mission accomplished!";
                 SoundManagerScript.SuccessSound();
             }
             else
@@ -1999,19 +2103,33 @@ public class MissionManagement : MonoBehaviour
 				roundedScore,
 				message,
                 CompleteMission,
-                Reset
+                ResettingData
 				);
         }
 
     }
 
-    void Reset()
+    public void ResettingData()  => StartCoroutine(Reset());
+
+    IEnumerator Reset()
     {
+        newWordNumber = 0;
+        tempDataCount = 0;
+        parameterCountControlCheck = 0;
+        revisionListDisplayed = false;
         questionResponseDict.Clear();
         screenCount = 1;
-        Action<int> unityAction = methodCallArray[0];
-        SendInt(unityAction,0);
+        Debug.Log("Resetting values");
+        dataDisplayed.Clear();
+        availableData.Clear();
+        yield return dataDisplayed = copyOfdataDisplayed;
+        yield return availableData = copyOfavailableData;
+        baseParentBoard.gameObject.SetActive(true);
+        generalMCQBoard.gameObject.SetActive(false);
         submitButton.gameObject.SetActive(false);
+        parameterValueArray.Clear();
+        methodCallArray.Clear();
+        DecideTypeOfDataAvailable();
         SetUpBaseCanvas();
         SetBottomTitleLabel();
     }
@@ -2030,7 +2148,7 @@ public class MissionManagement : MonoBehaviour
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-levels/mark-pass";
+        string uri = baseURL + "student-levels/mark-pass";
 
         var request = new UnityWebRequest(uri, "POST");
 
@@ -2079,6 +2197,9 @@ public class MissionManagement : MonoBehaviour
         {
             baseParentBoard.gameObject.SetActive(false);
             revisionWordBoard.gameObject.SetActive(true);
+            generalMCQBoard.gameObject.SetActive(false);
+            revisionWordList.text = "";
+            listOfrevisionWords = "";
 
             if (dataCountDetails.interactive_line_revision_word != "")
             {
@@ -2126,6 +2247,7 @@ public class MissionManagement : MonoBehaviour
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Noun";
+        word.text = newWordDetails.name; 
         Noun newNoun = new Noun();
         int nounCount = dataCountDetails.new_word_data.more_data[0].noun_count;
 
@@ -2158,9 +2280,9 @@ public class MissionManagement : MonoBehaviour
                         {
                              
                               
-                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                            Vector2 prefabPosition = new Vector2(sentencePrefabsArray[i - 1].transform.position.x - 160f, sentencePrefabsArray[i - 1].transform.position.y - 164f);
                             GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x - 160f, prefabPosition.y - 164f);
                             newSentencePrefab.transform.SetParent(parent, true);
 
                             GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
@@ -2213,6 +2335,7 @@ public class MissionManagement : MonoBehaviour
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Verb";
+        word.text = newWordDetails.name; 
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
 
@@ -2299,6 +2422,7 @@ public class MissionManagement : MonoBehaviour
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Adverb";
+        word.text = newWordDetails.name; 
         Adverb newAdverb = new Adverb();
         int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
         newAdverb = newWordDetails.adverbs[parameter];
@@ -2373,6 +2497,7 @@ public class MissionManagement : MonoBehaviour
 
     public void AdjectiveSetup(int parameter)
     {
+        Debug.Log("Working on adjective");
         DestroyPrefabs();
         DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -2385,6 +2510,7 @@ public class MissionManagement : MonoBehaviour
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Adjective";
+        word.text = newWordDetails.name; 
         Adjective newAdjective = new Adjective();
         int adjectiveCount = dataCountDetails.new_word_data.more_data[0].adjective_count;
 
@@ -2400,58 +2526,60 @@ public class MissionManagement : MonoBehaviour
             singleSentenceBoard.gameObject.SetActive(false);
             multipleSentenceBoard.gameObject.SetActive(true);
             Debug.Log("Length " + newAdjective.adjectiveSentences.Length);
-                    for (var i = 0; i < newAdjective.adjectiveSentences.Length; i++)
-                    {
-                        Debug.Log("Running in For loop " + i);
-                        Debug.Log(newAdjective.adjectiveSentences[0].description);
-                         
-                        if (i == 0)
-                        {
-                            Debug.Log("i is 0 here");
-                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
-                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                            mytext.text = newAdjective.adjectiveSentences[0].description;                     
-                        }
-                        else
-                        {
-                             
-                              
-                            Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
-                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-                            newSentencePrefab.transform.SetParent(parent, true);
-                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
-                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                            mytext.text = newAdjective.adjectiveSentences[i].description;
-                            sentencePrefabsArray.Add(newSentencePrefab);
-                            Debug.Log("End of Checking in loop for second object");
-                        }  
-
-                    }
+            for (var i = 0; i < newAdjective.adjectiveSentences.Length; i++)
+            {
+                Debug.Log("Running in For loop " + i);
+                Debug.Log(newAdjective.adjectiveSentences[0].description);
+                    
+                if (i == 0)
+                {
+                    Debug.Log("i is 0 here");
+                    GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newAdjective.adjectiveSentences[0].description;                     
                 }
                 else
                 {
-                    singleSentenceBoard.gameObject.SetActive(true);
-                    multipleSentenceBoard.gameObject.SetActive(false);
-                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newAdjective.adjectiveSentences[0].description;
-                }
-            if (isSettingCanvas == true)
-            {
-                if (parameterCountControlCheck == adjectiveCount - 1)
-                {
-                    Debug.Log("adjective is complete here");
-                    dataDisplayed["isAdjectiveDone"] = true;
-                    parameterCountControlCheck = 0;     //resetting 
-                }
-                else 
-                {
-                    Debug.Log("Working on calling adjective again");
-                    parameterCountControlCheck = parameterCountControlCheck + 1;
-                }
-                Debug.Log(dataDisplayed["isAdjectiveDone"] + "adjective is done");
-                isSettingCanvas = false;
+                        
+                        
+                    Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                    GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                    newSentencePrefab.transform.SetParent(parent, true);
+                    GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newAdjective.adjectiveSentences[i].description;
+                    sentencePrefabsArray.Add(newSentencePrefab);
+                    Debug.Log("End of Checking in loop for second object");
+                }  
+
             }
+        }
+        else
+        {
+            singleSentenceBoard.gameObject.SetActive(true);
+            multipleSentenceBoard.gameObject.SetActive(false);
+            var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+            
+            mytext.text = newAdjective.adjectiveSentences[0].description;
+        }
+
+        if (isSettingCanvas == true)
+        {
+            if (parameterCountControlCheck == adjectiveCount - 1)
+            {
+                Debug.Log("adjective is complete here");
+                dataDisplayed["isAdjectiveDone"] = true;
+                parameterCountControlCheck = 0;     //resetting 
+            }
+            else 
+            {
+                Debug.Log("Working on calling adjective again");
+                parameterCountControlCheck = parameterCountControlCheck + 1;
+            }
+            Debug.Log(dataDisplayed["isAdjectiveDone"] + "adjective is done");
+            isSettingCanvas = false;
+        }
             
 
     }
@@ -2508,12 +2636,15 @@ public class MissionManagement : MonoBehaviour
         singleSentenceBoard.gameObject.SetActive(false);
         multipleSentenceBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
-        
+        // dutSentencePrefab2.gameObject.SetActive(false);
+        // dutSentencePrefab3.gameObject.SetActive(false);
+        word.text = newWordDetails.name; 
+
         if (newWordDetails.dailyUseTips.Length > 1)
         {
         
         sentencePrefabsArray.Add(dutSentencePrefab);    // have changed sentencePrefab to dutSentencePrefab
-
+        // Vector2 firstSentencePosition = dutSentencePrefab.transform.position;
             for (var i = 0; i < newWordDetails.dailyUseTips.Length; i++)
             {
                 // newDUT = newWordDetails.dailyUseTips[i];
@@ -2522,29 +2653,70 @@ public class MissionManagement : MonoBehaviour
                 if (i == 0)
                 {
                     Debug.Log("i is 0 here");
+                     dutSentencePrefab2.gameObject.SetActive(false);
+                    dutSentencePrefab3.gameObject.SetActive(false);
+                    
                     GameObject childObj = dutSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newWordDetails.dailyUseTips[0].description;                     
                 }
-                else
+                else if (i == 1)
                 {
+                    dutSentencePrefab2.gameObject.SetActive(true);
+                    dutSentencePrefab3.gameObject.SetActive(false);
+
+
+                    GameObject childObj = dutSentencePrefab2.transform.GetChild(0).gameObject;
+                    // RectTransform rt = childObj.GetComponent<TMPro.TMP_Text>().rectTransform;
+                    //  calHeight = rt.rect.height -  dutSentencePrefab.transform.position.y - 200.0f;
+                    //     updateDUTSentencePosition = true;
+
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newWordDetails.dailyUseTips[i].description;  
+                }
+                else if (i == 2)
+                {
+                     dutSentencePrefab3.gameObject.SetActive(true);
+
+                    GameObject childObj = dutSentencePrefab3.transform.GetChild(0).gameObject;
+
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newWordDetails.dailyUseTips[i].description;  
+                }
+
+                // else
+                // {
                      
                       
-                    Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
-                    GameObject newSentencePrefab = Instantiate(dutSentencePrefab).gameObject;
-                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-                    newSentencePrefab.transform.SetParent(dutParent, true);
-                    GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
-                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newWordDetails.dailyUseTips[i].description;
-                    sentencePrefabsArray.Add(newSentencePrefab);
-                    Debug.Log("End of Checking in loop for second object");
-                }  
+                //     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
+                //     GameObject newSentencePrefab = Instantiate(dutSentencePrefab).gameObject;
+                //     newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                //     if (i == 1)
+                //     {
+                //         newSentencePrefab.transform.position = new Vector2(firstSentencePosition.x, firstSentencePosition.y - 164f);
+
+                //     }
+                //     else
+                //     {
+                //         newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+
+                //     }
+
+                //     newSentencePrefab.transform.SetParent(dutParent, true);
+                //     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                //     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                //     mytext.text = newWordDetails.dailyUseTips[i].description;
+                //     sentencePrefabsArray.Add(newSentencePrefab);
+                //     Debug.Log("End of Checking in loop for second object");
+                // }  
 
             }
         }
          else
         {
+            dutSentencePrefab2.gameObject.SetActive(false);
+            dutSentencePrefab3.gameObject.SetActive(false);
+
             GameObject childObj = dutSentencePrefab.transform.GetChild(0).gameObject;
             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
             mytext.text = newWordDetails.dailyUseTips[0].description;
@@ -2557,6 +2729,8 @@ public class MissionManagement : MonoBehaviour
     {
         DestroyPrefabs();
         HideSpeakerAndImage();
+        revisionWordBoard.gameObject.SetActive(false);
+
         generalMCQBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
         conversationBoard.gameObject.SetActive(false);
@@ -2566,7 +2740,9 @@ public class MissionManagement : MonoBehaviour
         multipleSentenceBoard.gameObject.SetActive(false);
         
         singleSentenceBoard.transform.position = sentenceRealPos;
-        multipleSentenceBoard.transform.position = sentenceRealPos;
+
+        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y - 200f);
+        // multipleSentenceBoard.transform.position.y = sentenceRealPos.y + 50f;
 
         int owuwCount = 0;
         OtherWayUsingWord newOwuw = new OtherWayUsingWord();
@@ -2887,6 +3063,7 @@ public class MissionManagement : MonoBehaviour
         generalBaseBoard.gameObject.SetActive(true);
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
+        conversationBoard.gameObject.SetActive(false);
 
         if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
         {
@@ -3129,6 +3306,7 @@ public class MissionManagement : MonoBehaviour
 
     public void NextButton(Button button)
     {
+         
         //Check screen count   
         if (button.tag == "Next")
         {
@@ -3189,6 +3367,7 @@ public class MissionManagement : MonoBehaviour
         }
 
         SetBottomTitleLabel();
+       
     }
 
     public void SendInt(Action<int> action, int value)

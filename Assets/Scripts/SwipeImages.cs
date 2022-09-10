@@ -11,7 +11,8 @@ public class SwipeImages : MonoBehaviour
     float[] pos;
     float distance;
     int currentIndexOfImageDisplayed = 1;
-    
+    int currentValue = 0;
+    int nextValue = 1; 
    
 
     // Update is called once per frame
@@ -43,7 +44,7 @@ public class SwipeImages : MonoBehaviour
                 
                 if (scroll_pos < pos[i] + (distance/2) && scroll_pos > pos[i] - (distance/2) )
                 {
-                    currentIndexOfImageDisplayed = i;
+                    currentValue = i;
                     scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[i], 0.1f);
                 }
             }
@@ -69,11 +70,12 @@ public class SwipeImages : MonoBehaviour
 
     public void NextImage()
     {
-        if (currentIndexOfImageDisplayed == 0)
-        {
-            currentIndexOfImageDisplayed += 1;
-        }
-        scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[currentIndexOfImageDisplayed], 0.1f);
+
+        
+        transform.GetChild(nextValue).localScale = Vector2.Lerp(transform.GetChild(nextValue).localScale, new Vector2(1f,1f),0.1f);
+        scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[currentValue], 0.1f);
+
+
 
     }
 }

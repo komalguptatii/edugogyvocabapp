@@ -42,6 +42,11 @@ public class UpdateAge : MonoBehaviour
     private int selectedButton;
     public bool isAgeSelected = false;
     
+     string baseURL = "https://api.edugogy.app/v1/";
+        // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
     void Start()
     {
         if (PlayerPrefs.HasKey("auth_key"))
@@ -49,7 +54,6 @@ public class UpdateAge : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             
             Debug.Log(auth_key);
-
         }
 
         for(int i = 0; i < ageImageTick.Length; i++)
@@ -64,22 +68,38 @@ public class UpdateAge : MonoBehaviour
     public void StoreKidsAgeGroup()
     {
         //validation
-        if (ageGroupId != 0)
+        // if (ageGroupId != 0)
+        Debug.Log("isAgeSelected" + isAgeSelected);
+        if (isAgeSelected == true)
         {
             Debug.Log(ageGroupId);
-            UpdateKidsAgeGroup();
+            GetKidsAgeGroup();
+
         }
         else
         {
             // Display Validation
             Debug.Log("Please select age group");
+            Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please select age group",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
         }
+    }
+
+    public void resetAction()
+    {
+        Debug.Log("Please select age group");
     }
 
     public void OnClick(Button button)
     {
         
         Debug.Log(button.tag);
+        
         selectedButton = int.Parse(button.tag);
         ageButton[selectedButton].image.sprite = buttonSprite;
         ageImageTick[selectedButton].enabled = true;
@@ -94,13 +114,14 @@ public class UpdateAge : MonoBehaviour
             }
         }
 
+         isAgeSelected = true;
         // ageButton[indexOfButton].text.color = Color(141, 41, 2555);
     }
 
     public void UpdateOnClick()
     {
+        StoreKidsAgeGroup();
 
-        GetKidsAgeGroup();
     }
 
     void UpdateKidsAgeGroup() => StartCoroutine(ProcessKidsAgeGroup_Coroutine());
@@ -118,7 +139,7 @@ public class UpdateAge : MonoBehaviour
         // outputArea.text = "Loading...";
         AgeGroupList agegrouplist = new AgeGroupList();
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/age-groups";
+        string uri = baseURL + "age-groups";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
 
@@ -132,8 +153,8 @@ public class UpdateAge : MonoBehaviour
 
             ageGroupId = agegrouplist.items[selectedButton].id;
             Debug.Log(ageGroupId + " Age Group ID");
-            StoreKidsAgeGroup();
-           
+            UpdateKidsAgeGroup();
+
         }
     }
 
@@ -142,14 +163,13 @@ public class UpdateAge : MonoBehaviour
     {
 
         Debug.Log(ageGroupId);
-        isAgeSelected = true;
         SelectAgeForm validAgeGroupForm = new SelectAgeForm { age_group_id = ageGroupId };
         string json = JsonUtility.ToJson(validAgeGroupForm);
 
-        Debug.Log(json);
+        Debug.Log("SelectAgeForm" + json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/update";
+        string uri = baseURL + "students/update";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -159,6 +179,8 @@ public class UpdateAge : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", auth_key);
+
+        Debug.Log(auth_key);
 
 
         yield return request.SendWebRequest();

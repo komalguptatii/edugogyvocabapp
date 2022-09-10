@@ -17,6 +17,7 @@ public class FacebookLogin : MonoBehaviour
     string name = "";
     string id = "";
     string email = "";
+    bool showingResults = false;
 
     [Serializable]
     public class SocialLoginForm
@@ -33,6 +34,11 @@ public class FacebookLogin : MonoBehaviour
     {
         public string auth_key;
     }
+
+    // string baseURL = "https://api.edugogy.app/v1/";
+        string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
     private void Awake()
     {
@@ -103,14 +109,20 @@ public class FacebookLogin : MonoBehaviour
             FB.API("/me/picture?type=square&height=128&width=128", HttpMethod.GET, DisplayProfilePic);
             FB.API("/me?fields=id", HttpMethod.GET, DisplayID);
             FB.API("/me?fields=email", HttpMethod.GET, DisplayEmail);
+            showingResults = true;
             // SceneManager.LoadScene("IAPCatalog");
-            socialLoginRequest();
+            
             // SocialLogin_Coroutine(id, email, name);
 
         }
-        else
-        {
+        
+    }
 
+    void Update()
+    {
+        if (showingResults == true)
+        {
+            socialLoginRequest();
         }
     }
 
@@ -177,6 +189,7 @@ public class FacebookLogin : MonoBehaviour
 
     IEnumerator SocialLogin_Coroutine(string id, string email, string name)
     {
+        showingResults = false;
         GetAuthKey getKey = new GetAuthKey();
 
         SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "facebook", app_validate_key = "0H9K@FbQ3k*6", email = email, name = name};
@@ -184,7 +197,7 @@ public class FacebookLogin : MonoBehaviour
         Debug.Log("Value of facebook json is");
         Debug.Log(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/social-login";
+        string uri = baseURL + "students/social-login";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

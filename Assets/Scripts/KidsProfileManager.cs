@@ -47,6 +47,10 @@ public class KidsProfileManager : MonoBehaviour
         public AgeGroup[] items;
     }
 
+    string baseURL = "https://api.edugogy.app/v1/";
+        // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
     // Start is called before the first frame update
     void Start()
     {
@@ -73,7 +77,7 @@ public class KidsProfileManager : MonoBehaviour
     {
         // outputArea.text = "Loading...";
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/view";
+        string uri = baseURL + "students/view";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             request.SetRequestHeader("Content-Type", "application/json");
@@ -104,7 +108,7 @@ public class KidsProfileManager : MonoBehaviour
     {
         // outputArea.text = "Loading...";
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/age-groups";
+        string uri = baseURL + "age-groups";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
 
@@ -137,7 +141,7 @@ public class KidsProfileManager : MonoBehaviour
 
         Debug.Log(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/update";
+        string uri = baseURL + "students/update";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

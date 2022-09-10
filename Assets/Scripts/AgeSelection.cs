@@ -6,6 +6,11 @@ using UnityEngine.Networking;
 public class AgeSelection : MonoBehaviour
 {
 
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1";
+
     void Start()
     {
         GetAgeData();
@@ -16,7 +21,7 @@ public class AgeSelection : MonoBehaviour
     IEnumerator GetAgeData_Coroutine()
     {
         // outputArea.text = "Loading...";
-        string uri = "http://165.22.219.198/edugogy/api/v1/age-groups";
+        string uri = baseURL +"/age-groups";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             yield return request.SendWebRequest();
