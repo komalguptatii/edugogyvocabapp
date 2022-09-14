@@ -294,6 +294,6 @@ public class GoogleSignInService : MonoBehaviour
 
      void MoveToSubscription()
     {
-        SceneManager.LoadScene("IAPCatalog");
+        SceneManager.LoadScene("KidsName");
     }
 }

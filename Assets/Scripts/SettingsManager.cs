@@ -5,6 +5,12 @@ using UnityEngine.SceneManagement;
 using Facebook.Unity;
 using UnityEngine.UI;
 using Google;
+using AppleAuth;
+using AppleAuth.Native;
+using AppleAuth.Enums;
+using AppleAuth.Interfaces;
+using System.Text;
+using AppleAuth.Extensions;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -23,6 +29,10 @@ public class SettingsManager : MonoBehaviour
             {
                 OnSignOut();
             }
+            // else if (typeOfPlatform == "apple")
+            // {
+            //     AppleAuth.CredentialState.Revoked();
+            // }
         }
         
         PlayerPrefs.DeleteAll();

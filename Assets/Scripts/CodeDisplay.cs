@@ -244,11 +244,19 @@ public class CodeDisplay : MonoBehaviour
                 {
                     if (PlayerPrefs.HasKey("isAgeSelected"))
                     {
-                        SceneManager.LoadScene("SelectAge");
+                        if (PlayerPrefs.HasKey("isSubscribed"))
+                        {
+                            SceneManager.LoadScene("Dashboard");
+                        }
+                        else
+                        {
+                            SceneManager.LoadScene("IAPCatalog");
+
+                        }
                     }
                     else
                     {
-                        SceneManager.LoadScene("Dashboard");
+                        SceneManager.LoadScene("SelectAge");
                     }
 
                 }
@@ -260,7 +268,7 @@ public class CodeDisplay : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene("Login");
+            SceneManager.LoadScene("Description");
         }
     }
 

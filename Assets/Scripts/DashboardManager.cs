@@ -77,6 +77,7 @@ public class DashboardManager : MonoBehaviour
     Button lastReachedLevel;
     RectTransform maskTransform;
     float offset = -1500.0f;
+    string missionNumber;
 
     string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
@@ -91,9 +92,9 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(auth_key);
         }
 
-        auth_key = "Bearer 81vqh-fMFkMM9pwx2Xstfif6fUQSQSrD";  // Ridhima - Mehak Key
-                //   auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3";
-
+        // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
+        // auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3";
+        // auth_key = "Bearer qJkO9zzHU5z3w2gcYTln1YQhONkTMFKU";
 
         GetUserProfile();
     }
@@ -121,29 +122,37 @@ public class DashboardManager : MonoBehaviour
     void Start()
     {
         // cam = GetComponent<Camera>();
+        cam = Camera.main;
         var dateAndTime = DateTime.Now;
         var date = dateAndTime.Date;
         Debug.Log(date);
         Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
         SpawnPath();
 
-        lastReachedLevel = GameObject.Find("37").GetComponent<Button>();
-        RectTransform target = lastReachedLevel.GetComponent<RectTransform>();
-        // Reset(lastReachedLevel);
-        Debug.Log("Position is " + target.position);
-        // SnapTo(target);
+        
         // ScrollToCenter(scrollRect, target);
 
         if (PlayerPrefs.HasKey("NextLevelWillBe"))
         {
-            Debug.Log("Checking for TimeSpan");
             string nextLevelWillbe = PlayerPrefs.GetString("NextLevelWillBe");
             Debug.Log(nextLevelWillbe);
+             Debug.Log("Checking for TimeSpan");
             int levelNumber = int.Parse(nextLevelWillbe);
-            Debug.Log("level number is " + levelNumber);
-            
-            // if (levelId == nextLevelWillbe)
-            // {
+            int level = levelNumber - 1;
+            Debug.Log("level number is " + level);
+
+            missionNumber = level.ToString();
+
+            lastReachedLevel = GameObject.Find(missionNumber).GetComponent<Button>();
+            RectTransform thistarget = lastReachedLevel.GetComponent<RectTransform>();
+            Reset(lastReachedLevel);
+            screenPos = cam.WorldToScreenPoint(thistarget.position);  // 
+            Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
+
+            Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
+            SnapTo(thistarget);
+
+        
             DateTime thisTime = System.DateTime.Now.Date;
             Debug.Log("this date is " + thisTime);  //09-08-2022 13:34:10
             lastTimeClicked = DateTime.Parse(PlayerPrefs.GetString("completionDateTime"));
@@ -176,12 +185,10 @@ public class DashboardManager : MonoBehaviour
                     if (levelNumber%2 == 0)
                     {
                         newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
-
                     }
                     else
                     {
                         newPosition = new Vector2(astronaut.transform.position.x - 44f, astronaut.transform.position.y + 403f);
-
                     }
 
                     // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
@@ -208,10 +215,10 @@ public class DashboardManager : MonoBehaviour
     }
 
     void Update() {
-        // if (islevelUnlocked)
-        // {
+        if (islevelUnlocked)
+        {
         
-                // characterAnim.Play("AstroMoving");
+            characterAnim.Play("AstroMoving");
                 // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
 
                 // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, -screenPos, Time.deltaTime * speed );// 
@@ -219,8 +226,8 @@ public class DashboardManager : MonoBehaviour
             // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
             // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
             //  astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
-            // islevelUnlocked = false;
-        // }
+            islevelUnlocked = false;
+        }
 
     }
     
@@ -230,78 +237,114 @@ public class DashboardManager : MonoBehaviour
 
         var targetPositionInScroll = GetWorldPointInWidget(scrollRectTransform, GetWidgetWorldPoint(maskTransform));
 
-        var difference = targetPositionInScroll + itemCenterPositionInScroll;
-        difference.z = 0f;
-
-
-        if (!scrollRect.horizontal)
-        {
-            difference.x = 0f;
-        }
-
-        var normalizedDifference = new Vector2(
-            difference.x / (contentPanel.rect.size.x - scrollRectTransform.rect.size.x),
-            difference.y / (contentPanel.rect.size.y - scrollRectTransform.rect.size.y));
-        Debug.Log(normalizedDifference.y);
-
-        var newNormalizedPosition = scrollRect.normalizedPosition - normalizedDifference;
-
-         if (scrollRect.movementType != ScrollRect.MovementType.Unrestricted)
-        {
-            newNormalizedPosition.x = Mathf.Clamp01(newNormalizedPosition.x);
-            newNormalizedPosition.y = Mathf.Clamp01(newNormalizedPosition.y);
-        }
-
-        var diff = contentPanel.rect.size.y - scrollRectTransform.rect.size.y;
-    
-        scrollRect.verticalScrollbar.value = normalizedDifference.y;
-        //  scrollRect.normalizedPosition = newNormalizedPosition;
-         var xPosition = contentPanel.anchoredPosition.x;
-        var yPosition = contentPanel.anchoredPosition.y +  difference.y + normalizedDifference.y + offset;//difference.y + offset + targetPositionInScroll.y +;
         Debug.Log("itemCenterPositionInScroll " + itemCenterPositionInScroll); // -736
         Debug.Log("targetPositionInScroll " + targetPositionInScroll); // -1266
-        Debug.Log("yPosition " + yPosition);
-        Debug.Log("contentPanel.anchoredPosition.y " + contentPanel.anchoredPosition.y);
-        Debug.Log("difference.y " + difference.y);
-        Debug.Log("diff is " + diff);
-        Debug.Log("targetPositionInScroll.y " + targetPositionInScroll.y);
 
-        // var ratio = difference.y/yPosition; // 0.3463131
-        // Debug.Log("ratio is " + ratio);
+        Vector2 contentPanelPosition = new Vector2(contentPanel.position.x, contentPanel.position.y);
+        Debug.Log("contentPanelPosition " + contentPanelPosition);
 
-        var ratio = newNormalizedPosition.y/yPosition; // diff/yPos = 0.4365715
-        Debug.Log("ratio is " + ratio);
-        Vector2 calculatedOffset = new Vector2(xPosition, yPosition);
-        contentPanel.anchoredPosition = calculatedOffset; // asking for level 20 , taking to level 6
+        var difference = targetPositionInScroll + itemCenterPositionInScroll;
+        Debug.Log("difference " + difference);
+
+//  
+        var value1 = Mathf.Abs(contentPanelPosition.y) - Mathf.Abs(itemCenterPositionInScroll.y);
+        Debug.Log("value1 " + value1);
+
+        var value2 = Mathf.Abs(targetPositionInScroll.y + value1);
+        Debug.Log("value2 " + value2);
+
+        var offsetResult = value2/screenPos.y;
+        Debug.Log("offsetResult " + offsetResult);
+
+        var value3 = Mathf.Abs(value1/(difference.y*10));
+        Debug.Log("value3  " + value3);
+
+        float newOffset = value3 - offsetResult;
+        Debug.Log("newOffset " + newOffset);
+//
+
+        // Debug.Log("difference " +  difference);
+
+         var normalizedDifference = new Vector2(
+            difference.x / (contentPanel.rect.size.x - scrollRectTransform.rect.size.x),
+            difference.y / (contentPanel.rect.size.y - scrollRectTransform.rect.size.y));
+        Debug.Log("normalizedDifference" + normalizedDifference);
+
+        var newNormalizedPosition = scrollRect.normalizedPosition - normalizedDifference;
+        Debug.Log("newNormalizedPosition " + newNormalizedPosition);
+
+        // var ratio = itemCenterPositionInScroll.y/contentPanelPosition.y;
+
+        //  var newdifference = ratio - Mathf.Abs(newNormalizedPosition.y);
+        // Debug.Log("difference " +  newdifference);
+
+        float scrollValue = 1 - Mathf.Abs(itemCenterPositionInScroll.y)/scrollRectTransform.rect.height;
+        Debug.Log("target.position.y " + itemCenterPositionInScroll.y);
+        Debug.Log("scrollValue rect transform " + scrollRectTransform.rect.height);
+         Debug.Log("scrollValue " + scrollValue);
 
 
+        // Vector2 offset = (Vector2)scrollRect.transform.InverseTransformPoint(contentPanel.position) - (Vector2)scrollRect.transform.InverseTransformPoint(targetPositionInScroll.position);
+        // Vector2 anchor = contentPanel.anchoredPosition;
+        // anchor.y = offset.y;
+        // contentPanel.anchoredPosition = anchor;
 
+        scrollRect.verticalScrollbar.value = scrollValue; // - ((value3 + newOffset)* 10);
+
+        // if (int.Parse(missionNumber) > 25)
+        // {
+        //      scrollRect.verticalScrollbar.value = scrollValue + Mathf.Abs(newOffset);
+        // }
+        // else
+        // {
+        //     scrollRect.verticalScrollbar.value = scrollValue - newOffset;
+        // }
+         //scrollValue - 0.03f;
+
+        // 0.04586824, 0.13151658 - 0.1014356= 0.08564
+
+        // scrollRect.verticalScrollbar.value = (value3*10) - offsetResult; //newdifference - 0.02f;
+
+
+        // var normalizedDifference = new Vector2(
+        //     difference.x / (contentPanel.rect.size.x - scrollRectTransform.rect.size.x),
+        //     difference.y / (contentPanel.rect.size.y - scrollRectTransform.rect.size.y));
+        // Debug.Log("normalizedDifference" + normalizedDifference);
+
+        // var newNormalizedPosition = scrollRect.normalizedPosition - normalizedDifference;
+        // Debug.Log("newNormalizedPosition " + newNormalizedPosition);
+
+        // var diff = contentPanel.rect.size.y - scrollRectTransform.rect.size.y;
+        // Debug.Log("diff is " + diff);
+
+        // var ratioWithDifference = Mathf.Abs(target.position.y/difference.y);
+        // Debug.Log("ratioWithDifference " + ratioWithDifference);
+        // var ratioWithDiff = Mathf.Abs(target.position.y/diff);
+        // Debug.Log("ratioWithDiff " + ratioWithDiff);
+
+        // var differenceOfRatios = ratioWithDifference - ratioWithDiff;
+        //  Debug.Log("differenceOfRatios " + differenceOfRatios);
+        
+        // var valueRequiredToScroll = Mathf.Abs(ratioWithDifference - differenceOfRatios)/ratio;
+        // Debug.Log("valueRequiredToScroll " + valueRequiredToScroll);
+
+        // var valueRequiredToScroll = Mathf.Abs(diff/itemCenterPositionInScroll.y);
+        // Debug.Log("valueRequiredToScroll " + valueRequiredToScroll);
+
+        // scrollRect.verticalNormalizedPosition = valueRequiredToScroll - 0.0440511f;//Mathf.Abs(ratio/2);//valueRequiredToScroll - 0.0440511f;//newNormalizedPosition.y;
         // scrollRect.verticalScrollbar.value = newNormalizedPosition.y;
-        // scrollRect.verticalNormalizedPosition = ratio;
 
+        // var contentPos = (Vector2)scrollRect.transform.InverseTransformPoint( scrollRect.content.position );
+        // var childPos = (Vector2)scrollRect.transform.InverseTransformPoint( target.position );
 
-        // Debug.Log("target position is " + target.position);
-        // Canvas.ForceUpdateCanvases();
-
-        // screenPos = GetWidgetWorldPoint(target);
-        // Debug.Log("screen position is " + screenPos); 
-
-        // worldPosition = GetWorldPointInWidget(target, screenPos);
-        //  Debug.Log("world position is " + worldPosition); 
-
-        // var difference = screenPos - worldPosition;
-
-      
- 
-
-        // scrollRect.normalizedPosition = newNormalizedPosition;
-        // float scrollValue = target.anchoredPosition.y;
-        // /contentPanel.transform.position.y;
-        // scrollRect.verticalScrollbar.value = worldPosition.y;
-
-        // contentPanel.anchoredPosition = 
-        //         (Vector2)scrollRect.transform.InverseTransformPoint(contentPanel.position)
-        //         - (Vector2)scrollRect.transform.InverseTransformPoint(calculatedOffset);
+        // // Vector2 newPosition = new Vector2(itemCenterPositionInScroll.position.x, itemCenterPositionInScroll.position.y);
+        // Vector2 contentPanelPosition = new Vector2(contentPanel.position.x, contentPanel.position.y);
+        // Debug.Log("contentPanelPosition " + contentPanelPosition);
+        
+        // contentPanel.anchoredPosition = new Vector2(contentPanel.localPosition.x, contentPos.y + childPos.y - 1000.0f); //contentPos + childPos;
+            // (Vector2)scrollRect.transform.InverseTransformPoint(contentPos)
+            // - (Vector2)scrollRect.transform.InverseTransformPoint(childPos);
+       
     }
 
 
@@ -326,26 +369,55 @@ public class DashboardManager : MonoBehaviour
         Vector2 currentPosition = pathPrefab.transform.position;
         // float height = pathPrefab.transform.localScale.height;
         // Debug.Log(height);
-        //  RectTransform rt = pathPrefab.GetComponent<Image>().rectTransform;
-        // float height = rt.rect.height;
-
+         RectTransform rt = pathPrefab.GetComponent<Image>().rectTransform;
+        float height = rt.rect.height;
+        Debug.Log("height of rect is " + height);
         Debug.Log("local scale is" + pathPrefab.transform.localScale.y);
         int z = 0;
+
+        
 
         for(int i = 0; i < 36; i++)
         {
             GameObject nextPath = Instantiate(pathPrefab).gameObject;
-            // if (Screen.height > 2000)
-            // {
-            //     Debug.Log("Less than 2000");
-            //     nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y));
-            // }
-            // else
-            // {
-                Debug.Log("greater than 2000");
-                nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y + 1939f));//pathPrefab.transform.localScale.y));//+ 1939f));
+            nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y + height));//pathPrefab.transform.localScale.y));//+ 1939f));
+            VerticalLayoutGroup pathVlg = contentParent.GetComponent<VerticalLayoutGroup>();
 
-            // }
+            if (Screen.width >= 1440)
+            {
+                pathVlg.spacing = -500;
+            }
+            else if (Screen.width >= 1284)
+            {
+                pathVlg.spacing = -400;
+            }
+             else if (Screen.width >= 1242)
+            {
+                pathVlg.spacing = -300;
+            }
+            else if (Screen.width >= 1170)
+            {
+                pathVlg.spacing = -150;
+            }
+            else if (Screen.width >= 1125)
+            {
+                pathVlg.spacing = -50;
+            }
+            else if (Screen.width >= 1080)
+            {
+                pathVlg.spacing = 0;
+                pathVlg.padding.bottom = 500;
+            }
+            else if (Screen.width >= 828)
+            {
+                pathVlg.spacing = 600;
+                pathVlg.padding.bottom = 900;
+            }
+            else if (Screen.width >= 720)
+            {
+                pathVlg.spacing = 800;
+                pathVlg.padding.bottom = 900;
+            }
              // + pathPrefab.localScale.height);
              nextPath.transform.SetParent(contentParent, true);
             currentPosition = nextPath.transform.position;

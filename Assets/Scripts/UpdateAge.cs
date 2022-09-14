@@ -204,6 +204,6 @@ public class UpdateAge : MonoBehaviour
 
     public void MoveToNextScreen()
     {
-        SceneManager.LoadScene("Dashboard");
+        SceneManager.LoadScene("IAPCatalog");
     }
 }

@@ -18,6 +18,8 @@ public class AppleManager : MonoBehaviour
 
     public string AppleUserIdKey { get; private set; }
 
+    public bool isLoggedIn = true;
+
     [Serializable]
     public class SocialLoginForm
     {
@@ -71,12 +73,83 @@ public class AppleManager : MonoBehaviour
         if (this.appleAuthManager != null)
         {
             this.appleAuthManager.Update();
+            if (isLoggedIn)
+            {
+                QuickLogin();
+                isLoggedIn = false;
+            }
+            Debug.Log("If already logged in");
         }
 
     }
 
+    public void QuickLogin()
+    {
+        Debug.Log("Quick Login going");
+        var quickLoginArgs = new AppleAuthQuickLoginArgs();
+
+        this.appleAuthManager.QuickLogin(
+        quickLoginArgs,
+        credential =>
+        {
+            Debug.Log("Received a valid credential!");
+            // Received a valid credential!
+            // Try casting to IAppleIDCredential or IPasswordCredential
+
+            // Previous Apple sign in credential
+            var appleIdCredential = credential as IAppleIDCredential; 
+
+             if (appleIdCredential != null)
+                {
+                    // Apple User ID
+                    // You should save the user ID somewhere in the device
+                    var userId = appleIdCredential.User;
+                    PlayerPrefs.SetString(AppleUserIdKey, userId);
+                    id = userId;
+                    showingResults = true;
+                }
+                else
+                {
+                    Debug.Log("Apple id credentials are null");
+                }
+
+
+            // Saved Keychain credential (read about Keychain Items)
+            var passwordCredential = credential as IPasswordCredential;
+
+             if (passwordCredential != null)
+                {
+                    // Apple User ID
+                    // You should save the user ID somewhere in the device
+                    var userId = passwordCredential.User;
+                    PlayerPrefs.SetString(AppleUserIdKey, userId);
+                    id = userId;
+
+                    // Email (Received ONLY in the first login)
+                    // var email = passwordCredential.Email;
+                    // email = email;
+
+                    // // Full name (Received ONLY in the first login)
+                    // var fullName = passwordCredential.FullName;
+                    // name = fullName.ToString();
+                    Debug.Log("Quick Login happening");
+                    showingResults = true;
+                }
+                else
+                {
+                    Debug.Log("Password credentials are null");
+                }
+            
+        },
+        error =>
+        {
+            // Quick login failed. The user has never used Sign in With Apple on your app. Go to login screen
+        });
+    }
+
     public void SignIn()
     {
+         Debug.Log("If already logged in, trying to fetch details");
         var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName);
 
         this.appleAuthManager.LoginWithAppleId(
@@ -129,11 +202,16 @@ public class AppleManager : MonoBehaviour
 
                     // And now you have all the information to create/login a user in your system
                 }
+                else
+                {
+                    Debug.Log("Apple ID Credential is null");
+                }
             },
             error =>
             {
                 // Something went wrong
                 var authorizationErrorCode = error.GetAuthorizationErrorCode();
+                Debug.Log("authorizationErrorCode " + authorizationErrorCode);
             });
     }
 
@@ -199,6 +277,6 @@ public class AppleManager : MonoBehaviour
      void MoveToSubscription()
     {
         //  Debug.Log("Value of apple json is");
-        SceneManager.LoadScene("IAPCatalog");
+        SceneManager.LoadScene("KidsName");
     }
 }

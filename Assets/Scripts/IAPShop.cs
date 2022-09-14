@@ -78,7 +78,10 @@ public class IAPShop : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            SceneManager.LoadScene("KidsName");
+            // SceneManager.LoadScene("KidsName");
+            PlayerPrefs.SetString("isSubscribed", "true");
+            SceneManager.LoadScene("Dashboard");
+
             // {"transaction_id":"14277687","platform":"apple","platform_plan_id":"com.techies.edugogy.onemonth","student_id":3,"age_group_id":2,"plan_id":2,"plan_title":"1 Month","plan_term":"30 day","number_of_level":30,"start_at":1655356249,"expire_at":1657948249,"created_at":1652797078,"updated_at":1652797078,"id":4}
         }
     }

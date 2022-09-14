@@ -175,12 +175,26 @@ public class VerifyOTPManager : MonoBehaviour
 
      void MoveToSubscription()
     {
-        SceneManager.LoadScene("IAPCatalog");
+        // SceneManager.LoadScene("IAPCatalog");
+            SceneManager.LoadScene("KidsName");
+
     }
 
     IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
     {
-        var otp = int.Parse(otpEntered);
+        if (otpEntered == "")
+        {
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter OTP",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+        }
+        else
+        {
+            var otp = int.Parse(otpEntered);
         Debug.Log(otp);
         GetAuthKey getKey = new GetAuthKey();
         
@@ -205,6 +219,24 @@ public class VerifyOTPManager : MonoBehaviour
         if (request.error != null)
         {
             Debug.Log("Error: " + request.error);
+             Debug.Log("Status Code: " + request.responseCode);
+
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            string errorJson = request.downloadHandler.text;
+            Debug.Log(errorJson);
+
+            if (request.responseCode == 422)
+            {
+                Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter valid OTP",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+            }
+
         }
         else
         {
@@ -212,7 +244,6 @@ public class VerifyOTPManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode);
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            // { "auth_key":"zJMqRh3THK3WTaTh1x7CAMO1T3s0Cxes"}
 
              string validateOTPJson = request.downloadHandler.text;
 
@@ -221,7 +252,14 @@ public class VerifyOTPManager : MonoBehaviour
             SaveAuthKey(getKey.auth_key);
             MoveToSubscription();
         }
+        }
+        
 
+    }
+
+    public void resetAction()
+    {
+        Debug.Log("checking for valid data");
     }
 
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login

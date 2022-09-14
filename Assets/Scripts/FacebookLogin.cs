@@ -35,6 +35,20 @@ public class FacebookLogin : MonoBehaviour
         public string auth_key;
     }
 
+    public class Values{
+        public string id;
+        public string email;
+        public string name;
+        // public Values(string id, string email, string name)
+        // {
+        //     this.id = id;
+        //     this.email = email;
+        //     this.name = name;
+        // }
+    }
+
+    Values newValues = new Values();//id, email, name);
+
     // string baseURL = "https://api.edugogy.app/v1/";
         string baseURL = "https://api.testing.edugogy.app/v1/";
 
@@ -109,6 +123,9 @@ public class FacebookLogin : MonoBehaviour
             FB.API("/me/picture?type=square&height=128&width=128", HttpMethod.GET, DisplayProfilePic);
             FB.API("/me?fields=id", HttpMethod.GET, DisplayID);
             FB.API("/me?fields=email", HttpMethod.GET, DisplayEmail);
+            newValues.id = id;
+            newValues.email = email;
+            newValues.name = name;
             showingResults = true;
             // SceneManager.LoadScene("IAPCatalog");
             
@@ -122,6 +139,7 @@ public class FacebookLogin : MonoBehaviour
     {
         if (showingResults == true)
         {
+            // StartCoroutine(SocialLogin_Coroutine(newValues.id, newValues.email, newValues.name));
             socialLoginRequest();
         }
     }
@@ -185,14 +203,17 @@ public class FacebookLogin : MonoBehaviour
         }
     }
 
-    public void socialLoginRequest() => StartCoroutine(SocialLogin_Coroutine(id, email, name));
+    public void socialLoginRequest() => StartCoroutine(SocialLogin_Coroutine());//id, email, name));
 
-    IEnumerator SocialLogin_Coroutine(string id, string email, string name)
+    IEnumerator SocialLogin_Coroutine()//string id, string email, string name)
     {
         showingResults = false;
         GetAuthKey getKey = new GetAuthKey();
+       
+        SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = newValues.id, social_media = "facebook", app_validate_key = "0H9K@FbQ3k*6", email = newValues.email, name = newValues.name};
 
-        SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "facebook", app_validate_key = "0H9K@FbQ3k*6", email = email, name = name};
+
+        // SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "facebook", app_validate_key = "J0H9K@FbQ3k*6", email = email, name = name};
         string json = JsonUtility.ToJson(socialLoginFormData);
         Debug.Log("Value of facebook json is");
         Debug.Log(json);
@@ -242,6 +263,6 @@ public class FacebookLogin : MonoBehaviour
 
      void MoveToSubscription()
     {
-        SceneManager.LoadScene("IAPCatalog");
+        SceneManager.LoadScene("KidsName");
     }
 }

@@ -222,6 +222,7 @@ public class LoginAPIManager : MonoBehaviour
 
     public bool ValidateLoginData()
     {
+        Debug.Log("selectedCountryCode " + selectedCountryCode);
         if (selectedCountryCode == 0)
         {
              Popup popup = UIController.Instance.CreatePopup();
