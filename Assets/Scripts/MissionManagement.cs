@@ -640,6 +640,7 @@ public class MissionManagement : MonoBehaviour
         singleSentenceBoard.gameObject.SetActive(true);
         multipleSentenceBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
+        baseParentBoard.gameObject.SetActive(false);
 
          if (PlayerPrefs.HasKey("auth_key"))
         {
@@ -648,8 +649,8 @@ public class MissionManagement : MonoBehaviour
         }
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        //   auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3"; // Ridhi di's - Komal
-        // auth_key = "Bearer qJkO9zzHU5z3w2gcYTln1YQhONkTMFKU";
+          auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3"; // Ridhi di's - Komal
+        // auth_key = "Bearer cjTl5ODPwYl9ddavqxRw-BvMsnZ-5zmC";
     }
 
     async void Start ()
@@ -759,8 +760,11 @@ public class MissionManagement : MonoBehaviour
         {
             Debug.Log("Start Mission " + request.result);
             Debug.Log(request.downloadHandler.text);
-             GetDataCount();
+            //  GetDataCount(); temporary 
         }
+        request.Dispose();
+         GetDataCount(); // need to check & fix content
+
     }
 
     void resetAction()
@@ -798,6 +802,7 @@ public class MissionManagement : MonoBehaviour
             calculateTotalCount();
 
         }
+        request.Dispose();
 
     }
 
@@ -983,6 +988,7 @@ public class MissionManagement : MonoBehaviour
             SetUpBaseCanvas();
 
         }
+        request.Dispose();
     }
 
     public void DecideTypeOfDataAvailable()
@@ -1163,22 +1169,39 @@ public class MissionManagement : MonoBehaviour
             DestroyPrefabs();
             // new word displaying is done start checking for revision word list and related data
             Debug.Log("Entering to revision world & value of " + dataDisplayed["isRevisionWordListDone"] + " " + dataDisplayed["isRevisionWordContentDone"]);
+            
 
             // if list is displayed run for loop, all methods for first word and so on
             // if (dataDisplayed["isRevisionWordListDone"] == true && revisionDataCount == 1) 
             if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false) )
-            {          
+            {       
+                
                 parameterValueArray.Add(0);
                 methodCallArray.Add(RevisionWordList);  
-                RevisionWordList(0);    
+                RevisionWordList(0);   
+                Debug.Log("revisionDataCount " + revisionDataCount); 
+                
+                for(int x = 0; x < numberOfRevisionWords; x++)
+                {
+                    Debug.Log("number of revision words are " + numberOfRevisionWords);
+                    if (revisionCountArray[x] != 0)
+                    {
+                        revisionWordReference = x;
+                        Debug.Log("value of revision word reference " + revisionWordReference);
+                        return;
+
+                    }
+
+                }   
                 return;
                
             }
             else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionDataCount > 0)
             {          
-                              
+                    Debug.Log("Going to check data");
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
                     Debug.Log(revisionWordDetails.id);
+                    Debug.Log("count of multiple word wrt " + dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count);
 
                     if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count != 0) && (dataDisplayed["isRevisionWordSynonymDone"] == false))
                     {
@@ -1209,10 +1232,11 @@ public class MissionManagement : MonoBehaviour
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count != 0) && (dataDisplayed["isRevisionWordUsingMultipleWordsDone"] == false))
                     {
+                        Debug.Log("Calling for Multiple Word Setup " + revisionWordReference);
             
-                         tempDataCount += 1; 
-                         parameterValueArray.Add(parameterCountControlCheck);
-                         methodCallArray.Add(MultipleWordSetup);    
+                        tempDataCount += 1; 
+                        parameterValueArray.Add(parameterCountControlCheck);
+                        methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
                         
                     }
@@ -1238,27 +1262,45 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log(numberOfRevisionWords + " numberOfRevisionWords");
 
 
+
                     if (tempDataCount == 1 && revisionCountArray[revisionWordReference] == 0)
                     {
                         dataDisplayed["isRevisionWordContentDone"] = true;
                         Debug.Log("isRevisionWordContentDone with conversation");
                     }
                      
-                    if (tempDataCount == revisionCountArray[revisionWordReference] && tempDataCount != 0)
-                    {
-                        tempDataCount = 0;
-                         Debug.Log("isRevisionWordContentDone with ");
+                    
+                        if (tempDataCount == revisionCountArray[revisionWordReference])// && tempDataCount != 0)
+                        {
+                            tempDataCount = 0; // 0 for first word content
 
-                        if (numberOfRevisionWords > 1 && revisionWordReference != numberOfRevisionWords - 1)
-                        {
-                            revisionWordReference += 1;
+                            if (revisionWordReference == numberOfRevisionWords - 1)
+                            {
+                                dataDisplayed["isRevisionWordContentDone"] = true;
+                                Debug.Log("isRevisionWordContentDone ");
+                            }  
+                            else if (revisionWordReference < numberOfRevisionWords - 1)
+                            {
+                                Debug.Log("isRevisionWordContentDone with ");
+
+                                int nextReferenceNumber = revisionWordReference + 1;
+                                for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
+                                {
+                                   Debug.Log("number of revision words are " + numberOfRevisionWords);
+                                    if (revisionCountArray[x] != 0)
+                                    {
+                                        revisionWordReference = x;
+                                        Debug.Log("value of revision word reference " + revisionWordReference);
+                                        dataDisplayed.Clear();
+                                        dataDisplayed = copyOfdataDisplayed;
+                                        dataDisplayed["isRevisionWordListDone"] = true;
+                                        return;
+
+                                    }
+                                }
+                            } 
                         }
-                        else if (revisionWordReference == numberOfRevisionWords - 1)
-                        {
-                            dataDisplayed["isRevisionWordContentDone"] = true;
-                            Debug.Log("isRevisionWordContentDone ");
-                        }   
-                    }
+                    
                      return;
                     
             }
@@ -1328,7 +1370,9 @@ public class MissionManagement : MonoBehaviour
 
         GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
         GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
-        TMPro.TMP_Text questionText = questionBoard.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
+        GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+
+        TMPro.TMP_Text questionText = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
         questionText.text = allDetailData.questions[parameter].title;
 
         GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
@@ -1363,9 +1407,13 @@ public class MissionManagement : MonoBehaviour
             thisButton.enabled = true;
             if (j <= answerOptions-1)
             {
-                TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                GameObject container = thisButton.transform.GetChild(0).gameObject;
+                TMPro.TMP_Text answerOption = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                // Debug.Log("parameter value is " + parameter);
+                //  Debug.Log("j value is " + j);
+                // Debug.Log(allDetailData.questions[parameter].questionOptions[j].option);
                 answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
-                GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                 rightWrongImage.SetActive(false);
                 otherMCQbuttons[j] = thisButton;
                 thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons);});
@@ -1421,7 +1469,9 @@ public class MissionManagement : MonoBehaviour
         int value = allDetailData.questions[questionNumber].questionOptions[tag].value;
         Debug.Log(button.tag);
         Debug.Log("value of" + value);
-        GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
+        GameObject container = button.transform.GetChild(0).gameObject;
+
+        GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
 
         int questionId = allDetailData.questions[questionNumber].id;
@@ -1510,44 +1560,41 @@ public class MissionManagement : MonoBehaviour
                 }
                 else
                 {
-                    
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
                     // GameObject newPrefab = Instantiate(convoContentPrefab).gameObject;
                     // newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
 
+                    // Vector2 prefabPosition = mcqPrefab.transform.position;
+
                     GameObject newPrefab = Instantiate(mcqPrefab).gameObject;
-                    newPrefab.transform.position = new Vector2(prefabPosition.x + 380.0f, prefabPosition.y - 1400f);
-                    
-
-                    // if (i == 1)
-                    // {
-                    //     newPrefab.transform.position = new Vector2(prefabPosition.x + 600.0f, prefabPosition.y - 1400f);
-
-                    // }
-                    // else
-                    // {
-                    //     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 400f);
-
-                    // }
+                    // newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 500.0f);// - 900f);
                     newPrefab.transform.SetParent(convoContentPrefab.transform, true);
 
-                    // GameObject paragraph = newPrefab.transform.GetChild(0).gameObject;
-                    // paragraph.SetActive(false);
 
-                    // VerticalLayoutGroup pathVlg = convoContentPrefab.GetComponent<VerticalLayoutGroup>();
+                    if (i == 1)
+                    {
+                        newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1400.0f);
 
-                    // if (i == 1)
-                    // {
-                    //      pathVlg.spacing = 100;
-                    // }
+                    }
+                    else
+                    {
+                        newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 400.0f);
 
-                    GameObject questionBoard = newPrefab.transform.GetChild(0).gameObject;
+                    }
 
-                    TMPro.TMP_Text questionHeader = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+
+                        //    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
+                    
+            GameObject questionBoard = newPrefab.transform.GetChild(0).gameObject;
+
+                    GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+
                     int questionNumber = i + 1;
                     questionHeader.text = "Question " + questionNumber.ToString();
 
-                    TMPro.TMP_Text question = questionBoard.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
+                     TMPro.TMP_Text question = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+
                     question.text = allDetailData.passages[parameter].questions[i].title;
 
                     int answerOptions = allDetailData.passages[parameter].questions[i].questionOptions.Length;
@@ -1578,9 +1625,11 @@ public class MissionManagement : MonoBehaviour
                           thisButton.enabled = true;
                         if (j <= answerOptions-1)
                         {
-                            TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                            GameObject container = thisButton.transform.GetChild(0).gameObject;
+
+                            TMPro.TMP_Text answerOption = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                             answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
-                            GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                            GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
                             int pcc = parameterCountControlCheck;
                             int k = i;
@@ -1633,6 +1682,7 @@ public class MissionManagement : MonoBehaviour
     public void SetUpSinglePassageWithMCQ(int parameter)
     {
         GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
+
             TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
             mytext.text = "Passage";
 
@@ -1640,18 +1690,21 @@ public class MissionManagement : MonoBehaviour
             GameObject container = scrollBar.transform.GetChild(0).gameObject;
             
             TMPro.TMP_Text descriptionText = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-            descriptionText.text = allDetailData.passages[parameter].description; //displayed passage
+            descriptionText.text = allDetailData.passages[0].description; //displayed passage
 
             GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
             GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
-            TMPro.TMP_Text questionHeader = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
             questionHeader.text = "Question 1";
 
-            TMPro.TMP_Text question = questionBoard.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
-            question.text = allDetailData.passages[parameter].questions[0].title;
+            TMPro.TMP_Text question = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
 
-            int answerOptions = allDetailData.passages[parameter].questions[0].questionOptions.Length;
+            question.text = allDetailData.passages[0].questions[0].title;
+            Debug.Log(allDetailData.passages[0].questions[0].title);
+
+            int answerOptions = allDetailData.passages[0].questions[0].questionOptions.Length;
             Debug.Log(answerOptions);
 
             for(int x = 0; x < answerOptions; x++)
@@ -1678,9 +1731,11 @@ public class MissionManagement : MonoBehaviour
 
                 if (j <= answerOptions-1)
                 {
-                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                     GameObject horizontalContainer = thisButton.transform.GetChild(0).gameObject;
+
+                    TMPro.TMP_Text answerOption = horizontalContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     answerOption.text = allDetailData.passages[parameter].questions[0].questionOptions[j].option;
-                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                    GameObject rightWrongImage = horizontalContainer.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
                     passageButtons[j] = thisButton;
 
@@ -1728,7 +1783,7 @@ public class MissionManagement : MonoBehaviour
                     // questionNumberValue += 1;
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
                     GameObject newPrefab = Instantiate(convoContentPrefab).gameObject;
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 1666f);
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y-1666f); // -1666f
                     newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
 
                     GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
@@ -1746,12 +1801,15 @@ public class MissionManagement : MonoBehaviour
                     GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
                     GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
-                    TMPro.TMP_Text questionHeader = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+
+                    // TMPro.TMP_Text questionHeader = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     int questionNumber = i + 1;
                     questionHeader.text = "Question " + questionNumber;
 
 
-                    TMPro.TMP_Text question = questionBoard.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
+            TMPro.TMP_Text question = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     question.text = allDetailData.conversationQuestions[i].title;
 
                     int answerOptions = allDetailData.conversationQuestions[i].questionOptions.Length;
@@ -1775,14 +1833,17 @@ public class MissionManagement : MonoBehaviour
                     Button[] otherQbuttons = new Button[answerOptions];
                     for(int j = 0; j < children; j++ )
                     {
+                        
                         Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
                           thisButton.gameObject.SetActive(true);
                           thisButton.enabled = true;
                         if (j <= answerOptions-1)
                         {
-                            TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                            GameObject horizontalContainer = thisButton.transform.GetChild(0).gameObject;
+
+                            TMPro.TMP_Text answerOption = horizontalContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                             answerOption.text = allDetailData.conversationQuestions[i].questionOptions[j].option;
-                            GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                            GameObject rightWrongImage = horizontalContainer.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
                             int k = i;
                             otherQbuttons[j] = thisButton;
@@ -1830,14 +1891,14 @@ public class MissionManagement : MonoBehaviour
         
     }
 
-    
 
 
     public void SetUpSingleConvoWithMCQ()
     {
-        GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
-            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-            mytext.text = "Conversation";
+        GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject; // conversation board
+        // GameObject board = convoBoard.transform.GetChild(0).gameObject;
+        TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>(); 
+        mytext.text = "Conversation";
 
             GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
             GameObject container = scrollBar.transform.GetChild(0).gameObject;
@@ -1848,10 +1909,12 @@ public class MissionManagement : MonoBehaviour
             GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
             GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
-            TMPro.TMP_Text questionHeader = questionBoard.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+            TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+
             questionHeader.text = "Question 1";
 
-            TMPro.TMP_Text question = questionBoard.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
+            TMPro.TMP_Text question = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
             question.text = allDetailData.conversationQuestions[0].title;
 
             int answerOptions = allDetailData.conversationQuestions[0].questionOptions.Length;
@@ -1873,7 +1936,7 @@ public class MissionManagement : MonoBehaviour
             int children = optionContainer.transform.childCount;
             Button[] firstQbuttons = new Button[answerOptions];
 
-            // questionNumber = 0;
+            questionNumber = 0;
 
             for(int j = 0; j < children; j++ )
             {
@@ -1882,9 +1945,11 @@ public class MissionManagement : MonoBehaviour
                   thisButton.enabled = true;
                 if (j <= answerOptions-1)
                 {
-                    TMPro.TMP_Text answerOption = thisButton.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+                    GameObject horizontalContainer = thisButton.transform.GetChild(0).gameObject;
+
+                    TMPro.TMP_Text answerOption = horizontalContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     answerOption.text = allDetailData.conversationQuestions[0].questionOptions[j].option;
-                    GameObject rightWrongImage = thisButton.transform.GetChild(2).gameObject;
+                    GameObject rightWrongImage = horizontalContainer.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
                     firstQbuttons[j] = thisButton;
                     thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0, firstQbuttons);});
@@ -1914,7 +1979,9 @@ public class MissionManagement : MonoBehaviour
         int value = allDetailData.passages[passageNumber].questions[questionNumber].questionOptions[tag].value;
         
         Debug.Log("value of" + value);
-        GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
+        GameObject container = button.transform.GetChild(0).gameObject;
+
+        GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
 
         int questionId = allDetailData.passages[passageNumber].questions[questionNumber].id;
@@ -1980,7 +2047,9 @@ public class MissionManagement : MonoBehaviour
         int value = allDetailData.conversationQuestions[questionNumber].questionOptions[tag].value;
         Debug.Log(button.tag);
         Debug.Log("value of" + value);
-        GameObject rightWrongImage = button.transform.GetChild(2).gameObject;
+        GameObject container = button.transform.GetChild(0).gameObject;
+
+        GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
         Image myImage = rightWrongImage.GetComponent<Image>();
 
         int questionId = allDetailData.conversationQuestions[questionNumber].id;
@@ -2080,21 +2149,11 @@ public class MissionManagement : MonoBehaviour
                 }
                 
                 newResponse.response.Add(newQuestionResponse);
-               
-                //  newQuestionResponse.selected_options = new SelectedOption[item.Value.Count];
-                
-                //     Debug.Log("optionList " + optionList[i]);
-                //     if (optionList[i] != 0)
-                //     {
-                //         SelectedOption newOption = new SelectedOption{option_id = optionList[i]};
-                //         Debug.Log("newOption " + newOption.option_id);
-                    
-                //         newQuestionResponse.selected_options[i] = newOption;
-                //         newResponse.response.Add(newQuestionResponse);
-                //     }
-                 //= thisResponse;
+        
 
             }
+            
+
         } 
 
         string json = JsonUtility.ToJson(newResponse);
@@ -2165,6 +2224,7 @@ public class MissionManagement : MonoBehaviour
                 Reset
 				);
         }
+        request.Dispose();
 
     }
 
@@ -2181,8 +2241,9 @@ public class MissionManagement : MonoBehaviour
         // questionResponseDict.Clear();
         // screenCount = 1;
         // Debug.Log("Resetting values");
-        // dataDisplayed.Clear();
+        
         // availableData.Clear();
+        // dataDisplayed.Clear();
         // yield return dataDisplayed = copyOfdataDisplayed;
         // yield return availableData = copyOfavailableData;
         // baseParentBoard.gameObject.SetActive(true);
@@ -2250,6 +2311,7 @@ public class MissionManagement : MonoBehaviour
 
             
         }
+        request.Dispose();
     }
 
     public void RevisionWordList(int parameter)
@@ -2299,10 +2361,11 @@ public class MissionManagement : MonoBehaviour
     public void NounSetup(int parameter)
     {
         DisplaySpeakerandImage();
+        baseParentBoard.gameObject.SetActive(true);
+
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
          conversationBoard.gameObject.SetActive(false);
-        baseParentBoard.gameObject.SetActive(true);
         dutBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
 
@@ -2327,43 +2390,43 @@ public class MissionManagement : MonoBehaviour
             singleSentenceBoard.gameObject.SetActive(false);
             multipleSentenceBoard.gameObject.SetActive(true);
             Debug.Log("Length " + newNoun.nounSentences.Length);
-                    for (var i = 0; i < newNoun.nounSentences.Length; i++)
-                    {
-                        Debug.Log("Running in For loop " + i);
-                        Debug.Log(newNoun.nounSentences[0].description);
-                         
-                        if (i == 0)
-                        {
-                            Debug.Log("i is 0 here");
-                            GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
-                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                            mytext.text = newNoun.nounSentences[0].description;                     
-                        }
-                        else
-                        {
-                             
-                              
-                            Vector2 prefabPosition = new Vector2(sentencePrefabsArray[i - 1].transform.position.x - 160f, sentencePrefabsArray[i - 1].transform.position.y - 164f);
-                            GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                            newSentencePrefab.transform.position = new Vector2(prefabPosition.x - 160f, prefabPosition.y - 164f);
-                            newSentencePrefab.transform.SetParent(parent, true);
-
-                            GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
-                            TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                            mytext.text = newNoun.nounSentences[i].description;
-                            sentencePrefabsArray.Add(newSentencePrefab);
-                            Debug.Log("End of Checking in loop for second object");
-                        }  
-
-                    }
+            for (var i = 0; i < newNoun.nounSentences.Length; i++)
+            {
+                Debug.Log("Running in For loop " + i);
+                Debug.Log(newNoun.nounSentences[0].description);
+                    
+                if (i == 0)
+                {
+                    Debug.Log("i is 0 here");
+                    GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newNoun.nounSentences[0].description;                     
                 }
                 else
                 {
-                    singleSentenceBoard.gameObject.SetActive(true);
-                    multipleSentenceBoard.gameObject.SetActive(false);
-                    var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newNoun.nounSentences[0].description;
-                }
+                        
+                        Vector2 prefabPosition = new Vector2(sentencePrefab.transform.position.x,sentencePrefab.transform.position.y);
+                    // Vector2 prefabPosition = new Vector2(sentencePrefabsArray[i - 1].transform.position.x - 160f, sentencePrefabsArray[i - 1].transform.position.y - 164f);
+                    GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
+                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f); //prefabPosition.x - 160f
+                    newSentencePrefab.transform.SetParent(parent, true);
+
+                    GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
+                    TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
+                    mytext.text = newNoun.nounSentences[i].description;
+                    sentencePrefabsArray.Add(newSentencePrefab);
+                    Debug.Log("End of Checking in loop for second object");
+                }  
+
+            }
+        }
+        else
+        {
+            singleSentenceBoard.gameObject.SetActive(true);
+            multipleSentenceBoard.gameObject.SetActive(false);
+            var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
+            mytext.text = newNoun.nounSentences[0].description;
+        }
             
             if (isSettingCanvas == true)
             {
@@ -2808,7 +2871,7 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
 
 
-        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y - 200f);
+        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y);// - 200f);
         // multipleSentenceBoard.transform.position.y = sentenceRealPos.y + 50f;
 
         int owuwCount = 0;
@@ -3026,14 +3089,9 @@ public class MissionManagement : MonoBehaviour
         conversationBoard.gameObject.SetActive(false);
 
 
-        //Change position of sentence boards
-        Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-        singleSentenceBoardPos.y += 423f;
-        singleSentenceBoard.transform.position = singleSentenceBoardPos;
+        singleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
 
-        Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-        multipleSentenceBoardPos.y += 423f;
-        multipleSentenceBoard.transform.position = multipleSentenceBoardPos;
+        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
 
         int multipleWordCount = 0;
         UseMultipleWord multipleWordDetails = new UseMultipleWord();
@@ -3042,7 +3100,6 @@ public class MissionManagement : MonoBehaviour
         {
              typeOfDay.text = "Lets’ try to use these together!";
         
-             
             multipleWordCount = dataCountDetails.revision_word_data.more_data[0].use_multiple_count;
              multipleWordDetails = revisionWordDetails.useMultipleWords[parameter];
             word.text = multipleWordDetails.description;
@@ -3408,7 +3465,7 @@ public class MissionManagement : MonoBehaviour
                         SetUpBaseCanvas();
                     }
             }
-            else 
+            else if (screenCount == totalNumber)
             {
                 Debug.Log("we are on last screen");
                 submitButton.gameObject.SetActive(true);

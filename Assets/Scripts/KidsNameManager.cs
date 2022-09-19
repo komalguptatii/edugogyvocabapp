@@ -58,7 +58,7 @@ public class KidsNameManager : MonoBehaviour
         {
             Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    "Please enter kid's name",
+                    "Please enter child's name",
                     "Cancel",
                     "Sure!",
                     resetAction

@@ -93,8 +93,8 @@ public class DashboardManager : MonoBehaviour
         }
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        // auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3";
-        // auth_key = "Bearer qJkO9zzHU5z3w2gcYTln1YQhONkTMFKU";
+        auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3"; // Ridhi di's - Komal
+        // auth_key = "Bearer cjTl5ODPwYl9ddavqxRw-BvMsnZ-5zmC";
 
         GetUserProfile();
     }
@@ -138,6 +138,14 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(nextLevelWillbe);
              Debug.Log("Checking for TimeSpan");
             int levelNumber = int.Parse(nextLevelWillbe);
+            for (int z = 1; z <= levelNumber; z++)
+            {
+                Button button = GameObject.Find(z.ToString()).GetComponent<Button>();
+                GameObject lockImage = button.transform.GetChild(1).gameObject;
+                lockImage.SetActive(false);
+                button.tag = "Unlocked";
+            }
+            
             int level = levelNumber - 1;
             Debug.Log("level number is " + level);
 
@@ -150,7 +158,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
 
             Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
-            SnapTo(thistarget);
+            // SnapTo(thistarget);
 
         
             DateTime thisTime = System.DateTime.Now.Date;
@@ -531,6 +539,7 @@ public class DashboardManager : MonoBehaviour
             
                   
         }
+        request.Dispose();
     }
 
     void GetUserProfile() => StartCoroutine(GetUserProfile_Coroutine());
@@ -568,6 +577,7 @@ public class DashboardManager : MonoBehaviour
             // {"id":3,"name":"Komal","phone":"9855940600","age_group_id":2,"country_code_id":88,"total_level":2,"total_passed_level":0,"available_level":30}
 
         }
+        request.Dispose();
     }
 
     void NotifyAboutSubscriptionStatus()
