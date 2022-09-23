@@ -19,7 +19,7 @@ public class KidsNameManager : MonoBehaviour
     }
      
     string baseURL = "https://api.edugogy.app/v1/";
-        // string baseURL = "https://api.testing.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
@@ -58,14 +58,12 @@ public class KidsNameManager : MonoBehaviour
         {
             Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    "Please enter child's name",
+                    "Please enter your name",
                     "Cancel",
                     "Sure!",
                     resetAction
                     );
         }
-
-        // textDisplay.GetComponent<TextMeshProUGUI>().text = theName;
     }
 
     public void resetAction()

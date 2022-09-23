@@ -47,6 +47,8 @@ public class IAPShop : MonoBehaviour
     }
 
     public void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
+        public void AddTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
+
 
     IEnumerator AddSubscription_Coroutine()
     {
@@ -85,6 +87,60 @@ public class IAPShop : MonoBehaviour
             // {"transaction_id":"14277687","platform":"apple","platform_plan_id":"com.techies.edugogy.onemonth","student_id":3,"age_group_id":2,"plan_id":2,"plan_title":"1 Month","plan_term":"30 day","number_of_level":30,"start_at":1655356249,"expire_at":1657948249,"created_at":1652797078,"updated_at":1652797078,"id":4}
         }
     }
+
+    IEnumerator AddTrialSubscription_Coroutine()
+    {
+        int randomNumber = Random.Range(1000, 2000);
+
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
+        string json = JsonUtility.ToJson(subscriptionFormData);
+
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = baseURL + "student-subscriptions";
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", auth_key);
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            // SceneManager.LoadScene("KidsName");
+            PlayerPrefs.SetString("isSubscribed", "true");
+            SceneManager.LoadScene("Dashboard");
+
+// {
+//     "transaction_id": "10027",
+//     "platform": "apple",
+//     "platform_plan_id": "trial",
+//     "student_id": 2,
+//     "age_group_id": 6,
+//     "plan_id": 1,
+//     "plan_title": "5 day trail",
+//     "plan_term": "5 day",
+//     "number_of_level": 5,
+//     "start_at": 1663718531,
+//     "expire_at": 1664150531,
+//     "created_at": 1663718531,
+//     "updated_at": 1663718531,
+//     "id": 19
+// }
+        }
+    }
+
 
     public void OnPurchaseComplete(Product product)
     {

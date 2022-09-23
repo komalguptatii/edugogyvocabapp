@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using System;
 using System.Text;
 using TMPro;
+using Random=UnityEngine.Random;
 using UnityEngine.SceneManagement;
 
 public class KidsProfileManager : MonoBehaviour
@@ -25,9 +26,14 @@ public class KidsProfileManager : MonoBehaviour
         public string phone;
         public int age_group_id;
         public int country_code_id;
+        public object social_id;
+        public object social_media;
+        public object email;
         public int total_level;
         public int total_passed_level;
-        public int subscription_id;
+        public int available_level;
+        public bool is_trial_subscription;
+        public string subscription_remaining_day;
     }
 
     
@@ -47,10 +53,42 @@ public class KidsProfileManager : MonoBehaviour
         public AgeGroup[] items;
     }
 
-    string baseURL = "https://api.edugogy.app/v1/";
-        // string baseURL = "https://api.testing.edugogy.app/v1/";
+    [Serializable]
+    public class Error
+    {
+        public int code;
+        public string source;
+        public string title;
+        public string detail;
+    }
 
-    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+    [Serializable]
+    public class ErrorList
+    {
+        public Error[] error;
+    }
+
+    [Serializable]
+    public class SubscriptionForm
+    {
+        public string transaction_id;
+
+        public string platform;
+
+        public string platform_plan_id;
+    }
+
+    public Button[] ageButton;
+    public Image[] ageImageTick;
+    public Sprite buttonSprite;
+    public Sprite deactivateButtonSprite;
+    private int selectedButton;
+
+
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
     // Start is called before the first frame update
     void Start()
     {
@@ -61,13 +99,30 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log(auth_key);
 
         }
+         
+          for(int i = 0; i < ageImageTick.Length; i++)
+        {
+            ageImageTick[i].enabled = false;
+            ageImageTick[i].tag = i.ToString();
+            ageButton[i].tag = i.ToString();
+        }
+        // auth_key = "Bearer cjTl5ODPwYl9ddavqxRw-BvMsnZ-5zmC"; // for api.testing.edugogy.app
+
         //Get Kids details
         GetKidProfile();
     }
 
+    string fixJson(string value)            // Added object type to JSON
+    {
+        value = "{\"items\":" + value + "}";
+        return value;
+    }
+
     void GetKidProfile() => StartCoroutine(GetKidProfile_Coroutine());
-    void GetAgeGroupList() => StartCoroutine(GetAgeGroupList_Coroutine());
+    // void GetAgeGroupList() => StartCoroutine(GetAgeGroupList_Coroutine());
     public void UpdateKidsProfile() => StartCoroutine(UpdateKidsName_Coroutine());
+            public void AddTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
+
 
     KidsProfile profile = new KidsProfile();
     AgeGroupList agegrouplist = new AgeGroupList();
@@ -86,57 +141,82 @@ public class KidsProfileManager : MonoBehaviour
 
             yield return request.SendWebRequest();
             
+           
             string jsonString = request.downloadHandler.text;
-            
+
             profile = JsonUtility.FromJson<KidsProfile>(jsonString);
             Debug.Log(profile.name);
             Debug.Log(profile.age_group_id);
-            KidsName.text = profile.name;
-            GetAgeGroupList();
 
+            KidsName.text = profile.name;
+            ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;
+            ageImageTick[profile.age_group_id - 1].enabled = true;
+            
+
+            // GetAgeGroupList();
+            request.Dispose();
         }
+
+        
     }
+
+     public void OnClick(Button button)
+    {
+        
+        Debug.Log(button.tag);
+        
+        selectedButton = int.Parse(button.tag);
+        ageButton[selectedButton].image.sprite = buttonSprite;
+        ageImageTick[selectedButton].enabled = true;
+
+        for(int i = 0; i < 7; i++)
+        {
+            if(i != selectedButton)
+            {
+                ageButton[i].image.sprite = deactivateButtonSprite;
+                ageImageTick[i].enabled = false;
+
+            }
+        }
+
+    }
+    
     //On update button click, update button profile and take back to settings screen
 
-    string fixJson(string value)            // Added object type to JSON
-    {
-        value = "{\"items\":" + value + "}";
-        return value;
-    }
+    //  IEnumerator GetAgeGroupList_Coroutine()
+    // {
+    //     // outputArea.text = "Loading...";
 
-     IEnumerator GetAgeGroupList_Coroutine()
-    {
-        // outputArea.text = "Loading...";
+    //     string uri = baseURL + "age-groups";
+    //     using (UnityWebRequest request = UnityWebRequest.Get(uri))
+    //     {
 
-        string uri = baseURL + "age-groups";
-        using (UnityWebRequest request = UnityWebRequest.Get(uri))
-        {
-
-            yield return request.SendWebRequest();
+    //         yield return request.SendWebRequest();
             
-            string ageGroupJson = request.downloadHandler.text;
-            string jsonString = fixJson(ageGroupJson);
-            Debug.Log(jsonString);            
+    //         string ageGroupJson = request.downloadHandler.text;
+    //         string jsonString = fixJson(ageGroupJson);
+    //         Debug.Log(jsonString);            
 
-            agegrouplist = JsonUtility.FromJson<AgeGroupList>(jsonString);
+    //         agegrouplist = JsonUtility.FromJson<AgeGroupList>(jsonString);
 
-            for (var i = 0; i < agegrouplist.items.Length; i++) 
-            {
-                var id = agegrouplist.items[i].id;
-                if (profile.age_group_id == id)
-                {
-                    Debug.Log(agegrouplist.items[i].title);
-                    AgeGroupInput.text = agegrouplist.items[i].title + " Years";
+    //         for (var i = 0; i < agegrouplist.items.Length; i++) 
+    //         {
+    //             var id = agegrouplist.items[i].id;
+    //             if (profile.age_group_id == id)
+    //             {
+    //                 Debug.Log(agegrouplist.items[i].title);
+    //                 // AgeGroupInput.text = agegrouplist.items[i].title + " Years";
 
-                }
-            }
+    //             }
+    //         }
            
-        }
-    }
+    //     }
+    // }
 
     IEnumerator UpdateKidsName_Coroutine()  //validate otp
     {
         profile.name = KidsName.text;
+        profile.age_group_id = selectedButton;
         string json = JsonUtility.ToJson(profile);
 
         Debug.Log(json);
@@ -166,11 +246,80 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode + "Update");
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            SceneManager.LoadScene("Settings");
+            AddTrial();
+            // SceneManager.LoadScene("Settings");
 
         }
 
+        request.Dispose();
+            
     }
 
+    IEnumerator AddTrialSubscription_Coroutine()
+    {
+             ErrorList list = new ErrorList();
+        Error error = new Error();
 
+        int randomNumber = Random.Range(1000, 2000);
+
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
+        string json = JsonUtility.ToJson(subscriptionFormData);
+
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = baseURL + "student-subscriptions";
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", auth_key);
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: in adding trial subscription because of no. of chances: " + request.error);
+            Debug.Log(request.downloadHandler.text);
+            Debug.Log("Status Code: " + request.responseCode);
+
+            //  string  errorJson = request.downloadHandler.text;
+            // string jsonString = fixJson(errorJson);
+            // Debug.Log(jsonString);
+            string jsonString = request.downloadHandler.text;
+
+            list = JsonUtility.FromJson<ErrorList>(jsonString);
+
+            Debug.Log(list);
+            
+            string message = list.error[0].detail;
+
+            Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    message,
+                    "Cancel",
+                    "Subscribe Now",
+                    GoSubscribe
+                    );
+
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            Debug.Log("Successful trial subscripton");
+            // SceneManager.LoadScene("KidsName");
+            // PlayerPrefs.SetString("isSubscribed", "true");
+            // SceneManager.LoadScene("Dashboard");
+        }
+        request.Dispose();
+    }
+
+     void GoSubscribe()
+    {
+        SceneManager.LoadScene("IAPCatalog");
+    }
 }

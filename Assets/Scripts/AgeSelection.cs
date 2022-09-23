@@ -9,7 +9,7 @@ public class AgeSelection : MonoBehaviour
     string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
-    string baseURLTest = "http://165.22.219.198/edugogy/api/v1";
+    // string baseURLTest = "http://165.22.219.198/edugogy/api/v1";
 
     void Start()
     {

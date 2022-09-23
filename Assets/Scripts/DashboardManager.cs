@@ -45,6 +45,8 @@ public class DashboardManager : MonoBehaviour
         public int total_level;
         public int total_passed_level;
         public int available_level;
+        public bool is_trial_subscription;
+        public string subscription_remaining_day;
     }
 
     public GameObject pathPrefab;
@@ -93,8 +95,9 @@ public class DashboardManager : MonoBehaviour
         }
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3"; // Ridhi di's - Komal
-        // auth_key = "Bearer cjTl5ODPwYl9ddavqxRw-BvMsnZ-5zmC";
+        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
+        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; //for api.testing.edugogy.app
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
 
         GetUserProfile();
     }
@@ -158,9 +161,8 @@ public class DashboardManager : MonoBehaviour
             Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
 
             Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
-            // SnapTo(thistarget);
-
-        
+            GetNormalizePosition(thistarget);
+                    
             DateTime thisTime = System.DateTime.Now.Date;
             Debug.Log("this date is " + thisTime);  //09-08-2022 13:34:10
             lastTimeClicked = DateTime.Parse(PlayerPrefs.GetString("completionDateTime"));
@@ -182,22 +184,23 @@ public class DashboardManager : MonoBehaviour
                     // lockImage.SetActive(false);
                     button.tag = "Unlocked";
                     animator = lockImage.GetComponent<Animator>();
-                    animator.Play("LockUnlock");
+                    // animator.Play("LockUnlock");
                     characterAnim = astronaut.GetComponent<Animator>();
-                    characterAnim.Play("AstroMoving");
+                    // characterAnim.Play("AstroMoving");
                     islevelUnlocked = true;
 
-                    // targetPosition = lockImage.transform.position;
+                    targetPosition = lockImage.transform.position;
                     // screenPos = cam.ScreenToWorldPoint(targetPosition);
 
-                    if (levelNumber%2 == 0)
-                    {
-                        newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
-                    }
-                    else
-                    {
-                        newPosition = new Vector2(astronaut.transform.position.x - 44f, astronaut.transform.position.y + 403f);
-                    }
+                    newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+                    // if (levelNumber%2 == 0)
+                    // {
+                    //     newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
+                    // }
+                    // else
+                    // {
+                    //     newPosition = new Vector2(astronaut.transform.position.x - 44f, astronaut.transform.position.y + 403f);
+                    // }
 
                     // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
                     // astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
@@ -227,149 +230,28 @@ public class DashboardManager : MonoBehaviour
         {
         
             characterAnim.Play("AstroMoving");
-                // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
+            
+
+            // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
 
                 // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, -screenPos, Time.deltaTime * speed );// 
            
             // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
             // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
-            //  astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
-            islevelUnlocked = false;
+             astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
+             animator.Play("LockUnlock");
+        //     islevelUnlocked = false;
         }
 
     }
-    
-    public void SnapTo(RectTransform target)
+
+    public void GetNormalizePosition(RectTransform target)
     {
-        var itemCenterPositionInScroll = GetWorldPointInWidget(scrollRectTransform, GetWidgetWorldPoint(target));
+        int missionNumber = int.Parse(target.transform.gameObject.name);
+        missionNumber = missionNumber - 1;
 
-        var targetPositionInScroll = GetWorldPointInWidget(scrollRectTransform, GetWidgetWorldPoint(maskTransform));
-
-        Debug.Log("itemCenterPositionInScroll " + itemCenterPositionInScroll); // -736
-        Debug.Log("targetPositionInScroll " + targetPositionInScroll); // -1266
-
-        Vector2 contentPanelPosition = new Vector2(contentPanel.position.x, contentPanel.position.y);
-        Debug.Log("contentPanelPosition " + contentPanelPosition);
-
-        var difference = targetPositionInScroll + itemCenterPositionInScroll;
-        Debug.Log("difference " + difference);
-
-//  
-        var value1 = Mathf.Abs(contentPanelPosition.y) - Mathf.Abs(itemCenterPositionInScroll.y);
-        Debug.Log("value1 " + value1);
-
-        var value2 = Mathf.Abs(targetPositionInScroll.y + value1);
-        Debug.Log("value2 " + value2);
-
-        var offsetResult = value2/screenPos.y;
-        Debug.Log("offsetResult " + offsetResult);
-
-        var value3 = Mathf.Abs(value1/(difference.y*10));
-        Debug.Log("value3  " + value3);
-
-        float newOffset = value3 - offsetResult;
-        Debug.Log("newOffset " + newOffset);
-//
-
-        // Debug.Log("difference " +  difference);
-
-         var normalizedDifference = new Vector2(
-            difference.x / (contentPanel.rect.size.x - scrollRectTransform.rect.size.x),
-            difference.y / (contentPanel.rect.size.y - scrollRectTransform.rect.size.y));
-        Debug.Log("normalizedDifference" + normalizedDifference);
-
-        var newNormalizedPosition = scrollRect.normalizedPosition - normalizedDifference;
-        Debug.Log("newNormalizedPosition " + newNormalizedPosition);
-
-        // var ratio = itemCenterPositionInScroll.y/contentPanelPosition.y;
-
-        //  var newdifference = ratio - Mathf.Abs(newNormalizedPosition.y);
-        // Debug.Log("difference " +  newdifference);
-
-        float scrollValue = 1 - Mathf.Abs(itemCenterPositionInScroll.y)/scrollRectTransform.rect.height;
-        Debug.Log("target.position.y " + itemCenterPositionInScroll.y);
-        Debug.Log("scrollValue rect transform " + scrollRectTransform.rect.height);
-         Debug.Log("scrollValue " + scrollValue);
-
-
-        // Vector2 offset = (Vector2)scrollRect.transform.InverseTransformPoint(contentPanel.position) - (Vector2)scrollRect.transform.InverseTransformPoint(targetPositionInScroll.position);
-        // Vector2 anchor = contentPanel.anchoredPosition;
-        // anchor.y = offset.y;
-        // contentPanel.anchoredPosition = anchor;
-
-        scrollRect.verticalScrollbar.value = scrollValue; // - ((value3 + newOffset)* 10);
-
-        // if (int.Parse(missionNumber) > 25)
-        // {
-        //      scrollRect.verticalScrollbar.value = scrollValue + Mathf.Abs(newOffset);
-        // }
-        // else
-        // {
-        //     scrollRect.verticalScrollbar.value = scrollValue - newOffset;
-        // }
-         //scrollValue - 0.03f;
-
-        // 0.04586824, 0.13151658 - 0.1014356= 0.08564
-
-        // scrollRect.verticalScrollbar.value = (value3*10) - offsetResult; //newdifference - 0.02f;
-
-
-        // var normalizedDifference = new Vector2(
-        //     difference.x / (contentPanel.rect.size.x - scrollRectTransform.rect.size.x),
-        //     difference.y / (contentPanel.rect.size.y - scrollRectTransform.rect.size.y));
-        // Debug.Log("normalizedDifference" + normalizedDifference);
-
-        // var newNormalizedPosition = scrollRect.normalizedPosition - normalizedDifference;
-        // Debug.Log("newNormalizedPosition " + newNormalizedPosition);
-
-        // var diff = contentPanel.rect.size.y - scrollRectTransform.rect.size.y;
-        // Debug.Log("diff is " + diff);
-
-        // var ratioWithDifference = Mathf.Abs(target.position.y/difference.y);
-        // Debug.Log("ratioWithDifference " + ratioWithDifference);
-        // var ratioWithDiff = Mathf.Abs(target.position.y/diff);
-        // Debug.Log("ratioWithDiff " + ratioWithDiff);
-
-        // var differenceOfRatios = ratioWithDifference - ratioWithDiff;
-        //  Debug.Log("differenceOfRatios " + differenceOfRatios);
-        
-        // var valueRequiredToScroll = Mathf.Abs(ratioWithDifference - differenceOfRatios)/ratio;
-        // Debug.Log("valueRequiredToScroll " + valueRequiredToScroll);
-
-        // var valueRequiredToScroll = Mathf.Abs(diff/itemCenterPositionInScroll.y);
-        // Debug.Log("valueRequiredToScroll " + valueRequiredToScroll);
-
-        // scrollRect.verticalNormalizedPosition = valueRequiredToScroll - 0.0440511f;//Mathf.Abs(ratio/2);//valueRequiredToScroll - 0.0440511f;//newNormalizedPosition.y;
-        // scrollRect.verticalScrollbar.value = newNormalizedPosition.y;
-
-        // var contentPos = (Vector2)scrollRect.transform.InverseTransformPoint( scrollRect.content.position );
-        // var childPos = (Vector2)scrollRect.transform.InverseTransformPoint( target.position );
-
-        // // Vector2 newPosition = new Vector2(itemCenterPositionInScroll.position.x, itemCenterPositionInScroll.position.y);
-        // Vector2 contentPanelPosition = new Vector2(contentPanel.position.x, contentPanel.position.y);
-        // Debug.Log("contentPanelPosition " + contentPanelPosition);
-        
-        // contentPanel.anchoredPosition = new Vector2(contentPanel.localPosition.x, contentPos.y + childPos.y - 1000.0f); //contentPos + childPos;
-            // (Vector2)scrollRect.transform.InverseTransformPoint(contentPos)
-            // - (Vector2)scrollRect.transform.InverseTransformPoint(childPos);
-       
-    }
-
-
-    private Vector3 GetWidgetWorldPoint(RectTransform target)
-    {
-        //pivot position + item size has to be included
-        var pivotOffset = new Vector3(
-            (0.5f - target.pivot.x) * target.rect.size.x,
-            (0.5f - target.pivot.y) * target.rect.size.y,
-            0f);
-        var localPosition = target.localPosition + pivotOffset;
-        return target.parent.TransformPoint(localPosition);
-    }
-
-    private Vector3 GetWorldPointInWidget(RectTransform target, Vector3 worldPoint)
-    {
-        return target.InverseTransformPoint(worldPoint);
+        float normalizePosition = (float)missionNumber/ 180;
+        scrollRect.verticalNormalizedPosition = normalizePosition;//1-normalizePosition;
     }
 
     public void SpawnPath()
@@ -437,7 +319,7 @@ public class DashboardManager : MonoBehaviour
                 TMPro.TMP_Text levelNumber = button.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
                 button.tag = "Locked";
                 button.onClick.AddListener(delegate{OnButtonClick();});
-                Debug.Log("Adding Listener");
+                
                 int k = z + 1;
                 button.name = k.ToString();
                 levelNumber.text = k.ToString();
@@ -572,12 +454,57 @@ public class DashboardManager : MonoBehaviour
 
             totalNumberOfLevels = profileData.total_level;
             levelsPassed = profileData.total_passed_level;
+            
+            if (profileData.is_trial_subscription == true)
+            {
+                if (int.Parse(profileData.subscription_remaining_day) > 0)
+                {
+                    string displayMessageForTrial = "Your remaining trial days are " + profileData.subscription_remaining_day + ". You still have a chance to experience more by changing level";
+
+                    InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                    displayMessageForTrial,
+                    "Okay"
+                    );
+                }
+                else
+                {
+                    // if (chances == 0)
+                     Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                    "It's time to subscribe Now",
+                    "Cancel",
+                    "Subscribe Now",
+                    GoSubscribe
+                    );
+                }
+                 
+            }
 
             NotifyAboutSubscriptionStatus();
-            // {"id":3,"name":"Komal","phone":"9855940600","age_group_id":2,"country_code_id":88,"total_level":2,"total_passed_level":0,"available_level":30}
 
+//             {
+//     "id": 2,
+//     "name": "Amaiv verma",
+//     "phone": "9855940600",
+//     "age_group_id": 6,
+//     "country_code_id": 88,
+//     "social_id": null,
+//     "social_media": null,
+//     "email": "",
+//     "total_level": 90,
+//     "total_passed_level": 0,
+//     "available_level": 5,
+//     "is_trial_subscription": true,
+//     "subscription_remaining_day": "4"
+// }
         }
         request.Dispose();
+    }
+
+    void GoSubscribe()
+    {
+        SceneManager.LoadScene("IAPCatalog");
     }
 
     void NotifyAboutSubscriptionStatus()

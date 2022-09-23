@@ -121,8 +121,7 @@ public class MissionManagement : MonoBehaviour
     int nextNumber = 1;
     int parameterCount = 0; //set after checking values
 
-    int totalNumber = 0;    // total count of dictionary - this is not including provision for multiple screen of individual parameter
-
+    
     [Serializable]
      public class AllDetail
     {
@@ -555,14 +554,18 @@ public class MissionManagement : MonoBehaviour
     public int parameterCountControlCheck = 0;
     public int screenCount = 1;
     string listOfrevisionWords = "";
-    public int newWordDataCount = 0;
-    public int revisionDataCount = 0;
+    
     public int newWordNumber = 0; // check if all new word screens are done
     public int revisionWordReference = 0;
     public int numberOfRevisionWords = 0;
     public int rwdataCount = 0;
     public int tempDataCount = 0;
     public bool revisionListDisplayed = false;
+    static int totalNumber = 0;    // total count of dictionary - this is not including provision for multiple screen of individual parameter
+    static int newWordDataCount = 0;
+    static int revisionDataCount = 0;
+    static int revisionList = 0;
+    static int convoPlusList = 0;
 
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
@@ -574,7 +577,7 @@ public class MissionManagement : MonoBehaviour
     public int optionNumber = 0;
 
     int questionNumber = 0;
-    int generalMCQcount = 0;
+    static int generalMCQcount = 0;
     int tempGeneralMCQCount = 0;
   
     [Serializable]
@@ -647,10 +650,11 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-          auth_key = "Bearer pkCZmdJCpkHdH6QYT2G2q_qeFxzJtvj3"; // Ridhi di's - Komal
-        // auth_key = "Bearer cjTl5ODPwYl9ddavqxRw-BvMsnZ-5zmC";
+        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
+        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; // Ridhima testing
     }
 
     async void Start ()
@@ -809,11 +813,11 @@ public class MissionManagement : MonoBehaviour
     public void calculateTotalCount()
     {
         generalMCQcount = dataCountDetails.mcq_count; // 2
-        // totalNumber = dataCountDetails.mcq_count;
+        Debug.Log("generalMCQcount is " + generalMCQcount);
+       
         if  (dataCountDetails.new_word_data.new_word_count != 0)
         {
-        
-                newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
+            newWordDataCount  = dataCountDetails.new_word_data.more_data[0].noun_count +
             dataCountDetails.new_word_data.more_data[0].verb_count + dataCountDetails.new_word_data.more_data[0].adverb_count +
             dataCountDetails.new_word_data.more_data[0].adjective_count +
             dataCountDetails.new_word_data.more_data[0].other_way_using_count
@@ -823,22 +827,21 @@ public class MissionManagement : MonoBehaviour
             + dataCountDetails.new_word_data.more_data[0].antonym_count
             + dataCountDetails.conversation_new_word_count;
 
-             if (dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0)
+            if (dataCountDetails.new_word_data.more_data[0].daily_use_tip_count != 0)
             {
                 newWordDataCount = newWordDataCount + 1;
             }
         }
         
-        //2 + 2 + 1 + 1 + 1 + 1 + 4
-        
-       
-
         Debug.Log("newWordDataCount is " + newWordDataCount);
         totalNumber = generalMCQcount + newWordDataCount; // 14
 
+        Debug.Log("total number is" + totalNumber);
         if  (dataCountDetails.revision_word_data.revison_word_count != 0)
         {
-            totalNumber = totalNumber + 1;          //for revision word list = 15 
+            
+            // Debug.Log("total number is" + totalNumber);
+            revisionList = 1; // for list
             numberOfRevisionWords = dataCountDetails.revision_word_data.revison_word_count;
             for(int i = 0; i < dataCountDetails.revision_word_data.more_data.Length; i++)
             {
@@ -848,27 +851,33 @@ public class MissionManagement : MonoBehaviour
                 + dataCountDetails.revision_word_data.more_data[i].synonym_count
                 + dataCountDetails.revision_word_data.more_data[i].antonym_count;
                 //5
+                Debug.Log("revisionDataCount for i is " + i + " " + revisionDataCount);
                 revisionCountArray.Add(revisionDataCount);
-             }
-       
-            if (dataCountDetails.conversation_revision_word_count != 0)
-            {
-                revisionDataCount = revisionDataCount + 1;
+
+                revisionList += revisionDataCount;
             }
+                      //for revision word list = 15 
         }
 
-        //no. of revision words i.e. dataCountDetails.revision_word_data.revison_word_count
-        //total count for each revision word
-        // for back button  - working on calling method with parameter
-        
-        Debug.Log(revisionDataCount);
-       totalNumber = totalNumber + revisionDataCount + dataCountDetails.passage_data.passage_count;
-       //15 + 5 + 2
+
+        Debug.Log("revisionList " + revisionList);
 
         if (dataCountDetails.conversation_mcq_count != 0)   // as mcqs related to 1 conversation will be displayed on one screen so it will be counted as 1 only, also as per client requirement - there is one converstaion with mcq only
         {
             totalNumber += 1;
         }
+        
+        //no. of revision words i.e. dataCountDetails.revision_word_data.revison_word_count
+        //total count for each revision word
+        // for back button  - working on calling method with parameter
+       //15 + 5 + 2
+        convoPlusList = dataCountDetails.conversation_revision_word_count + revisionList;
+        Debug.Log("convoPlusList " + convoPlusList);
+
+
+        totalNumber = totalNumber + dataCountDetails.passage_data.passage_count + convoPlusList;
+
+        
         // 22 + 1
        Debug.Log("total number is" + totalNumber);
         GetAllDetails();
@@ -902,14 +911,16 @@ public class MissionManagement : MonoBehaviour
 
     public void HideSentences()
     {
-        speakerButton.gameObject.SetActive(false);
-        wordImage.gameObject.SetActive(false);
+     
+        singleSentenceBoard.gameObject.SetActive(false);
+        multipleSentenceBoard.gameObject.SetActive(false);
+
     }
 
     public void DestroyPrefabs()
     {
        int prefabCount = parent.transform.childCount;
-       Debug.Log("prefabCount is " + prefabCount);
+    //    Debug.Log("prefabCount is " + prefabCount);
        if (prefabCount > 1)
        {
             for (int i = 1; i < prefabCount; i++)
@@ -1172,14 +1183,13 @@ public class MissionManagement : MonoBehaviour
             
 
             // if list is displayed run for loop, all methods for first word and so on
-            // if (dataDisplayed["isRevisionWordListDone"] == true && revisionDataCount == 1) 
             if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false) )
             {       
                 
                 parameterValueArray.Add(0);
                 methodCallArray.Add(RevisionWordList);  
                 RevisionWordList(0);   
-                Debug.Log("revisionDataCount " + revisionDataCount); 
+                Debug.Log("revisionList " + revisionList); 
                 
                 for(int x = 0; x < numberOfRevisionWords; x++)
                 {
@@ -1196,12 +1206,12 @@ public class MissionManagement : MonoBehaviour
                 return;
                
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionDataCount > 0)
+            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 && revisionCountArray[revisionWordReference] > 0)
             {          
                     Debug.Log("Going to check data");
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
                     Debug.Log(revisionWordDetails.id);
-                    Debug.Log("count of multiple word wrt " + dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count);
+                    Debug.Log("count of synonym" + dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count);
 
                     if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count != 0) && (dataDisplayed["isRevisionWordSynonymDone"] == false))
                     {
@@ -1223,7 +1233,7 @@ public class MissionManagement : MonoBehaviour
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count != 0) && (dataDisplayed["isRevisionWordOWUWordDone"] == false))
                     {
-                    
+                        Debug.Log("Checking for other of using word");
                         tempDataCount += 1;
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(AnotherWayOfUsingWordSetup); 
@@ -1250,7 +1260,8 @@ public class MissionManagement : MonoBehaviour
                     }
                     else if ((dataCountDetails.conversation_revision_word_count != 0) && (dataDisplayed["isRevisionWordConversationDone"] == false))
                     {
-                                                  
+
+                        Debug.Log("reading conversation");               
                          tempDataCount += 1; 
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(ConversationSetup);     
@@ -1269,8 +1280,10 @@ public class MissionManagement : MonoBehaviour
                         Debug.Log("isRevisionWordContentDone with conversation");
                     }
                      
-                    
-                        if (tempDataCount == revisionCountArray[revisionWordReference])// && tempDataCount != 0)
+                     if (revisionWordReference == 0)
+                     {
+                        Debug.Log("going in first loop");
+                        if (tempDataCount == revisionCountArray[revisionWordReference] + dataCountDetails.conversation_revision_word_count)// && tempDataCount != 0)
                         {
                             tempDataCount = 0; // 0 for first word content
 
@@ -1278,6 +1291,7 @@ public class MissionManagement : MonoBehaviour
                             {
                                 dataDisplayed["isRevisionWordContentDone"] = true;
                                 Debug.Log("isRevisionWordContentDone ");
+
                             }  
                             else if (revisionWordReference < numberOfRevisionWords - 1)
                             {
@@ -1300,6 +1314,44 @@ public class MissionManagement : MonoBehaviour
                                 }
                             } 
                         }
+                     }
+                     else
+                     {
+                        Debug.Log("going in second loop");
+                        if (tempDataCount == revisionCountArray[revisionWordReference])// && tempDataCount != 0)
+                        {
+                            tempDataCount = 0; // 0 for first word content
+
+                            if (revisionWordReference == numberOfRevisionWords - 1)
+                            {
+                                dataDisplayed["isRevisionWordContentDone"] = true;
+                                Debug.Log("isRevisionWordContentDone ");
+
+                            }  
+                            else if (revisionWordReference < numberOfRevisionWords - 1)
+                            {
+                                Debug.Log("isRevisionWordContentDone with ");
+
+                                int nextReferenceNumber = revisionWordReference + 1;
+                                for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
+                                {
+                                   Debug.Log("number of revision words are " + numberOfRevisionWords);
+                                    if (revisionCountArray[x] != 0)
+                                    {
+                                        revisionWordReference = x;
+                                        Debug.Log("value of revision word reference " + revisionWordReference);
+                                        dataDisplayed.Clear();
+                                        dataDisplayed = copyOfdataDisplayed;
+                                        dataDisplayed["isRevisionWordListDone"] = true;
+                                        return;
+
+                                    }
+                                }
+                            } 
+                        }
+                     }
+                    
+                        
                     
                      return;
                     
@@ -1628,7 +1680,7 @@ public class MissionManagement : MonoBehaviour
                             GameObject container = thisButton.transform.GetChild(0).gameObject;
 
                             TMPro.TMP_Text answerOption = container.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                            answerOption.text = allDetailData.passages[0].questions[0].questionOptions[j].option;
+                            answerOption.text = allDetailData.passages[0].questions[i].questionOptions[j].option;
                             GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
                             int pcc = parameterCountControlCheck;
@@ -2936,6 +2988,7 @@ public class MissionManagement : MonoBehaviour
             multipleSentenceBoard.gameObject.SetActive(false);
             var mytext = singleSentencePrefab.GetComponent<TMPro.TMP_Text>();
             mytext.text = newOwuw.otherWayUsingWordSentences[0].description;
+            Debug.Log(newOwuw.otherWayUsingWordSentences[0].description);
         }
         if (isSettingCanvas == true)
         {
@@ -2954,7 +3007,7 @@ public class MissionManagement : MonoBehaviour
             }
             else 
             {
-                Debug.Log("Working on calling adjective again");
+                Debug.Log("Working on calling other way of using word again");
                 parameterCountControlCheck = parameterCountControlCheck + 1;
             }
             isSettingCanvas = false;
@@ -3215,11 +3268,13 @@ public class MissionManagement : MonoBehaviour
 
             typeOfWord.text = "Meaning";
             
-            antonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count;
+            antonymCount = dataCountDetails.revision_word_data.more_data[parameter].antonym_count;
             antonymDetails = revisionWordDetails.antonyms[parameter];
             meaningAsNoun.text = antonymDetails.meaning;
 
-            word.text = revisionWordDetails.antonyms[revisionWordReference].description;
+            word.text = revisionWordDetails.antonyms[parameter].description;
+            Debug.Log("revisionWordReference is " + revisionWordReference);
+            Debug.Log("Description is " + revisionWordDetails.antonyms[parameter].description);
         }
         else
         {
@@ -3233,7 +3288,7 @@ public class MissionManagement : MonoBehaviour
         }
 
 
-
+        Debug.Log("Length of antonym sentences is " + antonymDetails.antonymSentences.Length);
         if (antonymDetails.antonymSentences.Length > 1)
         {
             sentencePrefabsArray.Add(sentencePrefab);
@@ -3355,6 +3410,7 @@ public class MissionManagement : MonoBehaviour
             meaningAsNoun.text = synonymDetails.meaning;
         }
     
+        Debug.Log("Length of synonym sentences is " + synonymDetails.synonymSentences.Length);
 
         if (synonymDetails.synonymSentences.Length > 1)
         {
@@ -3446,7 +3502,7 @@ public class MissionManagement : MonoBehaviour
 
                     screenCount = screenCount + 1;
                     
-                    Debug.Log(screenCount + " screen count" + methodCallArray.Count);
+                    // Debug.Log(screenCount + " screen count" + methodCallArray.Count);
 
                     if (screenCount > 0 && screenCount <= methodCallArray.Count)
                     {
@@ -3461,7 +3517,7 @@ public class MissionManagement : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("calling to set base canvas only");
+                        // Debug.Log("calling to set base canvas only");
                         SetUpBaseCanvas();
                     }
             }
@@ -3479,7 +3535,7 @@ public class MissionManagement : MonoBehaviour
             {
              
                 screenCount = screenCount - 1;
-                Debug.Log(screenCount + " screen count");
+                // Debug.Log(screenCount + " screen count");
                 int parameter = parameterValueArray[screenCount-1];
                 Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
                 Action<int> unityAction = methodCallArray[screenCount-1];

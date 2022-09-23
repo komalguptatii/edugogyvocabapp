@@ -55,8 +55,10 @@ public class VerifyOTPManager : MonoBehaviour
     [SerializeField]
     public TextMeshProUGUI description; 
 
+    string userName = "";
+
      string baseURL = "https://api.edugogy.app/v1/";
-    //     string baseURL = "https://api.testing.edugogy.app/v1/";
+        // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
@@ -176,6 +178,7 @@ public class VerifyOTPManager : MonoBehaviour
      void MoveToSubscription()
     {
         // SceneManager.LoadScene("IAPCatalog");
+
             SceneManager.LoadScene("KidsName");
 
     }
@@ -250,7 +253,16 @@ public class VerifyOTPManager : MonoBehaviour
             getKey = JsonUtility.FromJson<GetAuthKey>(validateOTPJson);
             Debug.Log(getKey.auth_key);
             SaveAuthKey(getKey.auth_key);
-            MoveToSubscription();
+            if (userName == "")
+            {
+                MoveToSubscription();
+            }
+            else
+            {
+                //Check if subscribed or not
+                SceneManager.LoadScene("IAPCatalog");
+            }
+            
         }
         }
         
@@ -301,6 +313,7 @@ public class VerifyOTPManager : MonoBehaviour
             resendOTP = JsonUtility.FromJson<ResendOTP>(resendOTPJson);
             Debug.Log(resendOTP.phone);
             Debug.Log(resendOTP.student.name);
+            userName = resendOTP.student.name;
            
         }
 
