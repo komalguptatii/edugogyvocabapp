@@ -650,7 +650,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
         // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
@@ -995,41 +995,43 @@ public class MissionManagement : MonoBehaviour
            
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
             DecideTypeOfDataAvailable();
-            SetBottomTitleLabel();
-            SetUpBaseCanvas();
+            
 
         }
-        request.Dispose();
+        // request.Dispose();
     }
 
     public void DecideTypeOfDataAvailable()
     {
         if (allDetailData.newWords.Length > 0)
-            {
-                availableData["isNewWordAvailable"] = true;
-                //new word length will always be 1
-            }
-            if (allDetailData.revisionWords.Length > 0)
-            {
-                availableData["isRevisionWordsAvailable"] = true;
-            }
+        {
+            availableData["isNewWordAvailable"] = true;
+            //new word length will always be 1
+        }
+        if (allDetailData.revisionWords.Length > 0)
+        {
+            availableData["isRevisionWordsAvailable"] = true;
+        }
 
-             if  (dataCountDetails.new_word_data.new_word_count != 0)
-             {
-                Debug.Log(allDetailData.newWords[0].image_url);
-                if (allDetailData.newWords[0].image_url != null)
-                {
-                    string imageURL = allDetailData.newWords[0].image_url;
-                    
-                    StartCoroutine(DownloadImage(imageURL));
-                }
-                else if (allDetailData.newWords[0].image_url == null)
-                {
-                    Debug.Log("url is null");
-                    wordImage.gameObject.SetActive(false);
-                    
-                }
-             }
+        if  (dataCountDetails.new_word_data.new_word_count != 0)
+        {
+            Debug.Log(allDetailData.newWords[0].image_url);
+            if (allDetailData.newWords[0].image_url != null)
+            {
+                string imageURL = allDetailData.newWords[0].image_url;
+                
+                StartCoroutine(DownloadImage(imageURL));
+            }
+            else if (allDetailData.newWords[0].image_url == null)
+            {
+                Debug.Log("url is null");
+                wordImage.gameObject.SetActive(false);
+                
+            }
+        }
+
+        SetBottomTitleLabel();
+        SetUpBaseCanvas();
     }
 
     void ShowInteractivePopup()
@@ -1206,7 +1208,7 @@ public class MissionManagement : MonoBehaviour
                 return;
                
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 && revisionCountArray[revisionWordReference] > 0)
+            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 && revisionCountArray[revisionWordReference] > 0 )
             {          
                     Debug.Log("Going to check data");
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
@@ -1276,6 +1278,7 @@ public class MissionManagement : MonoBehaviour
 
                     if (tempDataCount == 1 && revisionCountArray[revisionWordReference] == 0)
                     {
+                        parameterCountControlCheck = 0;
                         dataDisplayed["isRevisionWordContentDone"] = true;
                         Debug.Log("isRevisionWordContentDone with conversation");
                     }
@@ -1286,9 +1289,11 @@ public class MissionManagement : MonoBehaviour
                         if (tempDataCount == revisionCountArray[revisionWordReference] + dataCountDetails.conversation_revision_word_count)// && tempDataCount != 0)
                         {
                             tempDataCount = 0; // 0 for first word content
-
+                            
                             if (revisionWordReference == numberOfRevisionWords - 1)
                             {
+                                parameterCountControlCheck = 0;
+
                                 dataDisplayed["isRevisionWordContentDone"] = true;
                                 Debug.Log("isRevisionWordContentDone ");
 
@@ -1296,6 +1301,7 @@ public class MissionManagement : MonoBehaviour
                             else if (revisionWordReference < numberOfRevisionWords - 1)
                             {
                                 Debug.Log("isRevisionWordContentDone with ");
+                                Debug.Log("check account of word reference" + revisionCountArray[revisionWordReference]);
 
                                 int nextReferenceNumber = revisionWordReference + 1;
                                 for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
@@ -1311,6 +1317,13 @@ public class MissionManagement : MonoBehaviour
                                         return;
 
                                     }
+                                    else if (x == numberOfRevisionWords - 1)
+                                    {
+                                        parameterCountControlCheck = 0;
+                                        dataDisplayed["isRevisionWordContentDone"] = true;
+                                        Debug.Log("isRevisionWordContentDone ");
+
+                                    } 
                                 }
                             } 
                         }
@@ -1324,6 +1337,7 @@ public class MissionManagement : MonoBehaviour
 
                             if (revisionWordReference == numberOfRevisionWords - 1)
                             {
+                                parameterCountControlCheck = 0;
                                 dataDisplayed["isRevisionWordContentDone"] = true;
                                 Debug.Log("isRevisionWordContentDone ");
 
@@ -1346,6 +1360,13 @@ public class MissionManagement : MonoBehaviour
                                         return;
 
                                     }
+                                    else if (x == numberOfRevisionWords - 1)
+                                    {
+                                        parameterCountControlCheck = 0;
+                                        dataDisplayed["isRevisionWordContentDone"] = true;
+                                        Debug.Log("isRevisionWordContentDone ");
+
+                                    } 
                                 }
                             } 
                         }
