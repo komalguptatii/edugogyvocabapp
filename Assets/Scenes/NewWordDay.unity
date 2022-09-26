@@ -1442,17 +1442,19 @@ MonoBehaviour:
   isSettingCanvas: 0
   parameterCountControlCheck: 0
   screenCount: 1
-  newWordDataCount: 0
-  revisionDataCount: 0
   newWordNumber: 0
   revisionWordReference: 0
   numberOfRevisionWords: 0
   rwdataCount: 0
   tempDataCount: 0
   revisionListDisplayed: 0
+  totalNumber: 0
+  newWordDataCount: 0
+  revisionList: 0
   parameterValueArray: 
   revisionCountArray: 
   optionNumber: 0
+  generalMCQcount: 0
   selectedOptionList: 
   missionTitle: {fileID: 122382229}
 --- !u!4 &192530273
@@ -2938,7 +2940,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 3f813d8bd389cab4db095af6fb7b02b5, type: 2}
-  voice: 9
+  voice: 12
   outputAudioSource: {fileID: 0}
   oculusLipsyncAudioSource: {fileID: 0}
   speakerButton: {fileID: 0}
@@ -8944,7 +8946,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1280, y: -640}
+  m_AnchoredPosition: {x: -540, y: -880}
   m_SizeDelta: {x: 1440, y: 291.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1673564342

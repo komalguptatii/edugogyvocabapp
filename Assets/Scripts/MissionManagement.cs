@@ -618,7 +618,7 @@ public class MissionManagement : MonoBehaviour
     }
 
     public TextMeshProUGUI missionTitle;
-    int noOfAttempts = 0;
+    public int noOfAttempts = 0;
     int answerClicked = 0;
     bool updateDUTSentencePosition = false;
     float calHeight = 0.0f;
@@ -650,11 +650,11 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
         // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
-        auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; // Ridhima testing
+        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; // Ridhima testing
     }
 
     async void Start ()
@@ -1447,7 +1447,6 @@ public class MissionManagement : MonoBehaviour
         revisionWordBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(false);
 
-
         GameObject topImage = generalMCQContent.transform.GetChild(0).gameObject;
         TMPro.TMP_Text mcqInteractiveStatement = topImage.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
 
@@ -1472,17 +1471,20 @@ public class MissionManagement : MonoBehaviour
 
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
         
-        Debug.Log(answerOptions);
-
+        Debug.Log("answer options is " + answerOptions);
+        int noOfAttempts = 0;
         for(int x = 0; x < answerOptions; x++)
         {
             int value = allDetailData.questions[parameter].questionOptions[x].value;
 
             if (value == 1)
             {
-                noOfAttempts += 1;
+                noOfAttempts = noOfAttempts + 1;
+                Debug.Log("because value is 1");
             }
         }
+         
+
 
 
         int children = optionContainer.transform.childCount;
@@ -1508,7 +1510,7 @@ public class MissionManagement : MonoBehaviour
                 GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                 rightWrongImage.SetActive(false);
                 otherMCQbuttons[j] = thisButton;
-                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons);});
+                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons, noOfAttempts);});
             }
             else
             {
@@ -1551,7 +1553,7 @@ public class MissionManagement : MonoBehaviour
         
     }
 
-    public void CheckRightMCQAnswer(Button button, int questionNumber, Button[] mcqButtonArray)
+    public void CheckRightMCQAnswer(Button button, int questionNumber, Button[] mcqButtonArray, int thisnoOfAttempts)
     {
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
@@ -1568,24 +1570,28 @@ public class MissionManagement : MonoBehaviour
 
         int questionId = allDetailData.questions[questionNumber].id;
         int selectedOptionsId = allDetailData.questions[questionNumber].questionOptions[tag].id;   
-        
+        int answerClicked = 0;
+        noOfAttempts = thisnoOfAttempts;
 
         if (value == 1)
         {
-            answerClicked += 1;
+            
             myImage.sprite = tickSprite;
             SoundManagerScript.RightAnswerSound();
         }
-        else
+        else if (value == 0)
         {
-            answerClicked += 1;
+            
             myImage.sprite = wrongSprite;
             SoundManagerScript.WrongAnswerSound();
         }
+        answerClicked += 1;
         rightWrongImage.SetActive(true);
-
-
-        if (answerClicked == noOfAttempts)
+        
+       Debug.Log("No of times answer clicked is " + answerClicked);
+        
+        Debug.Log("No of attempts is " + noOfAttempts);
+       if (answerClicked == noOfAttempts)
         {
             for (int j = 0; j < buttonArray.Length; j++)
             {
@@ -1593,9 +1599,9 @@ public class MissionManagement : MonoBehaviour
             }
             answerClicked = 0;
             noOfAttempts = 0;
+            // buttonArray.Clear();
             // Destroy(buttonArray);
         }
-       
 
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
@@ -1609,9 +1615,8 @@ public class MissionManagement : MonoBehaviour
             }
             else
             {
-                
-                    tempList.Add(selectedOptionsId);
-                    questionResponseDict[questionId] = tempList;               
+                tempList.Add(selectedOptionsId);
+                questionResponseDict[questionId] = tempList;               
             }
 
         }
@@ -2125,6 +2130,7 @@ public class MissionManagement : MonoBehaviour
 
         int questionId = allDetailData.passages[passageNumber].questions[questionNumber].id;
         int selectedOptionsId = allDetailData.passages[passageNumber].questions[questionNumber].questionOptions[tag].id;   
+        int answerClicked = 0;
         if (value == 1)
         {
             answerClicked += 1;
@@ -2197,7 +2203,7 @@ public class MissionManagement : MonoBehaviour
         // int[] optionArray = new int[numberOfOptions];
         Debug.Log("question number is " + questionNumber + " & its id is " + questionId);
 
-
+int answerClicked = 0;
         if (value == 1)
         {
             answerClicked += 1;
@@ -2455,8 +2461,8 @@ public class MissionManagement : MonoBehaviour
 
     public void RevisionWordList(int parameter)
     {
-        if (revisionListDisplayed == false)
-        {
+        // if (revisionListDisplayed == false)
+        // {
             baseParentBoard.gameObject.SetActive(false);
             revisionWordBoard.gameObject.SetActive(true);
             generalMCQBoard.gameObject.SetActive(false);
@@ -2491,8 +2497,8 @@ public class MissionManagement : MonoBehaviour
                 }
             revisionWordList.text = listOfrevisionWords;
             dataDisplayed["isRevisionWordListDone"] = true;
-            revisionListDisplayed = true;
-        }
+        //     revisionListDisplayed = true;
+        // }
        
     }
     

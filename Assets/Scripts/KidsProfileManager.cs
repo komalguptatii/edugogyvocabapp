@@ -106,7 +106,7 @@ public class KidsProfileManager : MonoBehaviour
             ageImageTick[i].tag = i.ToString();
             ageButton[i].tag = i.ToString();
         }
-        // auth_key = "Bearer cjTl5ODPwYl9ddavqxRw-BvMsnZ-5zmC"; // for api.testing.edugogy.app
+        //  auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
 
         //Get Kids details
         GetKidProfile();
@@ -216,7 +216,7 @@ public class KidsProfileManager : MonoBehaviour
     IEnumerator UpdateKidsName_Coroutine()  //validate otp
     {
         profile.name = KidsName.text;
-        profile.age_group_id = selectedButton;
+        profile.age_group_id = selectedButton + 1;
         string json = JsonUtility.ToJson(profile);
 
         Debug.Log(json);

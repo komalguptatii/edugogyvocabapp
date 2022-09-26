@@ -130,7 +130,9 @@ public class TextToSpeech : MonoBehaviour
 
 
     [SerializeField]
-    private IBM_voices voice = IBM_voices.English_US_Male_MichaelV3;
+    // private IBM_voices voice = IBM_voices.English_US_Male_MichaelV3;
+        private IBM_voices voice = IBM_voices.English_UK_Female_KateV3;
+
 
     private TextToSpeechService tts_service; // IBM Watson text to speech service
     private IamAuthenticator tts_authenticator; // IBM Watson text to speech authenticator
@@ -321,6 +323,11 @@ public class TextToSpeech : MonoBehaviour
     // Add a text sample to the text queue to be converted into audio
     public void AddTextToQueue(TextMeshProUGUI word)
     {
+        if (textQueue.Count > 1)
+        {
+textQueue.Dequeue();
+        }
+        
         Debug.Log("AddTextToQueue: " + word.text);
         if (word.text != "")
         {
