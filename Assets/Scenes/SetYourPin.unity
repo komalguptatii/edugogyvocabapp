@@ -514,6 +514,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 223075320}
   m_CullTransparentMesh: 1
+--- !u!1 &266477771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 266477773}
+  - component: {fileID: 266477772}
+  m_Layer: 0
+  m_Name: Main
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &266477772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266477771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb76ae09c3ed044e5b2b8eeb9ba86c49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MainCanvas: {fileID: 107551158}
+--- !u!4 &266477773
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266477771}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0013004261, y: -0.18586305, z: 50.843315}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &274512651
 GameObject:
   m_ObjectHideFlags: 0
@@ -2131,8 +2176,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -311, y: -154}
-  m_SizeDelta: {x: 265, y: 154}
+  m_AnchoredPosition: {x: -250.95, y: -161.25}
+  m_SizeDelta: {x: 385.11, y: 168.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1077882800
 MonoBehaviour:
@@ -2154,7 +2199,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Set your Pin
+  m_text: Set your secret pin
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}

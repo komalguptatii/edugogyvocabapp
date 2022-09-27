@@ -7,12 +7,15 @@ using System;
 using System.Text;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Text.RegularExpressions;
 
 public class LoginAPIManager : MonoBehaviour
 {
     public TMP_Dropdown countryCodeDropdown;
     
     public TMP_InputField phoneNumberInput;
+    public TMP_InputField countryCodeInput;
+
 
     public GameObject fbBtn;
     public GameObject appleBtn;
@@ -84,6 +87,11 @@ public class LoginAPIManager : MonoBehaviour
 
      public string countryListjson;
 
+      string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -116,7 +124,7 @@ public class LoginAPIManager : MonoBehaviour
         List<string> m_DropOptions = new List<string>();
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/country-codes?per-page=0";
+        string uri = baseURL + "country-codes?per-page=0";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             yield return request.SendWebRequest();
@@ -130,22 +138,67 @@ public class LoginAPIManager : MonoBehaviour
             listObject = JsonUtility.FromJson<CountryCodeList>(jsonString);
 
             for (var i = 0; i < listObject.items.Length; i++) {
-                // Debug.Log(listObject.items.Length);
-                // Debug.Log(listObject.items[i]);
-                // Debug.Log("country code is " + listObject.items[i].code);
-                // Debug.Log("country id is " + listObject.items[i].id);
+    
                 countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
             }
         }
     }
 
     public void dropDownItemSelected(){
+        // countryCodeDropdown.Show();
+
+        //  int index = countryCodeDropdown.value;
+        // selectedCountryCode = listObject.items[index].id;
+        // Debug.Log(selectedCountryCode);
+
         int index = countryCodeDropdown.value;
-        selectedCountryCode = listObject.items[index].id;
-        Debug.Log(selectedCountryCode);
+        var selectedValue = countryCodeDropdown.options[countryCodeDropdown.value].text;
+        Debug.Log(countryCodeDropdown.options[countryCodeDropdown.value].text);
+        
+        // selectedCountryCode = listObject.items[index].id;
+
+        for(int x = 0; x < listObject.items.Length;x++)
+        {
+               if (selectedValue == listObject.items[x].dial_code)
+               {
+                    selectedCountryCode = listObject.items[x].id;
+                    countryCodeInput.text = selectedValue.ToString();
+                    return;
+               }
+
+        }
+        
+
+        Debug.Log("selectedCountryCode is" + selectedCountryCode);
     }
 
-    
+    public void OnValueChanged(string code)
+    {
+        // if (code == "")
+        // {
+            Debug.Log("code is empty now");
+            countryCodeDropdown.ClearOptions();
+
+            for (var i = 0; i < listObject.items.Length; i++) {
+                countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
+            }
+
+        // }
+        // else
+        // {
+            countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
+        // }
+        countryCodeDropdown.Show();
+        // dropDownItemSelected();
+         
+    }
+
+    private void LateUpdate()
+    {
+        countryCodeInput.MoveTextEnd(true);
+    }
+
+     
 
     private void ChangeButtonPosition()
     {
@@ -167,19 +220,65 @@ public class LoginAPIManager : MonoBehaviour
     public void resendOTPRequest() => StartCoroutine(ProcessResendMobileOTPRequest_Coroutine());
 
 
+    public bool ValidateLoginData()
+    {
+        Debug.Log("selectedCountryCode " + selectedCountryCode);
+        if (selectedCountryCode == 0)
+        {
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please select country code",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+                return false;
+        }
+        else if (phoneNumberInput.text == "")
+        {
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter mobile number",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+                return false;
+        }
+        else if (!Regex.Match(phoneNumberInput.text, "^[0-9]{10}$").Success)
+        {
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Mobile number should be of 10 digits",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+                    return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 
+    public void resetAction()
+    {
+        Debug.Log("checking for valid data");
+    }
 
     IEnumerator ProcessLoginRequest_Coroutine()  // Actually this is API to sign up
     {
         SignedUpUser userSignUp = new SignedUpUser();
         //Validation for Login via mobile number
-        if (selectedCountryCode != 0 && phoneNumberInput.text != ""){
+        bool isDataValid = ValidateLoginData();
+        if (isDataValid == true){
             // "9855940600", 88 - country code id not code
         LoginForm loginFormData = new LoginForm { phone = phoneNumberInput.text, country_code_id = selectedCountryCode };
         string json = JsonUtility.ToJson(loginFormData);
 
         Debug.Log(json);
-        string uri = "http://165.22.219.198/edugogy/api/v1/students";
+        string uri = baseURL + "students";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -217,7 +316,6 @@ public class LoginAPIManager : MonoBehaviour
             {
                 resendOTPRequest();
             }
-
             // MoveToVerifyOTP();
             // "phone": "9855940600",
             // "country_code_id": 88,
@@ -231,7 +329,7 @@ public class LoginAPIManager : MonoBehaviour
 
    
 
-     void MoveToVerifyOTP()
+    void MoveToVerifyOTP()
     {
         SceneManager.LoadScene("VerifyOTP");
     }
@@ -239,13 +337,13 @@ public class LoginAPIManager : MonoBehaviour
     IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
     {
 
-        ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = "9855940600", country_code_id = 88, otp = 6875 };
+        ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumberInput.text, country_code_id = selectedCountryCode, otp = 6875 };
         string json = JsonUtility.ToJson(validateOTPFormData);
 
         Debug.Log(json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/validate-otp";
+        string uri = baseURL + "students/validate-otp";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -281,7 +379,7 @@ public class LoginAPIManager : MonoBehaviour
 
         Debug.Log(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/resend-otp";
+        string uri = baseURL + "students/resend-otp";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
+using Random=UnityEngine.Random;
+
 
 public class CodeDisplay : MonoBehaviour
 {
@@ -27,6 +30,9 @@ public class CodeDisplay : MonoBehaviour
     private string codeInString = "";
 
     private bool isReset = false;
+
+    
+
     private void Awake()
     {
         firstNumber = RandomRangeExcept(0, 9, 0);
@@ -99,6 +105,7 @@ public class CodeDisplay : MonoBehaviour
         if (result >= except) result += 1;
         return result;
     }
+
     void Start()
     {
 
@@ -203,19 +210,81 @@ public class CodeDisplay : MonoBehaviour
         if (codeSequence == generatedCodeSequence)
         {
             Debug.Log("Working");
-            SceneManager.LoadScene("Login");
+            CheckInformation();
+            // Add check to move to correct screen
+            // SceneManager.LoadScene("Login");
         }
         else
         {
             Debug.Log("Not Working");
-            isReset = true;
-            ResetDisplay();
+
+            Popup popup = UIController.Instance.CreatePopup();
+			//Init popup with params (canvas, text, text, text, action)
+			popup.Init(UIController.Instance.MainCanvas,
+				"Code entered is not correct, Please check",
+				"Cancel",
+				"Sure!",
+				resetAction
+				);
+            
+            
             // MessageBox().DisplayFormat("Warning", "Please enter correct digits");
         }
     }
 
+
+    public void CheckInformation()
+    {
+        if (PlayerPrefs.HasKey("auth_key"))
+        {
+            string auth_key = PlayerPrefs.GetString("auth_key");
+            if (auth_key != null)
+            {
+                if (PlayerPrefs.HasKey("childName"))
+                {
+                    if (PlayerPrefs.HasKey("isAgeSelected"))
+                    {
+                        if (PlayerPrefs.HasKey("isSubscribed"))
+                        {
+                            SceneManager.LoadScene("Dashboard");
+                        }
+                        else
+                        {
+                            SceneManager.LoadScene("IAPCatalog");
+
+                        }
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene("SelectAge");
+                    }
+
+                }
+                else
+                {
+                    SceneManager.LoadScene("KidsName");
+                }
+            }
+        }
+        else
+        {
+            SceneManager.LoadScene("Description");
+        }
+    }
+
+    // Action resetAction = resetActionMethod;
+    void resetAction()
+    {
+        isReset = true;
+        ResetDisplay();
+    }
+    
+    
+    
+    
     void ResetDisplay()
     {
+        // isReset = true - set before calling this function on next button pop up
         Debug.Log(codeSequence.Length);
 
         if (isReset == true)

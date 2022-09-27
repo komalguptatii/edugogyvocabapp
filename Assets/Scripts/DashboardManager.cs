@@ -19,9 +19,7 @@ public class DashboardManager : MonoBehaviour
         public string name;
         public string phone;
         public int country_code_id;
-
         public int age_group_id;
-
     }
 
     [Serializable]
@@ -33,39 +31,379 @@ public class DashboardManager : MonoBehaviour
         public int level;
     }
 
+    [Serializable]
+    public class ProfileDetails
+    {
+        public int id;
+        public string name;
+        public string phone;
+        public int age_group_id;
+        public int country_code_id;
+        public object social_id;
+        public object social_media;
+        public object email;
+        public int total_level;
+        public int total_passed_level;
+        public int available_level;
+        public bool is_trial_subscription;
+        public string subscription_remaining_day;
+    }
+
+    public GameObject pathPrefab;
+    public Transform contentParent;
+    [SerializeField] public Button[] levelButtonArray = new Button[5];
+
     string levelId;
+    int numberOfLevelsPerDay = 0;
+    int totalNumberOfLevels = 0;
+    int levelsPassed = 0;
+
+    DateTime lastTimeClicked;
+
+    private Animator animator;
+    string auth_key;
+
+    public GameObject astronaut;
+    private Animator characterAnim;
+
+    bool islevelUnlocked = false;
+    public float speed = 40.0f;
+    Vector3 targetPosition;
+     Camera cam;
+     Vector3 screenPos;
+     Vector3 worldPosition;
+     Vector2 newPosition;
+    public ScrollRect scrollRect;
+    public RectTransform scrollRectTransform;
+    public RectTransform contentPanel;
+    Button lastReachedLevel;
+    RectTransform maskTransform;
+    float offset = -1500.0f;
+    string missionNumber;
+
+    string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    // string baseURL = "http://165.22.219.198/edugogy/api/v1/";
+
+    float leftSide, rightSide;
+
+    private void Awake() 
+    {
+        if (PlayerPrefs.HasKey("auth_key"))
+        {
+            auth_key = PlayerPrefs.GetString("auth_key");
+            Debug.Log(auth_key);
+        }
+
+        // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
+        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
+        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; //for api.testing.edugogy.app
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
+
+        GetUserProfile();
+    }
+
+    private void Reset(Button levelButton)
+    {
+        if (maskTransform == null)
+        {
+            var mask = GetComponentInChildren<Mask>(true);
+            if (mask)
+            {
+                maskTransform = mask.rectTransform;
+            }
+            if (maskTransform == null)
+            {
+                var mask2D = GetComponentInChildren<RectMask2D>(true);
+                if (mask2D)
+                {
+                    maskTransform = mask2D.rectTransform;
+                }
+            }
+        }
+    }
+
     void Start()
     {
+        leftSide = Camera.main.ViewportToWorldPoint(new Vector3(0,0,0)).x;
+        rightSide = Camera.main.ViewportToWorldPoint(new Vector3(1,1,1)).x;
+        // cam = GetComponent<Camera>();
+        cam = Camera.main;
+        var dateAndTime = DateTime.Now;
+        var date = dateAndTime.Date;
+        Debug.Log(date);
+        Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
+        SpawnPath();
+
+
+        if (PlayerPrefs.HasKey("NextLevelWillBe"))
+        {
+            string nextLevelWillbe = PlayerPrefs.GetString("NextLevelWillBe");
+            Debug.Log(nextLevelWillbe);
+             Debug.Log("Checking for TimeSpan");
+            int levelNumber = int.Parse(nextLevelWillbe);
+            for (int z = 1; z <= levelNumber; z++)
+            {
+                Button button = GameObject.Find(z.ToString()).GetComponent<Button>();
+                GameObject lockImage = button.transform.GetChild(1).gameObject;
+                lockImage.SetActive(false);
+                button.tag = "Unlocked";
+            }
+            
+            int level = levelNumber - 1;
+            Debug.Log("level number is " + level);
+
+            missionNumber = level.ToString();
+
+            lastReachedLevel = GameObject.Find(missionNumber).GetComponent<Button>();
+            RectTransform thistarget = lastReachedLevel.GetComponent<RectTransform>();
+            Reset(lastReachedLevel);
+            screenPos = cam.WorldToScreenPoint(thistarget.position);  // 
+            Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
+
+            Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
+            GetNormalizePosition(thistarget);
+                    
+            DateTime thisTime = System.DateTime.Now.Date;
+            Debug.Log("this date is " + thisTime);  //09-08-2022 13:34:10
+            lastTimeClicked = DateTime.Parse(PlayerPrefs.GetString("completionDateTime"));
+            Debug.Log(lastTimeClicked); //08/09/2022 13:33:38
+
+            TimeSpan difference = thisTime.Subtract(lastTimeClicked);
+            // Debug.Log("difference is " + difference); // 00:00:32.3895120
+
+            if (difference.TotalHours == 0)
+            {
+                
+                // if (numberOfLevelsPerDay != 2)
+                // {
+                    // unlock
+                    //show unlock animation and move character to that level
+                    Debug.Log("unlock next level");
+                    Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
+                     GameObject lockImage = button.transform.GetChild(1).gameObject;
+                    // lockImage.SetActive(false);
+                    button.tag = "Unlocked";
+                    animator = lockImage.GetComponent<Animator>();
+                    // animator.Play("LockUnlock");
+                    characterAnim = astronaut.GetComponent<Animator>();
+                    // characterAnim.Play("AstroMoving");
+                    islevelUnlocked = true;
+
+                    targetPosition = lockImage.transform.position;
+                    // screenPos = cam.ScreenToWorldPoint(targetPosition);
+
+                    newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+
+                    // newPosition.x = Mathf.Clamp(newPosition.x, leftSide, rightSide);
+
+                    // if (levelNumber%2 == 0)
+                    // {
+                    //     newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
+                    // }
+                    // else
+                    // {
+                    //     newPosition = new Vector2(astronaut.transform.position.x - 44f, astronaut.transform.position.y + 403f);
+                    // }
+
+                    // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
+                    // astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
+                    // Vector2.Lerp(previousButtonPosition, newPosition, 0.2f);
+                // }
+                // else 
+                // {
+                
+                //             //     //save datetime here and check for next level date time, when entered next date set  quota to 0
+                //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                //     popup.Init(UIController.Instance.MainCanvas,
+                //     "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+                //     "Ok"
+                //     );
+                // }
+            }
+                
+            // }
+        }
+       
+        //scroll to specific level - unlock next level, check for time period
+        //calculate time difference between previousLevel and in next level 
+    }
+
+    void Update() {
+        if (islevelUnlocked)
+        {
         
+            characterAnim.Play("AstroMoving");
+            
+
+            // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
+
+                // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, -screenPos, Time.deltaTime * speed );// 
+           
+            // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
+            // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
+             astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
+             animator.Play("LockUnlock");
+        //     islevelUnlocked = false;
+        }
+
+    }
+
+    public void GetNormalizePosition(RectTransform target)
+    {
+        int missionNumber = int.Parse(target.transform.gameObject.name);
+        missionNumber = missionNumber - 1;
+
+        float normalizePosition = (float)missionNumber/ 180;
+        scrollRect.verticalNormalizedPosition = normalizePosition;//1-normalizePosition;
+    }
+
+    public void SpawnPath()
+    {
+        Vector2 currentPosition = pathPrefab.transform.position;
+        // float height = pathPrefab.transform.localScale.height;
+        // Debug.Log(height);
+         RectTransform rt = pathPrefab.GetComponent<Image>().rectTransform;
+        float height = rt.rect.height;
+        Debug.Log("height of rect is " + height);
+        Debug.Log("local scale is" + pathPrefab.transform.localScale.y);
+        int z = 0;
+
         
 
-        // Debug.Log(availableData["passages"]);
+        for(int i = 0; i < 36; i++)
+        {
+            GameObject nextPath = Instantiate(pathPrefab).gameObject;
+            nextPath.transform.position = new Vector2(currentPosition.x, -(currentPosition.y + height));//pathPrefab.transform.localScale.y));//+ 1939f));
+            VerticalLayoutGroup pathVlg = contentParent.GetComponent<VerticalLayoutGroup>();
+
+            if (Screen.width >= 1440)
+            {
+                pathVlg.spacing = -500;
+            }
+            else if (Screen.width >= 1284)
+            {
+                pathVlg.spacing = -400;
+            }
+             else if (Screen.width >= 1242)
+            {
+                pathVlg.spacing = -300;
+            }
+            else if (Screen.width >= 1170)
+            {
+                pathVlg.spacing = -150;
+            }
+            else if (Screen.width >= 1125)
+            {
+                pathVlg.spacing = -50;
+            }
+            else if (Screen.width >= 1080)
+            {
+                pathVlg.spacing = 0;
+                pathVlg.padding.bottom = 500;
+            }
+            else if (Screen.width >= 828)
+            {
+                pathVlg.spacing = 600;
+                pathVlg.padding.bottom = 900;
+            }
+            else if (Screen.width >= 720)
+            {
+                pathVlg.spacing = 800;
+                pathVlg.padding.bottom = 900;
+            }
+             // + pathPrefab.localScale.height);
+             nextPath.transform.SetParent(contentParent, true);
+            currentPosition = nextPath.transform.position;
+
+            for (int j = 0; j < nextPath.transform.childCount; j++ )
+            {
+                Button button = nextPath.transform.GetChild(j).GetComponent<Button>();
+                
+                TMPro.TMP_Text levelNumber = button.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+                button.tag = "Locked";
+                button.onClick.AddListener(delegate{OnButtonClick();});
+                
+                int k = z + 1;
+                button.name = k.ToString();
+                levelNumber.text = k.ToString();
+                int removeStartNumber = (k - (i * 5));
+                if (k == 1)
+                {
+                    GameObject lockImage = button.transform.GetChild(1).gameObject;
+                    lockImage.SetActive(false);
+                    button.tag = "Unlocked";
+
+                    
+                }
+                else if (removeStartNumber == 1)
+                {
+                    GameObject startButton = button.transform.GetChild(2).gameObject;
+                    startButton.SetActive(false);
+                }
+               
+                
+                z = k;
+            }
+       
+        }
     }
 
     public void OnButtonClick()
     {
-        //Get button text
+        //Get button text to paas level id
         GameObject textobj = EventSystem.current.currentSelectedGameObject.transform.GetChild(0).gameObject;
         TMP_Text mytext = textobj.GetComponent<TMP_Text>();
         levelId = mytext.text;
-        Debug.Log(levelId);
-        GetAllDetails();
+        Debug.Log("level id is " + levelId);
+
+        // if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
+        // {
+            SaveDataForPreviousLevel(); 
+            GetAllDetails();
+            numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
+            PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+        // }
+        // else
+        // {
+        //     Debug.Log("Can't unlock this mission yet");
+        // }
         
+    
+    }
+
+    public void SaveDataForPreviousLevel()
+    {
+        PlayerPrefs.SetString("PreviousLevelId", levelId);
+        DateTime dateTimeOfPreviousLevel = System.DateTime.Now;
+        PlayerPrefs.SetString("dateTimeOfPreviousLevel", dateTimeOfPreviousLevel.ToString());
+    }
+
+    public void CheckForDateTimePeriod()
+    {
+        //Keep reference of last "level Id", Its date time when passed 
+        // date time at new clicked level id 
+        //if difference between date time is > 0 then carry on with 2nd levels
+        //set quota done if two levels are completed - as per day only 2 levels are allowed
+
     }
 
     void GetAllDetails() => StartCoroutine(GetAllDetailsForLevel_Coroutine());
 
-     IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
+    IEnumerator GetAllDetailsForLevel_Coroutine()   //To get level id - for initial use, value of level is 1
     {
 
         AllDetail allDetailData = new AllDetail();
-        string uri = "http://165.22.219.198/edugogy/api/v1/day-levels/" + levelId + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
+        string uri = baseURL + "day-levels/" + levelId + "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions,revisionConversation";
+
+        // "?expand=newWords,revisionWords,newWords.nouns,newWords.nouns.nounSentences,newWords.verbs,newWords.verbs.verbSentences,newWords.adverbs,newWords.adverbs.adverbSentences,newWords.adjectives,newWords.adjectives.adjectiveSentences,newWords.dailyUseTips,newWords.otherWayUsingWords,newWords.otherWayUsingWords,newWords.otherWayUsingWords.otherWayUsingWordSentences,newWords.idioms,newWords.idioms.idiomSentences,newWords.useMultipleWords,newWords.useMultipleWords.useMultipleWordSentences,newWords.synonyms,newWords.synonyms.synonymSentences,newWords.antonyms,newWords.antonyms.antonymSentences,revisionWords.nouns,revisionWords.nouns.nounSentences,revisionWords.verbs,revisionWords.verbs.verbSentences,revisionWords.adverbs,revisionWords.adverbs.adverbSentences,revisionWords.adjectives,revisionWords.adjectives.adjectiveSentences,revisionWords.dailyUseTips,revisionWords.otherWayUsingWords,revisionWords.otherWayUsingWords.otherWayUsingWordSentences,revisionWords.idioms,revisionWords.idioms.idiomSentences,revisionWords.useMultipleWords,revisionWords.useMultipleWords.useMultipleWordSentences,revisionWords.synonyms,revisionWords.synonyms.synonymSentences,revisionWords.antonyms,revisionWords.antonyms.antonymSentences,questions,questions.questionOptions,conversation,conversationQuestions,conversationQuestions.questionOptions,passages,passages.questions,passages.questions.questionOptions";
         Debug.Log(uri);
         var request = new UnityWebRequest(uri, "GET");
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer a8HMPlzEWaj4uglc9xob-1WuI_smGj9t");
+         request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 
@@ -82,32 +420,28 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(allDetailData.type);      //1
 
             PlayerPrefs.SetInt("StartLevelID", allDetailData.id);
-            //Move to scene type accordingly and start level 
-            if (allDetailData.type == 1)
-            {
-                SceneManager.LoadScene("NewWordDay");
-            }
-            else 
-            {
-                 SceneManager.LoadScene("RevisionWordDay");
-            }
-
+            PlayerPrefs.SetInt("LevelId",int.Parse(levelId));
+            
+            SceneManager.LoadScene("NewWordDay");
+            
                   
         }
+        request.Dispose();
     }
 
+    void GetUserProfile() => StartCoroutine(GetUserProfile_Coroutine());
 
     // called this API for dev purpose only - may be remove it later
     IEnumerator GetUserProfile_Coroutine()
     {
-
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/view";
+        ProfileDetails profileData = new ProfileDetails();
+        string uri = baseURL + "students/view";
 
         var request = new UnityWebRequest(uri, "GET");
 
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer 3VcmTskZ5jRINDiaO_489b0pdVsbTEy6");
+        request.SetRequestHeader("Authorization", auth_key);
 
         yield return request.SendWebRequest();
 
@@ -120,10 +454,104 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
 
-            // {"id":3,"name":"Komal","phone":"9855940600","age_group_id":2,"country_code_id":88,"total_level":2,"total_passed_level":0,"available_level":30}
+            string responseJson = request.downloadHandler.text;
+            profileData = JsonUtility.FromJson<ProfileDetails>(responseJson);            
 
+            totalNumberOfLevels = profileData.total_level;
+            levelsPassed = profileData.total_passed_level;
+            
+            if (profileData.is_trial_subscription == true)
+            {
+                if (int.Parse(profileData.subscription_remaining_day) > 0)
+                {
+                    string displayMessageForTrial = "You are left with " + profileData.subscription_remaining_day + " more trials";
+
+                    InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                    displayMessageForTrial,
+                    "Okay"
+                    );
+                }
+                else
+                {
+                    // if (chances == 0)
+                     Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                    "You have completed your trial phase. It’s time to choose your level and subscribe!",
+                    "Cancel",
+                    "Subscribe Now",
+                    GoSubscribe
+                    );
+                }
+                 
+            }
+
+            NotifyAboutSubscriptionStatus();
+
+//             {
+//     "id": 2,
+//     "name": "Amaiv verma",
+//     "phone": "9855940600",
+//     "age_group_id": 6,
+//     "country_code_id": 88,
+//     "social_id": null,
+//     "social_media": null,
+//     "email": "",
+//     "total_level": 90,
+//     "total_passed_level": 0,
+//     "available_level": 5,
+//     "is_trial_subscription": true,
+//     "subscription_remaining_day": "4"
+// }
         }
+        request.Dispose();
     }
 
+    void GoSubscribe()
+    {
+        SceneManager.LoadScene("IAPCatalog");
+    }
+
+    void NotifyAboutSubscriptionStatus()
+    {
+        int sevendsDaysBefore = totalNumberOfLevels - 7;
+        int dayBefore = totalNumberOfLevels - 1;
+
+        // if (levelsPassed == 0)
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //     popup.Init(UIController.Instance.MainCanvas,
+        //     "Welcome aboard, astronaut! Your space mission is about to begin.",
+        //     "Ready to take off?"
+        //     );
+        // }
+        // else  if (levelsPassed == totalNumberOfLevels) // for free trial
+        // {
+        //     Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
+        //     // check for subscription period - 30, 90, 180 may change adding free trial
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //         popup.Init(UIController.Instance.MainCanvas,
+        //         "Your subscription is over, today is the last day",
+        //         "Ok"
+        //         );
+            
+        // } 
+        // else if (levelsPassed == dayBefore)
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //         popup.Init(UIController.Instance.MainCanvas,
+        //         "Your subscription is getting over in a day",
+        //         "Ok"
+        //         );
+        // }
+        // else if (levelsPassed == sevendsDaysBefore)
+        // {
+        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+        //         popup.Init(UIController.Instance.MainCanvas,
+        //         "Your subscription is getting over in coming 7 days",
+        //         "Ok"
+        //         );
+        // }
+    }
    
 }

@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 public class VerifyOTPManager : MonoBehaviour
 {
-        public TMP_InputField firstDigit;
+    public TMP_InputField firstDigit;
     public TMP_InputField secondDigit;
     public TMP_InputField thirdDigit;
     public TMP_InputField fourthDigit;
@@ -52,6 +52,16 @@ public class VerifyOTPManager : MonoBehaviour
         public Student student;
     }
 
+    [SerializeField]
+    public TextMeshProUGUI description; 
+
+    string userName = "";
+
+     string baseURL = "https://api.edugogy.app/v1/";
+        // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -71,6 +81,29 @@ public class VerifyOTPManager : MonoBehaviour
 
         }
 
+
+    }
+
+    void Start() {
+        // phoneNumber = "9855940600";
+
+        int phoneLength = phoneNumber.Length;
+        string returnNumber = "";
+
+        for (int i = 1; i <= 5; i++)
+        {
+            int value = phoneLength - i;
+            Debug.Log(value);
+            returnNumber = phoneNumber.Remove(value);
+            if (i == 5)
+            {
+                returnNumber = returnNumber + "XXXXX";
+            }
+        }
+
+
+        Debug.Log(returnNumber);
+        description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for  your space flight.";
     }
 
     void SetInputCharacterLength()
@@ -144,12 +177,27 @@ public class VerifyOTPManager : MonoBehaviour
 
      void MoveToSubscription()
     {
-        SceneManager.LoadScene("IAPCatalog");
+        // SceneManager.LoadScene("IAPCatalog");
+
+            SceneManager.LoadScene("KidsName");
+
     }
 
     IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
     {
-        var otp = int.Parse(otpEntered);
+        if (otpEntered == "")
+        {
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter OTP",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+        }
+        else
+        {
+            var otp = int.Parse(otpEntered);
         Debug.Log(otp);
         GetAuthKey getKey = new GetAuthKey();
         
@@ -159,7 +207,7 @@ public class VerifyOTPManager : MonoBehaviour
         Debug.Log(json);
 
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/validate-otp";
+        string uri = baseURL + "students/validate-otp";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -174,6 +222,24 @@ public class VerifyOTPManager : MonoBehaviour
         if (request.error != null)
         {
             Debug.Log("Error: " + request.error);
+             Debug.Log("Status Code: " + request.responseCode);
+
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            string errorJson = request.downloadHandler.text;
+            Debug.Log(errorJson);
+
+            if (request.responseCode == 422)
+            {
+                Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter valid OTP",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+            }
+
         }
         else
         {
@@ -181,16 +247,31 @@ public class VerifyOTPManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode);
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            // { "auth_key":"zJMqRh3THK3WTaTh1x7CAMO1T3s0Cxes"}
 
              string validateOTPJson = request.downloadHandler.text;
 
             getKey = JsonUtility.FromJson<GetAuthKey>(validateOTPJson);
             Debug.Log(getKey.auth_key);
             SaveAuthKey(getKey.auth_key);
-            MoveToSubscription();
+            if (userName == "")
+            {
+                MoveToSubscription();
+            }
+            else
+            {
+                //Check if subscribed or not
+                SceneManager.LoadScene("IAPCatalog");
+            }
+            
         }
+        }
+        
 
+    }
+
+    public void resetAction()
+    {
+        Debug.Log("checking for valid data");
     }
 
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login
@@ -203,7 +284,7 @@ public class VerifyOTPManager : MonoBehaviour
 
         Debug.Log(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/students/resend-otp";
+        string uri = baseURL + "students/resend-otp";
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -232,6 +313,7 @@ public class VerifyOTPManager : MonoBehaviour
             resendOTP = JsonUtility.FromJson<ResendOTP>(resendOTPJson);
             Debug.Log(resendOTP.phone);
             Debug.Log(resendOTP.student.name);
+            userName = resendOTP.student.name;
            
         }
 

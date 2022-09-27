@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: 0.50000477}
+  m_AnchoredPosition: {x: -0.000030517578, y: 13}
   m_SizeDelta: {x: 61, y: 69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &138256621
@@ -334,7 +334,7 @@ RectTransform:
   - {fileID: 1972970844}
   - {fileID: 407012497}
   m_Father: {fileID: 791750821}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -417,7 +417,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -409, y: -10}
+  m_AnchoredPosition: {x: -409, y: -12.5}
   m_SizeDelta: {x: 61, y: 648}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &791750820
@@ -430,6 +430,7 @@ GameObject:
   m_Component:
   - component: {fileID: 791750821}
   - component: {fileID: 791750822}
+  - component: {fileID: 791750823}
   m_Layer: 5
   m_Name: VerticalLayout
   m_TagString: Untagged
@@ -449,16 +450,17 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2120560352}
   - {fileID: 1905271738}
   - {fileID: 370159494}
   - {fileID: 1442863256}
   m_Father: {fileID: 890179739}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.483}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -395}
-  m_SizeDelta: {x: 979, y: 2187}
+  m_AnchoredPosition: {x: 0, y: 22}
+  m_SizeDelta: {x: 979, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &791750822
 MonoBehaviour:
@@ -479,13 +481,27 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 1
   m_Spacing: 69
-  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
+  m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &791750823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791750820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &851600179
 GameObject:
   m_ObjectHideFlags: 0
@@ -521,8 +537,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -142.75859, y: 0}
-  m_SizeDelta: {x: 554, y: 254}
+  m_AnchoredPosition: {x: -137, y: -8.900024}
+  m_SizeDelta: {x: 551.8, y: 304.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &851600181
 MonoBehaviour:
@@ -544,8 +560,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Words, words, everywhere, but how to use them? This is where Edugogy comes
-    in!
+  m_text: 'Want to use English words like a pro? We are here to hold your hand to
+    help you discover new words and use them with ease.
 
 '
   m_isRightToLeft: 0
@@ -574,14 +590,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 49
+  m_fontSize: 47.5
   m_fontSizeBase: 49
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 8
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -659,7 +675,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: -289.5}
+  m_AnchoredPosition: {x: -0.000030517578, y: -269}
   m_SizeDelta: {x: 61, y: 69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &858259073
@@ -730,7 +746,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2120560352}
   - {fileID: 791750821}
   m_Father: {fileID: 1395738803}
   m_RootOrder: 0
@@ -813,7 +828,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -289.5}
+  m_AnchoredPosition: {x: 0, y: -284}
   m_SizeDelta: {x: 800, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &890422673
@@ -836,7 +851,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'The new words, their meaning and usage are to be read properly.
+  m_text: 'Not more than 2 levels can be unlocked in a day.
 
 '
   m_isRightToLeft: 0
@@ -865,10 +880,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46
+  m_fontSize: 40.45
   m_fontSizeBase: 46
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1026,7 +1041,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: 289.5}
+  m_AnchoredPosition: {x: -0.000030517578, y: 295}
   m_SizeDelta: {x: 61, y: 69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &974337841
@@ -1125,7 +1140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'The new words, their meaning and usage are to be read properly.
+  m_text: 'Learn new words along with meanings, synonyms, antonyms and sentence usage.
 
 '
   m_isRightToLeft: 0
@@ -1154,10 +1169,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46
+  m_fontSize: 40.45
   m_fontSizeBase: 46
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1283,6 +1298,7 @@ GameObject:
   - component: {fileID: 1395738802}
   - component: {fileID: 1395738801}
   - component: {fileID: 1395738800}
+  - component: {fileID: 1395738804}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1372,6 +1388,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1395738804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1395738799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3076bc4ef8c0d4ed39966005856e40b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1431612645
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,7 +1568,7 @@ RectTransform:
   m_Children:
   - {fileID: 1431612646}
   m_Father: {fileID: 791750821}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1600,7 +1628,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: ParentalControl
+          m_StringArgument: InstructionScreen
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1442863258
@@ -1767,7 +1795,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'The new words, their meaning and usage are to be read properly.
+  m_text: 'Regular revision in the form of small fun tests in line with our space
+    theme
 
 '
   m_isRightToLeft: 0
@@ -1796,10 +1825,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46
+  m_fontSize: 40.45
   m_fontSizeBase: 46
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1904,7 +1933,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'The new words, their meaning and usage are to be read properly.
+  m_text: 'Daily usage tips to help you instantly use the words
 
 '
   m_isRightToLeft: 0
@@ -1933,10 +1962,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46
+  m_fontSize: 40.45
   m_fontSizeBase: 46
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -2018,7 +2047,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: -145}
+  m_AnchoredPosition: {x: -0.000030517578, y: -131}
   m_SizeDelta: {x: 61, y: 69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1798850506
@@ -2094,7 +2123,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -155.5}
+  m_AnchoredPosition: {x: 0, y: -141.5}
   m_SizeDelta: {x: 800, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1863028913
@@ -2117,9 +2146,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'The new words, their meaning and usage are to be read properly.
-
-'
+  m_text: If you score less than 70% you have to re-attempt the questions.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3dcde6115fae4db6b2426824d207860, type: 2}
   m_sharedMaterial: {fileID: -7557864030291673478, guid: f3dcde6115fae4db6b2426824d207860, type: 2}
@@ -2146,10 +2173,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46
+  m_fontSize: 40.45
   m_fontSizeBase: 46
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -2228,7 +2255,7 @@ RectTransform:
   m_Children:
   - {fileID: 851600180}
   m_Father: {fileID: 791750821}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2311,7 +2338,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 72, y: 5.5}
+  m_AnchoredPosition: {x: 72, y: 3}
   m_SizeDelta: {x: 800, y: 679}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2120560351
@@ -2340,17 +2367,17 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2120560351}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -198620.69}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 890179739}
+  m_Father: {fileID: 791750821}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -125}
-  m_SizeDelta: {x: 711.42993, y: 97.32}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 97.32}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2120560353
 MonoBehaviour:
@@ -2406,8 +2433,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

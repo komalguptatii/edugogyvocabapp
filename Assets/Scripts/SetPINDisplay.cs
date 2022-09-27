@@ -19,10 +19,10 @@ public class SetPINDisplay : MonoBehaviour
     
     private void Awake() {
         // // FinalPIN
-        // if (PlayerPrefs.HasKey("FinalPIN"))
-        // {
-        //     setPINDescription.text = "Enter PIN";
-        // }
+        if (PlayerPrefs.HasKey("FinalPIN"))
+        {
+            setPINDescription.text = "Enter your secret pin";
+        }
     }
     
     void Start()
@@ -133,20 +133,45 @@ public class SetPINDisplay : MonoBehaviour
     {
         Debug.Log(codeSequence);
         
-        if (setPINDescription.text == "Set your Pin")
+        if (setPINDescription.text == "Set your secret pin")
         {
             //Save set pin
-            PlayerPrefs.SetString("SetPIN", codeSequence);
-            isReset = true;
-            ResetDisplay();
-            setPINDescription.text = "Confirm PIN";
+            if (codeSequence == "" || codeSequence.Length != 4)
+            {
+                 Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please set secret pin to proceed",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+            }
+            else
+            {
+                PlayerPrefs.SetString("SetPIN", codeSequence);
+                isReset = true;
+                ResetDisplay();
+                setPINDescription.text = "Confirm your secret pin";
+
+            }
 
         }
         else if (PlayerPrefs.HasKey("SetPIN"))
         {
             Debug.Log(codeSequence);
             var alreadySetPIN = PlayerPrefs.GetString("SetPIN");
-            if (codeSequence == alreadySetPIN)
+            if (codeSequence == "" || codeSequence.Length != 4)
+            {
+
+                 Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please confirm secret pin to proceed",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+            }
+            else if (codeSequence == alreadySetPIN)
             {
                 PlayerPrefs.SetString("FinalPIN", codeSequence);
                 PlayerPrefs.DeleteKey("SetPIN");
@@ -158,13 +183,29 @@ public class SetPINDisplay : MonoBehaviour
         {
             Debug.Log(codeSequence);
             var alreadySetPIN = PlayerPrefs.GetString("FinalPIN");
-            if (codeSequence == alreadySetPIN)
+            if (codeSequence == "" || codeSequence.Length != 4)
+            {
+                 Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please enter secret pin to proceed",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+            }
+            else if (codeSequence == alreadySetPIN)
             {
                 //Moveto Kids profile
                 SceneManager.LoadScene("KidsProfile");
             }
         }
 
+    }
+
+    void resetAction()
+    {
+        isReset = true;
+        ResetDisplay();
     }
 
     void ResetDisplay()

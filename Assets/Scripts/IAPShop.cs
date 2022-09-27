@@ -8,13 +8,22 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Text;
 using TMPro;
+using System;
+using Random=UnityEngine.Random;
+using UnityEngine.SceneManagement;
+
 
 public class IAPShop : MonoBehaviour
 {
-    private string timePeriod = "com.techies.edugogy.onemonth";
+    private string timePeriod = "com.techies.edugogy.sixmonth";
     private string subPeriod = "com.techies.edugogy.threemonth";
     string auth_key;
     [SerializeField] public TextMeshProUGUI transactionId;
+
+     string baseURL = "https://api.edugogy.app/v1/";
+    // string baseURL = "https://api.testing.edugogy.app/v1/";
+
+    string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
     public class SubscriptionForm
     {
@@ -27,29 +36,43 @@ public class IAPShop : MonoBehaviour
     private void Start()
     {
         //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
-         if (PlayerPrefs.HasKey("auth_key"))
+        if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
-            
             Debug.Log(auth_key);
-
+            // auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
         }
-        AddSubscriptionData(); // otherwise call on receipt validation and information received
+        // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
 
-    void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
+    public void AddTrial()
+    {
+        Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "You have 3 chances to hop between 3 levels within the trial period to finalise one.",
+                    "Cancel",
+                    "Continue",
+                    AddSubscriptionTrial
+                    );
+    }
+
+    public void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
+        public void AddSubscriptionTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
+
 
     IEnumerator AddSubscription_Coroutine()
     {
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = "14277687", platform = "apple", platform_plan_id = "com.techies.edugogy.onemonth" };
+        int randomNumber = Random.Range(2000, 3000);
+
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "com.techies.edugogy.sixmonth" };
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        string uri = "http://165.22.219.198/edugogy/api/v1/student-subscriptions";
+        string uri = baseURL + "student-subscriptions";
 
         var request = new UnityWebRequest(uri, "POST");
 
@@ -68,10 +91,67 @@ public class IAPShop : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            // SceneManager.LoadScene("KidsName");
+            PlayerPrefs.SetString("isSubscribed", "true");
+            SceneManager.LoadScene("Dashboard");
 
             // {"transaction_id":"14277687","platform":"apple","platform_plan_id":"com.techies.edugogy.onemonth","student_id":3,"age_group_id":2,"plan_id":2,"plan_title":"1 Month","plan_term":"30 day","number_of_level":30,"start_at":1655356249,"expire_at":1657948249,"created_at":1652797078,"updated_at":1652797078,"id":4}
         }
     }
+
+    IEnumerator AddTrialSubscription_Coroutine()
+    {
+        int randomNumber = Random.Range(1000, 2000);
+
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
+        string json = JsonUtility.ToJson(subscriptionFormData);
+
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = baseURL + "student-subscriptions";
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", auth_key);
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            // SceneManager.LoadScene("KidsName");
+            PlayerPrefs.SetString("isSubscribed", "true");
+            SceneManager.LoadScene("Dashboard");
+
+// {
+//     "transaction_id": "10027",
+//     "platform": "apple",
+//     "platform_plan_id": "trial",
+//     "student_id": 2,
+//     "age_group_id": 6,
+//     "plan_id": 1,
+//     "plan_title": "5 day trail",
+//     "plan_term": "5 day",
+//     "number_of_level": 5,
+//     "start_at": 1663718531,
+//     "expire_at": 1664150531,
+//     "created_at": 1663718531,
+//     "updated_at": 1663718531,
+//     "id": 19
+// }
+        }
+    }
+
 
     public void OnPurchaseComplete(Product product)
     {
