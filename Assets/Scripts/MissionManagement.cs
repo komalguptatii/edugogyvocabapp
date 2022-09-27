@@ -112,6 +112,9 @@ public class MissionManagement : MonoBehaviour
     [SerializeField]
     public Button submitButton;
 
+    [SerializeField]
+    public Scrollbar passageScrollBar;
+
     private Vector3 sentenceRealPos;
     
     string auth_key;
@@ -650,7 +653,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
         // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
@@ -1211,17 +1214,20 @@ public class MissionManagement : MonoBehaviour
                 methodCallArray.Add(RevisionWordList);  
                 RevisionWordList(0);   
                 Debug.Log("revisionList " + revisionList); 
-                
+                bool valueAssigned = false;
                 for(int x = 0; x < numberOfRevisionWords; x++)
                 {
                     Debug.Log("number of revision words are " + numberOfRevisionWords);
-                    if (revisionCountArray[x] != 0)
+                    Debug.Log("revisionCountArray[x] " + revisionCountArray[x]);
+                    if (revisionCountArray[x] != 0 && valueAssigned == false)
                     {
                         revisionWordReference = x;
                         Debug.Log("value of revision word reference " + revisionWordReference);
+                        valueAssigned = true;
                         return;
 
                     }
+                    // return;
 
                 }   
                 return;
@@ -1269,6 +1275,7 @@ public class MissionManagement : MonoBehaviour
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
+                        
                         
                     }
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
@@ -1636,6 +1643,9 @@ public class MissionManagement : MonoBehaviour
         // {
              
         // }
+        // Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        // bar.value = 1;
+        passageScrollBar.value = 0.0f;
         DestroyConvoPrefabs();
         Debug.Log("setting up second passage " + parameter);
         baseParentBoard.gameObject.SetActive(false);
@@ -1736,7 +1746,7 @@ public class MissionManagement : MonoBehaviour
                     int answerOptions = allDetailData.passages[parameter].questions[i].questionOptions.Length;
                     Debug.Log(answerOptions);
 
-                    
+                    int noOfAttempts = 0;
                     for(int x = 0; x < answerOptions; x++)
                     {
                         int value = allDetailData.passages[parameter].questions[i].questionOptions[x].value;
@@ -1769,7 +1779,7 @@ public class MissionManagement : MonoBehaviour
                             int k = i;
                             otherPassagebuttons[j] = thisButton;
 
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k,otherPassagebuttons);});
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k,otherPassagebuttons, noOfAttempts);});
 
                         }
                         else
@@ -1850,7 +1860,7 @@ public class MissionManagement : MonoBehaviour
 
             int answerOptions = allDetailData.passages[parameter].questions[0].questionOptions.Length;
             Debug.Log(answerOptions);
-
+            int noOfAttempts = 0;
             for(int x = 0; x < answerOptions; x++)
             {
                 int value = allDetailData.passages[parameter].questions[0].questionOptions[x].value;
@@ -1883,7 +1893,7 @@ public class MissionManagement : MonoBehaviour
                     rightWrongImage.SetActive(false);
                     passageButtons[j] = thisButton;
 
-                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0, passageButtons);});
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, 0, 0, passageButtons,noOfAttempts);});
 
                 }
                 else
@@ -1896,6 +1906,7 @@ public class MissionManagement : MonoBehaviour
 
     public void ConversationWithMCQSetup(int parameter)
     {
+        passageScrollBar.value = 0.0f;
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
         generalMCQBoard.gameObject.SetActive(false);
@@ -1955,7 +1966,7 @@ public class MissionManagement : MonoBehaviour
 
             TMPro.TMP_Text question = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
                     question.text = allDetailData.conversationQuestions[i].title;
-
+                    int noOfAttempts = 0;
                     int answerOptions = allDetailData.conversationQuestions[i].questionOptions.Length;
                     Debug.Log(answerOptions);
 
@@ -1991,7 +2002,7 @@ public class MissionManagement : MonoBehaviour
                             rightWrongImage.SetActive(false);
                             int k = i;
                             otherQbuttons[j] = thisButton;
-                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k, otherQbuttons);});
+                            thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k, otherQbuttons, noOfAttempts);});
                             
 
                         }
@@ -2066,6 +2077,7 @@ public class MissionManagement : MonoBehaviour
             int answerOptions = allDetailData.conversationQuestions[0].questionOptions.Length;
             Debug.Log(answerOptions);
 
+            int noOfAttempts = 0;
             for(int x = 0; x < answerOptions; x++)
             {
                 int value = allDetailData.conversationQuestions[0].questionOptions[x].value;
@@ -2098,7 +2110,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject rightWrongImage = horizontalContainer.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
                     firstQbuttons[j] = thisButton;
-                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0, firstQbuttons);});
+                    thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0, firstQbuttons, noOfAttempts);});
                     
 
                 }
@@ -2110,10 +2122,10 @@ public class MissionManagement : MonoBehaviour
 
     }
 
-    public void CheckRightAnswerForPassageQuestion(Button button,int passageNumber, int questionNumber, Button[] mcqButtonArray)
+    public void CheckRightAnswerForPassageQuestion(Button button,int passageNumber, int questionNumber, Button[] mcqButtonArray, int thisnoOfAttempts)
     {
         Button[] btnArray = mcqButtonArray;
-        int rightAnswers = noOfAttempts;
+        int rightAnswers = thisnoOfAttempts;
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
         int tag = System.Convert.ToInt32(button.tag);
@@ -2154,6 +2166,7 @@ public class MissionManagement : MonoBehaviour
             }
             answerClicked = 0;
             noOfAttempts = 0;
+            rightAnswers = 0;
             // Destroy(buttonArray);
         }
         
@@ -2182,10 +2195,10 @@ public class MissionManagement : MonoBehaviour
     }
 
     private IEnumerator coroutine;
-    public void CheckRightAnswerOfQuestion(Button button, int questionNumber, Button[] mcqButtonArray)
+    public void CheckRightAnswerOfQuestion(Button button, int questionNumber, Button[] mcqButtonArray, int thisnoOfAttempts)
     {
          Button[] btnArray = mcqButtonArray;
-        int rightAnswers = noOfAttempts;
+        int rightAnswers = thisnoOfAttempts;
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
         int tag = System.Convert.ToInt32(button.tag);
@@ -2203,7 +2216,7 @@ public class MissionManagement : MonoBehaviour
         // int[] optionArray = new int[numberOfOptions];
         Debug.Log("question number is " + questionNumber + " & its id is " + questionId);
 
-int answerClicked = 0;
+        int answerClicked = 0;
         if (value == 1)
         {
             answerClicked += 1;
@@ -2228,6 +2241,7 @@ int answerClicked = 0;
             }
             answerClicked = 0;
             noOfAttempts = 0;
+            rightAnswers = 0;
             // Destroy(buttonArray);
         }
 
@@ -3225,7 +3239,11 @@ int answerClicked = 0;
     {
          DestroyPrefabs();
         HideSpeakerAndImage();
-           
+
+        Debug.Log("Value of parameter here is " + parameter);
+             Debug.Log("Value of revision reference number here is " + revisionWordReference);
+             Debug.Log("revision word name" + revisionWordDetails.name);
+
         dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
         revisionWordBoard.gameObject.SetActive(false);
@@ -3246,7 +3264,9 @@ int answerClicked = 0;
         {
              typeOfDay.text = "Lets’ try to use these together!";
         
-            multipleWordCount = dataCountDetails.revision_word_data.more_data[0].use_multiple_count;
+            multipleWordCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count;
+            Debug.Log("Value of multiple word count is " + multipleWordCount);
+            
              multipleWordDetails = revisionWordDetails.useMultipleWords[parameter];
             word.text = multipleWordDetails.description;
         }
@@ -3307,13 +3327,14 @@ int answerClicked = 0;
             if (parameterCountControlCheck == multipleWordCount - 1)
             {
                 if (dataDisplayed["isRevisionWordListDone"] == true)
-             {
-                    dataDisplayed["isRevisionWordUsingMultipleWordsDone"] = true;
-             }   
-             else
-             {
-                dataDisplayed["isnewWordUsingMultipleWordsDone"] = true;
-             }
+                {
+                        dataDisplayed["isRevisionWordUsingMultipleWordsDone"] = true;
+                }   
+                else
+                {
+                    dataDisplayed["isnewWordUsingMultipleWordsDone"] = true;
+                }
+
                 parameterCountControlCheck = 0;     //resetting 
             }
             else //if (dataCountDetails.new_word_data.more_data[0].noun_count > 1)

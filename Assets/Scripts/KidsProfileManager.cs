@@ -34,6 +34,7 @@ public class KidsProfileManager : MonoBehaviour
         public int available_level;
         public bool is_trial_subscription;
         public string subscription_remaining_day;
+        public int remaining_trial;
     }
 
     
@@ -106,7 +107,7 @@ public class KidsProfileManager : MonoBehaviour
             ageImageTick[i].tag = i.ToString();
             ageButton[i].tag = i.ToString();
         }
-        //  auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
+         auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
 
         //Get Kids details
         GetKidProfile();
@@ -152,6 +153,26 @@ public class KidsProfileManager : MonoBehaviour
             ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;
             ageImageTick[profile.age_group_id - 1].enabled = true;
             
+            if (profile.remaining_trial == 2)
+            {
+                Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "You have 2 more chances left to change your level.",
+                    "Cancel",
+                    "Okay",
+                    GoSubscribe
+                    );
+            }
+            else
+            {
+                Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "It’s time to choose your subscription level! Let’s get started!",
+                    "Cancel",
+                    "Subscribe Now",
+                    GoSubscribe
+                    );
+            }
 
             // GetAgeGroupList();
             request.Dispose();

@@ -86,6 +86,8 @@ public class DashboardManager : MonoBehaviour
 
     // string baseURL = "http://165.22.219.198/edugogy/api/v1/";
 
+    float leftSide, rightSide;
+
     private void Awake() 
     {
         if (PlayerPrefs.HasKey("auth_key"))
@@ -97,7 +99,7 @@ public class DashboardManager : MonoBehaviour
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
         // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
         // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; //for api.testing.edugogy.app
-        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
 
         GetUserProfile();
     }
@@ -124,6 +126,8 @@ public class DashboardManager : MonoBehaviour
 
     void Start()
     {
+        leftSide = Camera.main.ViewportToWorldPoint(new Vector3(0,0,0)).x;
+        rightSide = Camera.main.ViewportToWorldPoint(new Vector3(1,1,1)).x;
         // cam = GetComponent<Camera>();
         cam = Camera.main;
         var dateAndTime = DateTime.Now;
@@ -132,8 +136,6 @@ public class DashboardManager : MonoBehaviour
         Debug.Log(System.DateTime.Now); // Format - 07/29/2022 08:33:35
         SpawnPath();
 
-        
-        // ScrollToCenter(scrollRect, target);
 
         if (PlayerPrefs.HasKey("NextLevelWillBe"))
         {
@@ -193,6 +195,9 @@ public class DashboardManager : MonoBehaviour
                     // screenPos = cam.ScreenToWorldPoint(targetPosition);
 
                     newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+
+                    // newPosition.x = Mathf.Clamp(newPosition.x, leftSide, rightSide);
+
                     // if (levelNumber%2 == 0)
                     // {
                     //     newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
@@ -459,7 +464,7 @@ public class DashboardManager : MonoBehaviour
             {
                 if (int.Parse(profileData.subscription_remaining_day) > 0)
                 {
-                    string displayMessageForTrial = "Your remaining trial days are " + profileData.subscription_remaining_day + ". You still have a chance to experience more by changing level";
+                    string displayMessageForTrial = "You are left with " + profileData.subscription_remaining_day + " more trials";
 
                     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
                     popup.Init(UIController.Instance.MainCanvas,
@@ -472,7 +477,7 @@ public class DashboardManager : MonoBehaviour
                     // if (chances == 0)
                      Popup popup = UIController.Instance.CreatePopup();
                     popup.Init(UIController.Instance.MainCanvas,
-                    "It's time to subscribe Now",
+                    "You have completed your trial phase. It’s time to choose your level and subscribe!",
                     "Cancel",
                     "Subscribe Now",
                     GoSubscribe

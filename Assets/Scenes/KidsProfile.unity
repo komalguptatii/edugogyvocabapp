@@ -430,8 +430,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 4, y: 3}
-  m_SizeDelta: {x: -607.1082, y: -35.5}
+  m_AnchoredPosition: {x: -16.03009, y: -3}
+  m_SizeDelta: {x: -247.4999, y: -50.25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &37356620
 MonoBehaviour:
@@ -453,7 +453,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Mercury
+  m_text: Mercury- Beginner
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -903,7 +903,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -16.173553, y: 2.5111}
+  m_AnchoredPosition: {x: 28.99997, y: 2.5111008}
   m_SizeDelta: {x: -637.8784, y: -1.4557}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &396246015
@@ -926,9 +926,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Venus
-
-'
+  m_text: Venus- Seeker
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -991,7 +989,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -216.43741, y: 0, z: -95.10132, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1838,7 +1836,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -16.173553, y: 9.644104}
+  m_AnchoredPosition: {x: 28.99997, y: 9.644104}
   m_SizeDelta: {x: -637.8784, y: -1.4557}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &777907875
@@ -1861,7 +1859,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Jupiter
+  m_text: Jupiter- Wordsmith
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -1924,7 +1922,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -227.17783, y: 0, z: -134.0719, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2191,7 +2189,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -16.173553, y: 7.8608}
+  m_AnchoredPosition: {x: 28.99997, y: 7.8608017}
   m_SizeDelta: {x: -637.8784, y: -1.4557}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &908883299
@@ -2214,7 +2212,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Saturn
+  m_text: Saturn- Master
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -2277,7 +2275,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -196.76129, y: 0, z: -131.17413, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2393,7 +2391,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -16.173553, y: 6.0776}
+  m_AnchoredPosition: {x: 28.99997, y: 6.0775986}
   m_SizeDelta: {x: -637.8784, y: -1.4557}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1038487443
@@ -2416,7 +2414,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Uranus
+  m_text: Uranus- Graduate
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -2479,7 +2477,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -226.27545, y: 0, z: -144.29163, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2663,7 +2661,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -5.801544, y: 1.7832}
+  m_AnchoredPosition: {x: 42.173523, y: 1.7831993}
   m_SizeDelta: {x: -617.1344, y: 3.5665}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1076971348
@@ -2686,7 +2684,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Neptune
+  m_text: Neptune- Intermediate
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -2749,7 +2747,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -252.51038, y: 0, z: -137.73267, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2798,7 +2796,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -16.173523, y: 0.72790146}
+  m_AnchoredPosition: {x: 29, y: 0.72790146}
   m_SizeDelta: {x: -637.8784, y: -1.4557}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1142622645
@@ -2821,7 +2819,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Mars
+  m_text: Mars- Learner
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
   m_sharedMaterial: {fileID: 3473201359945220050, guid: 169cb815d782c44cc858e8708ab27583, type: 2}
@@ -2884,7 +2882,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -206.59933, y: 0, z: -95.10138, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

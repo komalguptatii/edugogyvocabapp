@@ -46,8 +46,19 @@ public class IAPShop : MonoBehaviour
 
     }
 
+    public void AddTrial()
+    {
+        Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "You have 3 chances to hop between 3 levels within the trial period to finalise one.",
+                    "Cancel",
+                    "Continue",
+                    AddSubscriptionTrial
+                    );
+    }
+
     public void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
-        public void AddTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
+        public void AddSubscriptionTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
 
 
     IEnumerator AddSubscription_Coroutine()
