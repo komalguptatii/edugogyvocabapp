@@ -2954,7 +2954,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Kid''s Profile
+  m_text: 'User''s Profile
 
 '
   m_isRightToLeft: 0

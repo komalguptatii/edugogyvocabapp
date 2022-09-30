@@ -150,6 +150,7 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log(profile.age_group_id);
 
             KidsName.text = profile.name;
+            selectedButton = profile.age_group_id;
             ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;
             ageImageTick[profile.age_group_id - 1].enabled = true;
             

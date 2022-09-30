@@ -20,6 +20,21 @@ public class IAPShop : MonoBehaviour
     string auth_key;
     [SerializeField] public TextMeshProUGUI transactionId;
 
+    [Serializable]
+    public class Error
+    {
+        public int code;
+        public string source;
+        public string title;
+        public string detail;
+    }
+
+    [Serializable]
+    public class ErrorList
+    {
+        public Error[] error;
+    }
+
      string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
@@ -40,8 +55,9 @@ public class IAPShop : MonoBehaviour
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            // auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
+            
         }
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";
         // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
@@ -101,6 +117,9 @@ public class IAPShop : MonoBehaviour
 
     IEnumerator AddTrialSubscription_Coroutine()
     {
+        ErrorList list = new ErrorList();
+        Error error = new Error();
+
         int randomNumber = Random.Range(1000, 2000);
 
         SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
@@ -124,6 +143,23 @@ public class IAPShop : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.Log("Error: " + request.error);
+
+            string jsonString = request.downloadHandler.text;
+
+            list = JsonUtility.FromJson<ErrorList>(jsonString);
+
+            Debug.Log(list);
+            
+            string message = list.error[0].detail;
+
+            Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    message,
+                    "Cancel",
+                    "Subscribe Now",
+                    GoSubscribe
+                    );
+
         }
         else
         {
@@ -152,6 +188,10 @@ public class IAPShop : MonoBehaviour
         }
     }
 
+    public void GoSubscribe()
+    {
+        Debug.Log("Subscribe now");
+    }
 
     public void OnPurchaseComplete(Product product)
     {

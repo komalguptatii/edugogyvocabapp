@@ -162,7 +162,8 @@ public class UpdateAge : MonoBehaviour
     IEnumerator ProcessKidsAgeGroup_Coroutine()  //validate otp
     {
 
-        Debug.Log(ageGroupId);
+        Debug.Log("age group id is " + ageGroupId);
+        Debug.Log("selected button id is " + selectedButton);
         SelectAgeForm validAgeGroupForm = new SelectAgeForm { age_group_id = ageGroupId };
         string json = JsonUtility.ToJson(validAgeGroupForm);
 
