@@ -107,7 +107,7 @@ public class KidsProfileManager : MonoBehaviour
             ageImageTick[i].tag = i.ToString();
             ageButton[i].tag = i.ToString();
         }
-         auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
+        //  auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
 
         //Get Kids details
         GetKidProfile();

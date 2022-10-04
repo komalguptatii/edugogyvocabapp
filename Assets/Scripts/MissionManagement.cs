@@ -1701,7 +1701,7 @@ public class MissionManagement : MonoBehaviour
                     newPrefab = Instantiate(mcqPrefab).gameObject;
                     newPrefab.transform.SetParent(convoContentPrefab.transform, true);
 
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 400.0f);
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 330.0f);
 
                      convoWithMCQPrefabsArray.Add(newPrefab);
 
@@ -2355,6 +2355,7 @@ public class MissionManagement : MonoBehaviour
             string message = "";
             // string scores = result.score_percentage.ToString();
             double scores = result.score_percentage;
+            Debug.Log("scores is " + scores);
             // scores = Mathf.Round((float)scores * 100f) / 100f;
             // string roundedScore = scores.ToString();
             int thousandths = (int)(Mathf.Round((float)scores * 100f) / 100f);
@@ -2576,6 +2577,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("End of Checking in loop for second object");
                 }  
 
+                
+
             }
         }
         else
@@ -2623,6 +2626,7 @@ public class MissionManagement : MonoBehaviour
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
 
+
         Debug.Log("Length of verb" + newWordDetails.verbs.Length);
                 newVerb = newWordDetails.verbs[parameter];
                 meaningAsNoun.text = newVerb.description;
@@ -2634,6 +2638,7 @@ public class MissionManagement : MonoBehaviour
                     singleSentenceBoard.gameObject.SetActive(false);
                     multipleSentenceBoard.gameObject.SetActive(true);
                     Debug.Log("Length " + newVerb.verbSentences.Length);
+                    float sentenceLength = 0.0f;
                     for (var i = 0; i < newVerb.verbSentences.Length; i++)
                     {
                         Debug.Log("Running in For loop " + i);
@@ -2644,7 +2649,8 @@ public class MissionManagement : MonoBehaviour
                             Debug.Log("i is 0 here");
                             GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                            mytext.text = newVerb.verbSentences[0].description;                     
+                            mytext.text = newVerb.verbSentences[0].description;   
+                            sentenceLength += newVerb.verbSentences[0].description.Length;                 
                         }
                         else
                         {
@@ -2659,7 +2665,23 @@ public class MissionManagement : MonoBehaviour
                             mytext.text = newVerb.verbSentences[i].description;
                             sentencePrefabsArray.Add(newSentencePrefab);
                             Debug.Log("End of Checking in loop for second object");
+                            sentenceLength += newVerb.verbSentences[i].description.Length;                 
+
                         }  
+
+                         VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                        Debug.Log("sentence length here is " + sentenceLength);
+                        if (sentenceLength > 300)
+                        {
+                            pathVlg.padding.top = 160;
+                            pathVlg.spacing = 200;
+                            pathVlg.padding.bottom = 100;
+                        }
+                        else
+                        {
+                            pathVlg.padding.top = 60;
+                            pathVlg.spacing = 60;
+                        }
 
                     }
                 }
@@ -2712,6 +2734,8 @@ public class MissionManagement : MonoBehaviour
         newAdverb = newWordDetails.adverbs[parameter];
         meaningAsNoun.text = newAdverb.description;
 
+        float sentenceLength = 0.0f;
+
         if (newAdverb.adverbSentences.Length > 1)
         {
             Debug.Log(sentencePrefabsArray.Count);
@@ -2730,6 +2754,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdverb.adverbSentences[0].description;  
+                    sentenceLength += newAdverb.adverbSentences[0].description.Length;
                 
                 }
                 else
@@ -2745,7 +2770,22 @@ public class MissionManagement : MonoBehaviour
                     mytext.text = newAdverb.adverbSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newAdverb.adverbSentences[i].description.Length;
                 }  
+
+                 VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                Debug.Log("sentence length here is " + sentenceLength);
+                if (sentenceLength > 300)
+                {
+                    pathVlg.padding.top = 160;
+                    pathVlg.spacing = 200;
+                    pathVlg.padding.bottom = 100;
+                }
+                else
+                {
+                    pathVlg.padding.top = 60;
+                    pathVlg.spacing = 60;
+                }
 
             }
             Debug.Log(sentencePrefabsArray.Count);
@@ -2802,6 +2842,7 @@ public class MissionManagement : MonoBehaviour
         newAdjective = newWordDetails.adjectives[parameter];
         meaningAsNoun.text = newAdjective.description;
 
+         float sentenceLength = 0.0f;
 
         if (newAdjective.adjectiveSentences.Length > 1)
         {
@@ -2820,7 +2861,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newAdjective.adjectiveSentences[0].description;                     
+                    mytext.text = newAdjective.adjectiveSentences[0].description;    
+                    sentenceLength += newAdjective.adjectiveSentences[0].description.Length;                 
                 }
                 else
                 {
@@ -2828,14 +2870,29 @@ public class MissionManagement : MonoBehaviour
                         
                     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 20f);//164f);
                     newSentencePrefab.transform.SetParent(parent, true);
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdjective.adjectiveSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newAdjective.adjectiveSentences[i].description.Length;
                 }  
+
+                VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                Debug.Log("sentence length here is " + sentenceLength);
+                if (sentenceLength > 300)
+                {
+                    pathVlg.padding.top = 160;
+                    pathVlg.spacing = 200;
+                    pathVlg.padding.bottom = 100;
+                }
+                else
+                {
+                    pathVlg.padding.top = 60;
+                    pathVlg.spacing = 60;
+                }
 
             }
         }
@@ -3128,6 +3185,9 @@ public class MissionManagement : MonoBehaviour
 
             singleSentenceBoard.gameObject.SetActive(false);
             multipleSentenceBoard.gameObject.SetActive(true);
+
+            float sentenceLength = 0.0f;
+
             for (var i = 0; i < newOwuw.otherWayUsingWordSentences.Length; i++)
             {
                     
@@ -3136,7 +3196,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newOwuw.otherWayUsingWordSentences[0].description;                     
+                    mytext.text = newOwuw.otherWayUsingWordSentences[0].description; 
+                    sentenceLength += newOwuw.otherWayUsingWordSentences[0].description.Length;                   
                 }
                 else
                 {
@@ -3151,7 +3212,23 @@ public class MissionManagement : MonoBehaviour
                     mytext.text = newOwuw.otherWayUsingWordSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newOwuw.otherWayUsingWordSentences[i].description.Length;
                 }  
+
+                 VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                        Debug.Log("sentence length here is " + sentenceLength);
+                        if (sentenceLength > 300)
+                        {
+                            pathVlg.padding.top = 160;
+                            pathVlg.spacing = 200;
+                            pathVlg.padding.bottom = 100;
+                        }
+                        else
+                        {
+                            pathVlg.padding.top = 60;
+                            pathVlg.spacing = 60;
+                        }
+
 
             }
         }
@@ -3234,7 +3311,7 @@ public class MissionManagement : MonoBehaviour
         }
        
 
-
+        float sentenceLength = 0.0f;
         if (newIdiom.idiomSentences.Length > 1)
         {
             sentencePrefabsArray.Add(sentencePrefab);
@@ -3249,7 +3326,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newIdiom.idiomSentences[0].description;                     
+                    mytext.text = newIdiom.idiomSentences[0].description; 
+                    sentenceLength += newIdiom.idiomSentences[0].description.Length;                  
                 }
                 else
                 {
@@ -3257,14 +3335,31 @@ public class MissionManagement : MonoBehaviour
                       
                     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 50f); // 164f
                     newSentencePrefab.transform.SetParent(parent, true);
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newIdiom.idiomSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newIdiom.idiomSentences[i].description.Length;                  
+
                 }  
+
+
+                 VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                        Debug.Log("sentence length here is " + sentenceLength);
+                        if (sentenceLength > 300)
+                        {
+                            pathVlg.padding.top = 160;
+                            pathVlg.spacing = 200;
+                            pathVlg.padding.bottom = 100;
+                        }
+                        else
+                        {
+                            pathVlg.padding.top = 60;
+                            pathVlg.spacing = 60;
+                        }
 
             }
         }
@@ -3346,6 +3441,8 @@ public class MissionManagement : MonoBehaviour
         }
        
 
+        float sentenceLength = 0.0f;
+
         if (multipleWordDetails.useMultipleWordSentences.Length > 1)
         {
             sentencePrefabsArray.Add(sentencePrefab);
@@ -3361,7 +3458,10 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;                     
+                    mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;      
+                    sentenceLength +=  multipleWordDetails.useMultipleWordSentences[0].description.Length; 
+                    Debug.Log("sentence length  for 1 here is " + sentenceLength);                 
+               
                 }
                 else
                 {
@@ -3376,7 +3476,25 @@ public class MissionManagement : MonoBehaviour
                     mytext.text = multipleWordDetails.useMultipleWordSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength +=  multipleWordDetails.useMultipleWordSentences[i].description.Length;                  
+
                 }  
+
+                VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                Debug.Log("sentence length here is " + sentenceLength);
+                if (sentenceLength > 500)
+                {
+                    pathVlg.padding.top = 160;
+                    pathVlg.spacing = 400;
+                    pathVlg.padding.bottom = 180;
+                }
+                else
+                {
+                    pathVlg.padding.top = 60;
+                }
+                
+
+                
 
             }
         }
@@ -3449,12 +3567,17 @@ public class MissionManagement : MonoBehaviour
             typeOfWord.text = "Meaning";
             
             antonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count;
-            antonymDetails = revisionWordDetails.antonyms[parameter];
+            Debug.Log("antonymCount " + antonymCount);
+            Debug.Log("value of parameter is  " + parameter);
+            Debug.Log("revisionWordReference is " + revisionWordReference);
+            antonymDetails = revisionWordDetails.antonyms[parameter]; // replace parameter with revision word reference
+            Debug.Log("value of antonymDetails is  " + antonymDetails);
             meaningAsNoun.text = antonymDetails.meaning;
+            Debug.Log("value of meaning is  " + antonymDetails.meaning);
 
             word.text = revisionWordDetails.antonyms[parameter].description;
-            Debug.Log("revisionWordReference is " + revisionWordReference);
-            Debug.Log("Description is " + revisionWordDetails.antonyms[revisionWordReference].description);
+            
+            // Debug.Log("Description is " + revisionWordDetails.antonyms[revisionWordReference].description);
         }
         else
         {
