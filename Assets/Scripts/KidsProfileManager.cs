@@ -268,8 +268,29 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode + "Update");
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            AddTrial();
+            // AddTrial();
             // SceneManager.LoadScene("Settings");
+
+            // if (profile.remaining_trial == 2)
+            // {
+            //     Popup popup = UIController.Instance.CreatePopup();
+            //     popup.Init(UIController.Instance.MainCanvas,
+            //         "You have 2 more chances left to change your level.",
+            //         "Cancel",
+            //         "Okay",
+            //         GoSubscribe
+            //         );
+            // }
+            // else
+            // {
+            //     Popup popup = UIController.Instance.CreatePopup();
+            //     popup.Init(UIController.Instance.MainCanvas,
+            //         "It’s time to choose your subscription level! Let’s get started!",
+            //         "Cancel",
+            //         "Subscribe Now",
+            //         GoSubscribe
+            //         );
+            // }
 
         }
 

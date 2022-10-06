@@ -1233,7 +1233,7 @@ public class MissionManagement : MonoBehaviour
                 return;
                
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 && revisionCountArray[revisionWordReference] > 0 )
+            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 )//&& revisionCountArray[revisionWordReference] > 0 )
             {          
                     Debug.Log("Going to check data");
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
@@ -1467,14 +1467,19 @@ public class MissionManagement : MonoBehaviour
         }
 
         GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
+        VerticalLayoutGroup mcqPathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
         GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
         GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+        VerticalLayoutGroup bgPathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
 
         TMPro.TMP_Text questionText = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
         questionText.text = allDetailData.questions[parameter].title;
+        float questionLength = allDetailData.questions[parameter].title.Length;
 
         GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
         GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+        VerticalLayoutGroup pathVlg = optionContainer.GetComponent<VerticalLayoutGroup>();
+
 
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
         
@@ -1490,9 +1495,6 @@ public class MissionManagement : MonoBehaviour
                 Debug.Log("because value is 1");
             }
         }
-         
-
-
 
         int children = optionContainer.transform.childCount;
         
@@ -1504,6 +1506,7 @@ public class MissionManagement : MonoBehaviour
         for(int j = 0; j < children; j++ )
         {
             Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+
             thisButton.gameObject.SetActive(true);
             thisButton.enabled = true;
             if (j <= answerOptions-1)
@@ -1521,22 +1524,63 @@ public class MissionManagement : MonoBehaviour
             }
             else
             {
-                thisButton.gameObject.SetActive(false);
-                
-                // var rectTransform = optionBoard.GetComponent<RectTransform>();
-                // if (rectTransform != null)
-                // {
-                //     rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, rectTransform.sizeDelta.y - 155.2f);
-                // }
-
-                // var rectTransform2 = mcqBoard.GetComponent<RectTransform>();
-                // if (rectTransform2 != null)
-                // {
-                //     rectTransform2.sizeDelta = new Vector2(rectTransform2.sizeDelta.x, rectTransform2.sizeDelta.y - 155.2f);
-                // }
-                
-                
+                thisButton.gameObject.SetActive(false);            
             }
+
+            pathVlg.spacing = 80;
+            Debug.Log("length of question is " + questionLength);
+
+            if (questionLength <= 30)
+            {
+                mcqPathVlg.spacing = -240;
+            }
+            else if (questionLength >= 32 && questionLength <= 38)
+            {
+                mcqPathVlg.spacing = -120;
+            }
+            else if (questionLength < 40 || questionLength > 200)
+            {
+                 mcqPathVlg.spacing = -60;
+            }
+            else if (questionLength > 70 && questionLength < 200)
+            {
+                mcqPathVlg.spacing = -180;
+            }
+            else if (questionLength < 70)
+            {
+                mcqPathVlg.spacing = -240;
+            }
+            else 
+            {
+                mcqPathVlg.spacing = -80;
+            }
+
+            // if (questionLength > 120)
+            // {
+            //     bgPathVlg.padding.bottom = 0;
+            //     bgPathVlg.padding.top = 0;
+            // }
+            // else
+            // {
+            //     bgPathVlg.padding.bottom = 30;
+            //     bgPathVlg.padding.top = 30;
+            // }
+
+            // 32 - "-400", in some cases 31 , -60
+            // 60, 37, 25 - "-60"
+            //77, -180
+            // 126, -60, 53 -60
+            //47, -240
+
+            // if (j <= 3)
+            // {
+            //     mcqPathVlg.spacing = -60;
+            //     // - 400 for less length of question string
+            // }
+            // else
+            // {
+            //     mcqPathVlg.spacing = 60;
+            // }
         }
 
         if (isSettingCanvas == true)
@@ -1660,25 +1704,27 @@ public class MissionManagement : MonoBehaviour
 
              GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
 
-                    TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-                    mytext.text = "Passage " + (parameter + 1);
+            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+            mytext.text = "Passage " + (parameter + 1);
 
-                    GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
-                    GameObject descContainer = scrollBar.transform.GetChild(0).gameObject;
-                    
-                    TMPro.TMP_Text descriptionText = descContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                    descriptionText.text = allDetailData.passages[parameter].description;
+            GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+            GameObject descContainer = scrollBar.transform.GetChild(0).gameObject;
+            
+            TMPro.TMP_Text descriptionText = descContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            descriptionText.text = allDetailData.passages[parameter].description;
 
             Debug.Log("debugging value of parameter here " + parameter);
-            for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
-            {
-                // questionNumberValue += 1;
-                // questionNumber = i;
-                GameObject questionBoard;
+            GameObject questionBoard;
                 GameObject newPrefab;
                 GameObject mcqBoard;
                 GameObject optionBoard;
                 GameObject optionContainer;
+                VerticalLayoutGroup pathVlg;
+            for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
+            {
+                // questionNumberValue += 1;
+                // questionNumber = i;
+                
 
                 if (i == 0)
                 {
@@ -1686,6 +1732,9 @@ public class MissionManagement : MonoBehaviour
 
                         // GameObject 
                         mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+                        
+                        // pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
                         // GameObject 
                         questionBoard = mcqBoard.transform.GetChild(0).gameObject;
                 optionBoard = mcqBoard.transform.GetChild(1).gameObject;
@@ -1700,8 +1749,7 @@ public class MissionManagement : MonoBehaviour
                     // GameObject 
                     newPrefab = Instantiate(mcqPrefab).gameObject;
                     newPrefab.transform.SetParent(convoContentPrefab.transform, true);
-
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 330.0f);
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 100.0f);//(height + 200.0f)); //600.0f
 
                      convoWithMCQPrefabsArray.Add(newPrefab);
 
@@ -1783,13 +1831,86 @@ public class MissionManagement : MonoBehaviour
                         {
                             thisButton.gameObject.SetActive(false);
                         }
+                          
                     }
                     convoContentPrefab.transform.SetAsFirstSibling();
 
+                    if (i > 0)
+                    {
+                        pathVlg = convoWithMCQPrefabsArray[i].GetComponent<VerticalLayoutGroup>();
 
-                    
-                // }  
+                        RectTransform rt = (RectTransform)convoWithMCQPrefabsArray[i].transform;
+                         float height = rt.rect.height;
+                         Debug.Log("height of MCQ is " + height);
+                        //  float yAxis = convoWithMCQPrefabsArray[i].transform.localScale.y;
+                        // Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                        // Debug.Log("height of MCQ is " + yAxis);
+                        // float yPosition = convoWithMCQPrefabsArray[i - 1].transform.position.y;
+                        // Debug.Log("height of MCQ is " + yPosition);
+                        // convoWithMCQPrefabsArray[i].transform.position = new Vector2(prefabPosition.x, yPosition - (height));//(height + 200.0f)); //600.0f
 
+                        //  pathVlg.padding.top = (int)height + 100;
+                        if (answerOptions == 2)
+                        {
+                            pathVlg.padding.left = 0;
+                            pathVlg.padding.top = 400;
+                            pathVlg.padding.bottom = 600;
+                            pathVlg.spacing = -200;
+                            if (i == 1)
+                            {
+                                pathVlg.padding.top = 600;
+                                // pathVlg.padding.bottom = 600;
+                            }
+                            else if (i == 2)
+                            {
+                                pathVlg.padding.top = 800;
+                                // pathVlg.padding.bottom = 600;
+                            }
+                        }
+                        else if (answerOptions == 3)
+                        {
+                            pathVlg.padding.left = 0;
+                            pathVlg.padding.top = 800;
+                            pathVlg.padding.bottom = 800;
+                            pathVlg.spacing = -200;
+                        }
+                        else if (answerOptions == 4)
+                        {
+                            pathVlg.padding.left = 0;
+                            pathVlg.padding.top = 1000;
+                            pathVlg.padding.bottom = 800;
+                            pathVlg.spacing = -200;
+                        }
+                        
+                        if (parameter > 0 && i >= 2)
+                        {
+                            pathVlg.padding.top = 1200;
+                        }
+
+
+                    }
+                    else
+                    {
+                        mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+                        
+                        pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                        if (answerOptions == 2)
+                        {
+                            pathVlg.padding.bottom = 400;
+                        }
+                        else if (answerOptions >= 3)
+                        {
+                   
+                            pathVlg.padding.bottom = 1000;
+                        }
+                        // else if (answerOptions == 4)
+                        // {
+                            
+                        //     pathVlg.padding.bottom = 1000;
+                           
+                        // }
+                    }
             }
         }
         // else
@@ -2568,11 +2689,13 @@ public class MissionManagement : MonoBehaviour
                     // Vector2 prefabPosition = new Vector2(sentencePrefabsArray[i - 1].transform.position.x - 160f, sentencePrefabsArray[i - 1].transform.position.y - 164f);
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
                     newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f); //prefabPosition.x - 160f
+                    
                     newSentencePrefab.transform.SetParent(parent, true);
 
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newNoun.nounSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
                 }  
@@ -2664,6 +2787,7 @@ public class MissionManagement : MonoBehaviour
                             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                             mytext.text = newVerb.verbSentences[i].description;
                             sentencePrefabsArray.Add(newSentencePrefab);
+                            newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                             Debug.Log("End of Checking in loop for second object");
                             sentenceLength += newVerb.verbSentences[i].description.Length;                 
 
@@ -2769,6 +2893,7 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdverb.adverbSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
                     sentenceLength += newAdverb.adverbSentences[i].description.Length;
                 }  
@@ -2875,7 +3000,9 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdjective.adjectiveSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
                     sentenceLength += newAdjective.adjectiveSentences[i].description.Length;
                 }  
@@ -2937,23 +3064,62 @@ public class MissionManagement : MonoBehaviour
         dutBoard.gameObject.SetActive(false);
         conversationText.gameObject.SetActive(true);
        
-        
-        // if (revisionListDisplayed == true)
-        // {
-           
-        // }
-        // else
-        // {
-             Conversation convo = new Conversation();
-            convo = allDetailData.conversation;
-            conversationText.text = convo.description;
-        // }
+        float sentenceLength = 0.0f;
 
+       
+        VerticalLayoutGroup pathVlg = conversationBoard.GetComponent<VerticalLayoutGroup>();
+
+        // conversationBoard.transform.position = new Vector2(conversationBoard.transform.position.x, conversationBoard.transform.position.y - 200.0f);
+    
+        Conversation convo = new Conversation();
+        convo = allDetailData.conversation;
+
+        if (convo != null)
+        {
+            conversationText.text = convo.description;
+            if (convo.description != null)
+            {
+                 string desc = convo.description;
+                Debug.Log("Length of string is " + desc.Length);
+                if (desc.Length > 400.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length + 350;
+                }
+                else if (desc.Length < 160.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length;
+                }
+                else
+                {
+                    pathVlg.padding.top = (int)desc.Length + 200;
+                }
+                
+            }
+           
+        }
+        
+        
+       
         if (dataDisplayed["isRevisionWordListDone"] == true)
         {
             RevisionConversation revConvo = new RevisionConversation();
             revConvo = allDetailData.revisionConversation;
             conversationText.text = revConvo.description;
+            string desc = revConvo.description;
+            Debug.Log("Length of string is " + desc.Length);
+            if (desc.Length > 400.0f)
+            {
+                pathVlg.padding.top = (int)desc.Length + 350;
+            }
+            else if (desc.Length < 160.0f)
+            {
+                pathVlg.padding.top = (int)desc.Length;
+            }
+            else
+            {
+                pathVlg.padding.top = (int)desc.Length + 200;
+            }
+            // pathVlg.padding.top = (int)desc.Length + 200;
             Debug.Log(revConvo.description);
             Debug.Log(conversationText.text);
             dataDisplayed["isRevisionWordConversationDone"] = true;
@@ -3211,6 +3377,7 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newOwuw.otherWayUsingWordSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
                     sentenceLength += newOwuw.otherWayUsingWordSentences[i].description.Length;
                 }  
@@ -3341,6 +3508,7 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newIdiom.idiomSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
                     sentenceLength += newIdiom.idiomSentences[i].description.Length;                  
 
@@ -3475,6 +3643,7 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = multipleWordDetails.useMultipleWordSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
                     sentenceLength +=  multipleWordDetails.useMultipleWordSentences[i].description.Length;                  
 
@@ -3618,6 +3787,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = antonymDetails.antonymSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
                 }  
@@ -3741,6 +3911,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = synonymDetails.synonymSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
                 }  
