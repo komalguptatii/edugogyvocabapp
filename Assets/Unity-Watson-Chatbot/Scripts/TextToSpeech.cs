@@ -325,7 +325,7 @@ public class TextToSpeech : MonoBehaviour
     {
         if (textQueue.Count > 1)
         {
-textQueue.Dequeue();
+            textQueue.Dequeue();
         }
         
         Debug.Log("AddTextToQueue: " + word.text);

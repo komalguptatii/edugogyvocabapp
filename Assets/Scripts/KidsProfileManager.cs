@@ -161,7 +161,7 @@ public class KidsProfileManager : MonoBehaviour
                     "You have 2 more chances left to change your level.",
                     "Cancel",
                     "Okay",
-                    GoSubscribe
+                    StayOnPage
                     );
             }
             else
@@ -241,7 +241,7 @@ public class KidsProfileManager : MonoBehaviour
         profile.age_group_id = selectedButton + 1;
         string json = JsonUtility.ToJson(profile);
 
-        Debug.Log(json);
+        // Debug.Log(json);
 
         string uri = baseURL + "students/update";
 
@@ -271,7 +271,7 @@ public class KidsProfileManager : MonoBehaviour
             // AddTrial();
             // SceneManager.LoadScene("Settings");
 
-            // if (profile.remaining_trial == 2)
+            // if (profile.remaining_trial == 2)  // remaining trial is not coming in json of update profile
             // {
             //     Popup popup = UIController.Instance.CreatePopup();
             //     popup.Init(UIController.Instance.MainCanvas,
@@ -364,5 +364,10 @@ public class KidsProfileManager : MonoBehaviour
      void GoSubscribe()
     {
         SceneManager.LoadScene("IAPCatalog");
+    }
+
+    void StayOnPage()
+    {
+        Debug.Log("Stay on page, Update level");
     }
 }
