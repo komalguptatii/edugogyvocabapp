@@ -626,12 +626,16 @@ public class MissionManagement : MonoBehaviour
     bool updateDUTSentencePosition = false;
     float calHeight = 0.0f;
     bool isQuestion = false;
+    public Button nextButton;
+    public Button backButton;
 
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
         return value;
     }
+
+    public FontStyles Style;
 
     string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
@@ -642,6 +646,8 @@ public class MissionManagement : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        nextButton.gameObject.SetActive(false);
+        backButton.gameObject.SetActive(false);
          // start mission after fetching id from detail all api
         sentenceRealPos = new Vector2(singleSentenceBoard.transform.position.x,singleSentenceBoard.transform.position.y - 50.0f);
         singleSentenceBoard.gameObject.SetActive(true);
@@ -654,10 +660,10 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
+        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
         // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; // Ridhima testing
     }
 
@@ -1015,7 +1021,8 @@ public class MissionManagement : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-
+            nextButton.gameObject.SetActive(true);
+            backButton.gameObject.SetActive(true);
             string jsonString = request.downloadHandler.text;
            
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
@@ -1071,6 +1078,48 @@ public class MissionManagement : MonoBehaviour
 				);
     }
 
+    public float TextWidthApproximation (string text, TMP_FontAsset fontAsset, float fontSize, FontStyles style)
+    {
+        // Compute scale of the target point size relative to the sampling point size of the font asset.
+        float pointSizeScale = fontSize / (fontAsset.faceInfo.pointSize * fontAsset.faceInfo.scale);
+        float emScale = fontSize * 0.01f;
+ 
+        float styleSpacingAdjustment = (style & FontStyles.Bold) == FontStyles.Bold ? fontAsset.boldSpacing : 0;
+        float normalSpacingAdjustment = fontAsset.normalSpacingOffset;
+ 
+        float width = 0;
+ 
+        for (int i = 0; i < text.Length; i++)
+        {
+            char unicode = text[i];
+            TMP_Character character;
+            // Make sure the given unicode exists in the font asset.
+            if (fontAsset.characterLookupTable.TryGetValue(unicode, out character))
+                width += character.glyph.metrics.horizontalAdvance * pointSizeScale + (styleSpacingAdjustment + normalSpacingAdjustment) * emScale;
+        }
+ 
+        return width;
+    }
+
+    // int calculateLength(string message)
+    //  {
+    //      int totalLength = 0;
+ 
+    //      TMP_FontAsset myFont = word.font;  //chatText is my Text component
+    //      CharacterInfo characterInfo = new CharacterInfo();
+ 
+    //      char[] arr = message.ToCharArray();
+ 
+    //      foreach(char c in arr)
+    //      {
+    //          myFont.TMP_CharacterInfo(c, out characterInfo, word.fontSize);  
+ 
+    //          totalLength += characterInfo.advance;
+    //      }
+ 
+    //      return totalLength;
+    //  }
+
     public void SetUpBaseCanvas()
     {
        isSettingCanvas = true;  //bool to differentiate if setting canvas or making next or back calls
@@ -1081,8 +1130,15 @@ public class MissionManagement : MonoBehaviour
             newWordDetails = allDetailData.newWords[0];
             if (newWordDetails.type == 1)
             {
+               
                 typeOfDay.text = "New Word";
-                word.text = newWordDetails.name;                
+                word.text = newWordDetails.name; 
+                
+                // TMP_FontAsset myFont = word.font;
+                // float wordLength = TextWidthApproximation(word.text, myFont, 32.0f, Style);//newWordDetails.name.Length;
+                // // float wordLength = newWordDetails.name.Length * 42.5f;
+                //  Debug.Log("word length is " + wordLength);
+                // speakerButton.transform.position = new Vector2(word.transform.position.x + wordLength, speakerButton.transform.position.y);
             }
             
             // if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
@@ -2627,6 +2683,7 @@ public class MissionManagement : MonoBehaviour
 
     void Reset()
     {
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
         // newWordNumber = 0;
@@ -2765,6 +2822,8 @@ public class MissionManagement : MonoBehaviour
          conversationBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+
 
 
          singleSentenceBoard.transform.position = sentenceRealPos;
@@ -2860,6 +2919,8 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
          dutBoard.gameObject.SetActive(false);
          generalBaseBoard.gameObject.SetActive(true);
+         revisionWordBoard.gameObject.SetActive(false);
+
 
 
           singleSentenceBoard.transform.position = sentenceRealPos;
@@ -2969,6 +3030,9 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
          dutBoard.gameObject.SetActive(false);
          generalBaseBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
+
+
 
           singleSentenceBoard.transform.position = sentenceRealPos;
         multipleSentenceBoard.transform.position = sentenceRealPos;
@@ -3078,6 +3142,9 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
         dutBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+                 revisionWordBoard.gameObject.SetActive(false);
+
+
 
           singleSentenceBoard.transform.position = sentenceRealPos;
         multipleSentenceBoard.transform.position = sentenceRealPos;
@@ -3188,6 +3255,7 @@ public class MissionManagement : MonoBehaviour
         revisionWordBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
         conversationText.gameObject.SetActive(true);
+
        
         float sentenceLength = 0.0f;
 
@@ -3205,7 +3273,7 @@ public class MissionManagement : MonoBehaviour
             if (convo.description != null)
             {
                  string desc = convo.description;
-                Debug.Log("Length of string is " + desc.Length);
+                Debug.Log("Length of string is " + convo.description);
                 if (desc.Length > 400.0f)
                 {
                     pathVlg.padding.top = (int)desc.Length + 350;
@@ -3225,29 +3293,33 @@ public class MissionManagement : MonoBehaviour
         
         
        
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dataCountDetails.conversation_revision_word_count != 0)
         {
             RevisionConversation revConvo = new RevisionConversation();
             revConvo = allDetailData.revisionConversation;
-            conversationText.text = revConvo.description;
-            string desc = revConvo.description;
-            Debug.Log("Length of string is " + desc.Length);
-            if (desc.Length > 400.0f)
+            if (revConvo != null)
             {
-                pathVlg.padding.top = (int)desc.Length + 300;
+                conversationText.text = revConvo.description;
+                string desc = revConvo.description;
+                Debug.Log("Length of string is " + desc.Length);
+                if (desc.Length > 400.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length + 300;
+                }
+                else if (desc.Length < 220.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length;
+                }
+                else
+                {
+                    pathVlg.padding.top = (int)desc.Length + 200;
+                }
+                // pathVlg.padding.top = (int)desc.Length + 200;
+                Debug.Log(revConvo.description);
+                Debug.Log(conversationText.text);
+                dataDisplayed["isRevisionWordConversationDone"] = true;
             }
-            else if (desc.Length < 220.0f)
-            {
-                pathVlg.padding.top = (int)desc.Length;
-            }
-            else
-            {
-                pathVlg.padding.top = (int)desc.Length + 200;
-            }
-            // pathVlg.padding.top = (int)desc.Length + 200;
-            Debug.Log(revConvo.description);
-            Debug.Log(conversationText.text);
-            dataDisplayed["isRevisionWordConversationDone"] = true;
+            
         }   
         else
         {
@@ -3260,6 +3332,7 @@ public class MissionManagement : MonoBehaviour
     {
 
         DestroyPrefabs();
+        DisplaySpeakerandImage();
         typeOfDay.text = "New Word";
         baseParentBoard.gameObject.SetActive(true);
         conversationBoard.gameObject.SetActive(false);
@@ -3271,6 +3344,7 @@ public class MissionManagement : MonoBehaviour
         multipleSentenceBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
         revisionWordBoard.gameObject.SetActive(false);
+
 
         VerticalLayoutGroup pathVlg = dutParent.GetComponent<VerticalLayoutGroup>();
         pathVlg.spacing = 200;
@@ -3850,18 +3924,15 @@ public class MissionManagement : MonoBehaviour
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(false);
+        
 
-        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
-        {
-            //Change position of sentence boards
-            // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-            // singleSentenceBoardPos.y -= 423f;
+        // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
+        // {
+           
             singleSentenceBoard.transform.position = sentenceRealPos;
 
-            // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-            // multipleSentenceBoardPos.y -= 423f;
             multipleSentenceBoard.transform.position = sentenceRealPos;
-        }
+        // }
 
         Antonym antonymDetails = new Antonym();
 
@@ -3982,8 +4053,8 @@ public class MissionManagement : MonoBehaviour
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
 
-        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
-        {
+        // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
+        // {
             //Change position of sentence boards
             // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
             // singleSentenceBoardPos.y -= 423f;
@@ -3992,7 +4063,7 @@ public class MissionManagement : MonoBehaviour
             // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
             // multipleSentenceBoardPos.y -= 423f;
             multipleSentenceBoard.transform.position = sentenceRealPos;
-        } 
+        // } 
 
         Synonym synonymDetails = new Synonym();
         int synonymCount = 0;
@@ -4102,6 +4173,15 @@ public class MissionManagement : MonoBehaviour
         GameObject childObj = bottomPanel.transform.GetChild(0).gameObject;
         TMPro.TMP_Text numberText = childObj.GetComponent<TMPro.TMP_Text>();
         numberText.text = screenCount + "/" + totalNumber;
+
+         if (screenCount != totalNumber)
+        {
+            submitButton.gameObject.SetActive(false);
+        }
+        else
+        {
+             submitButton.gameObject.SetActive(true);
+        }
     }
 
     public void NextButton(Button button)
@@ -4149,7 +4229,7 @@ public class MissionManagement : MonoBehaviour
             {
                  Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    "Are you sure you want to go back? Going back will clear all attempted answers, and you have to reattempt.",
+                    "Are you sure you want to go back? Going back will clear all attempted answers, and you will have to reattempt.",
                     "Cancel",
                     "Go Back",
                     GoBack
@@ -4194,10 +4274,10 @@ public class MissionManagement : MonoBehaviour
             Debug.Log("we are on first screen");
         }
 
-        if (screenCount != totalNumber)
-        {
-            submitButton.gameObject.SetActive(false);
-        }
+        // if (screenCount != totalNumber)
+        // {
+        //     submitButton.gameObject.SetActive(false);
+        // }
     }
 
 }

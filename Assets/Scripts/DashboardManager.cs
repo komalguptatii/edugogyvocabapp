@@ -97,9 +97,9 @@ public class DashboardManager : MonoBehaviour
         }
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
+        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
         // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; //for api.testing.edugogy.app
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
 
         GetUserProfile();
     }
@@ -235,16 +235,21 @@ public class DashboardManager : MonoBehaviour
         {
         
             characterAnim.Play("AstroMoving");
+            Vector2 desiredPos = newPosition;
+
+            float height = Camera.main.orthographicSize * 2;
+            float width = height * Screen.width / Screen.height;
+            Bounds bounds = new Bounds (Vector3.zero, new Vector3(width, height, 0));
+
+            Vector2 clampedPosition = new Vector2(
+                Mathf.Clamp(desiredPos.x, 0, Screen.width - 150.0f),
+                Mathf.Clamp(desiredPos.y, 0, Screen.height) );
             
-
-            // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
-
-                // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, -screenPos, Time.deltaTime * speed );// 
-           
-            // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
-            // astronaut.transform.position = Vector3.MoveTowards(astronaut.transform.position, newPosition, Time.deltaTime * speed );// 
-             astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
-             animator.Play("LockUnlock");
+            Vector2 smoothPos = Vector2.Lerp(astronaut.transform.position, clampedPosition, Time.deltaTime);
+            astronaut.transform.position = smoothPos;
+            
+            // astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
+            animator.Play("LockUnlock");
         //     islevelUnlocked = false;
         }
 

@@ -101,6 +101,7 @@ public class VerifyOTPManager : MonoBehaviour
 
         }
 
+        // GetKidProfile();
 
     }
 
@@ -214,6 +215,7 @@ public class VerifyOTPManager : MonoBehaviour
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             request.SetRequestHeader("Content-Type", "application/json");
+            // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";
              request.SetRequestHeader("Authorization", auth_key);
 
             yield return request.SendWebRequest();
@@ -227,6 +229,8 @@ public class VerifyOTPManager : MonoBehaviour
 
             if (profile.name != "" && profile.age_group_id != 0)
             {
+                 PlayerPrefs.SetString("childName", profile.name);
+                 PlayerPrefs.SetInt("isAgeSelected", 1); //isAgeSelected ? 1 : 0
                 SceneManager.LoadScene("Dashboard");
             }
             else
