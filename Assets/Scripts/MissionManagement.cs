@@ -660,7 +660,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
         // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
@@ -1601,92 +1601,112 @@ public class MissionManagement : MonoBehaviour
                 thisButton.gameObject.SetActive(false);            
             }
 
-            pathVlg.spacing = 80;
+            // pathVlg.spacing = 80;
             Debug.Log("length of question is " + questionLength);
 
-            if (questionLength <= 30)
+            mcqPathVlg.spacing = 500;
+            bgPathVlg.spacing = 40;
+            bgPathVlg.padding.bottom = 60;
+            bgPathVlg.padding.top = 40;
+            mcqPathVlg.padding.top = 60;
+            // mcqPathVlg.spacing = 360;
+            if (questionLength > 70 && questionLength < 200)
             {
-                
-                mcqPathVlg.spacing = -240;
-                if (answerOptions == 4)
+                bgPathVlg.spacing = 60;
+                if (answerOptions >= 3)
                 {
-                    mcqPathVlg.spacing = -80;
-                }
-                else if (answerOptions > 3)
-                {
-                    mcqPathVlg.spacing = -160;
-                }
-
-               
-                
-            }
-            else if (questionLength >= 32 && questionLength <= 38)
-            {
-
-                mcqPathVlg.spacing = -120;
-                if (answerOptions == 2)
-                {
-                    mcqPathVlg.spacing = -260;
-                }
-            }
-            else if (questionLength < 40)
-            {
-                 mcqPathVlg.spacing = -100; // -60
-            }
-            else if (questionLength > 70 && questionLength < 200)
-            {
-                bgPathVlg.spacing = 40;
-                bgPathVlg.padding.bottom = 40;
-                if (answerOptions == 2)
-                {
-                     mcqPathVlg.spacing = -300;
-                     
+                    // mcqPathVlg.spacing = 440;
+                    bgPathVlg.spacing = 80;
+                    bgPathVlg.padding.bottom = 80;
                 }
                 else
                 {
-                    mcqPathVlg.spacing = -180;
+                    bgPathVlg.padding.bottom = 100;
+                    bgPathVlg.spacing = 100;
                 }
+                
             }
-            else if (questionLength < 70)
+            else if (questionLength <= 70)
             {
-                mcqPathVlg.spacing = -240;
+                bgPathVlg.spacing = 10;
+                // mcqPathVlg.spacing = 380;
+
             }
-            else if (questionLength > 200)
+            else if (questionLength >= 200)
             {
-                mcqPathVlg.spacing = -100;
+                mcqPathVlg.spacing = 500 + questionLength;
+                mcqPathVlg.padding.top = 60;
+                bgPathVlg.spacing = 200;
+                bgPathVlg.padding.bottom = 180;
+
+                if (answerOptions == 2)
+                {
+                    mcqPathVlg.spacing -= 60;
+                    mcqPathVlg.padding.top = 120;
+                }
+                
             }
-            else 
-            {
-                mcqPathVlg.spacing = -80;
-            }
+            // if (questionLength <= 30)
+            // {
+            //     mcqPathVlg.spacing = 120;
+            // }
             
+            // if (questionLength <= 30)
+            // {
+                
+            //     mcqPathVlg.spacing = 100;
+            //     // if (answerOptions == 4)
+            //     // {
+            //     //     mcqPathVlg.spacing = -80;
+            //     // }
+            //     // else if (answerOptions > 3)
+            //     // {
+            //     //     mcqPathVlg.spacing = -160;
+            //     // }
 
-            // if (questionLength > 120)
-            // {
-            //     bgPathVlg.padding.bottom = 0;
-            //     bgPathVlg.padding.top = 0;
+               
+                
             // }
-            // else
+            // else if (questionLength >= 32 && questionLength <= 38)
             // {
-            //     bgPathVlg.padding.bottom = 30;
-            //     bgPathVlg.padding.top = 30;
-            // }
 
-            // 32 - "-400", in some cases 31 , -60
-            // 60, 37, 25 - "-60"
-            //77, -180
-            // 126, -60, 53 -60
-            //47, -240
-
-            // if (j <= 3)
-            // {
-            //     mcqPathVlg.spacing = -60;
-            //     // - 400 for less length of question string
+            //     mcqPathVlg.spacing = -120;
+            //     if (answerOptions == 2)
+            //     {
+            //         mcqPathVlg.spacing = -260;
+            //     }
             // }
-            // else
+            // else if (questionLength < 40)
             // {
-            //     mcqPathVlg.spacing = 60;
+            //      mcqPathVlg.spacing = -100; // -60
             // }
+            // else if (questionLength > 70 && questionLength < 200)
+            // {
+            //     bgPathVlg.spacing = 40;
+            //     bgPathVlg.padding.bottom = 40;
+            //     if (answerOptions == 2)
+            //     {
+            //          mcqPathVlg.spacing = -300;
+                     
+            //     }
+            //     else
+            //     {
+            //         mcqPathVlg.spacing = -180;
+            //     }
+            // }
+            // else if (questionLength < 70)
+            // {
+            //     mcqPathVlg.spacing = -240;
+            // }
+            // else if (questionLength > 200)
+            // {
+            //     mcqPathVlg.spacing = -100;
+            // }
+            // else 
+            // {
+            //     mcqPathVlg.spacing = -80;
+            // }
+            
         }
 
         if (isSettingCanvas == true)
@@ -1790,6 +1810,7 @@ public class MissionManagement : MonoBehaviour
     public void PassageMCQSetup(int parameter)
     {
         isQuestion = true;
+        convoWithMCQPrefabsArray.Clear();
         // Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
         // bar.value = 1;
         // passageScrollBar.value = 0.0f;
@@ -1837,7 +1858,20 @@ public class MissionManagement : MonoBehaviour
                     //  SetUpSinglePassageWithMCQ(parameter);
 
                         // GameObject 
-                        mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+                    GameObject previousObject = convoContentPrefab.transform.GetChild(0).gameObject;
+                    Vector2 prefabPosition = previousObject.transform.position;
+
+                     RectTransform rt = (RectTransform)previousObject.transform;
+                         float height = rt.rect.height;
+                         Debug.Log("height of MCQ is " + height);
+                    
+                    mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+
+                    mcqBoard.transform.position = new Vector2(prefabPosition.x, height - 1000.0f);//(height + 200.0f)); //600.0f
+                    VerticalLayoutGroup mcqVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                    mcqVlg.padding.top = -400;
+                    mcqVlg.spacing = -800;
                         
                         // pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
 
@@ -1850,12 +1884,35 @@ public class MissionManagement : MonoBehaviour
                 else
                 {
 
-                    Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    // Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    GameObject previousObject = convoContentPrefab.transform.GetChild(i-1).gameObject;
+                    Vector2 prefabPosition = previousObject.transform.position;
+
+                     RectTransform rt = (RectTransform)previousObject.transform;
+                         float height = rt.rect.height;
+                         Debug.Log("height of second MCQ is " + height);
 
                     // GameObject 
                     newPrefab = Instantiate(mcqPrefab).gameObject;
                     newPrefab.transform.SetParent(convoContentPrefab.transform, true);
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 100.0f);//(height + 200.0f)); //600.0f
+
+                    // float spaceHeight = (height * (i + 1)) - 300.0f;
+
+                    // for (var m = 0; m < i; m++)
+                    // {
+                    //     GameObject currentObj = convoContentPrefab.transform.GetChild(m).gameObject;
+                    //     RectTransform rth = (RectTransform)currentObj.transform;
+                    //      float tempheight = rth.rect.height + 320.0f;
+
+                    //     spaceHeight += tempheight;
+                    // }
+                    // Debug.Log("spaceHeight is " + spaceHeight);
+                    
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y -100.0f);//(height + 200.0f)); //600.0f
+                    
+                    VerticalLayoutGroup mcqVlg = newPrefab.GetComponent<VerticalLayoutGroup>();
+                    mcqVlg.padding.top = 0;
+                    mcqVlg.spacing = -500;
 
                      convoWithMCQPrefabsArray.Add(newPrefab);
 
@@ -1866,21 +1923,6 @@ public class MissionManagement : MonoBehaviour
                          optionContainer = optionBoard.transform.GetChild(0).gameObject;
                 }
 
-               
-                
-                    // if (i == 1)
-                    // {
-                    //     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 800.0f);
-
-                    // }
-                    // else
-                    // {
-
-                    // }
-                     
-
-                        //    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
-                    
 
                     GameObject bg = questionBoard.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
@@ -1941,75 +1983,107 @@ public class MissionManagement : MonoBehaviour
                     }
                     convoContentPrefab.transform.SetAsFirstSibling();
 
-                    if (i > 0)
+                    VerticalLayoutGroup ccVlg = convoContentPrefab.GetComponent<VerticalLayoutGroup>();
+                    if (allDetailData.passages[parameter].questions.Length > 4)
                     {
-                        pathVlg = convoWithMCQPrefabsArray[i].GetComponent<VerticalLayoutGroup>();
-
-                        RectTransform rt = (RectTransform)convoWithMCQPrefabsArray[i].transform;
-                         float height = rt.rect.height;
-                         Debug.Log("height of MCQ is " + height);
                         
-                        if (answerOptions == 2)
+                        ccVlg.padding.bottom = 5000;
+                        ccVlg.spacing = 660;
+                        if (answerOptions == 3)
                         {
-                            pathVlg.padding.left = 0;
-                            pathVlg.padding.top = 400;
-                            pathVlg.padding.bottom = 600;
-                            pathVlg.spacing = -200;
-                            if (i == 1)
-                            {
-                                pathVlg.padding.top = 600;
-                                // pathVlg.padding.bottom = 600;
-                            }
-                            else if (i == 2)
-                            {
-                                pathVlg.padding.top = 800;
-                                // pathVlg.padding.bottom = 600;
-                            }
-                        }
-                        else if (answerOptions == 3)
-                        {
-                            pathVlg.padding.left = 0;
-                            pathVlg.padding.top = 800;
-                            pathVlg.padding.bottom = 800;
-                            pathVlg.spacing = -200;
+                            ccVlg.spacing = 780;
                         }
                         else if (answerOptions == 4)
                         {
-                            pathVlg.padding.left = 0;
-                            pathVlg.padding.top = 1000;
-                            pathVlg.padding.bottom = 800;
-                            pathVlg.spacing = -200;
+                            ccVlg.spacing = 900;
                         }
-                        
-                        if (parameter > 0 && i >= 2)
-                        {
-                            pathVlg.padding.top = 1200;
-                        }
-
-
                     }
                     else
                     {
-                        mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
-                        
-                        pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
 
-                        if (answerOptions == 2)
+                        ccVlg.padding.bottom = 6500;
+                        ccVlg.spacing = 700;
+                        
+                        if (answerOptions == 3)
                         {
-                            pathVlg.padding.bottom = 400;
+                            ccVlg.spacing = 980;
                         }
-                        else if (answerOptions >= 3)
+                        else if (answerOptions == 4)
                         {
-                   
-                            pathVlg.padding.bottom = 1000;
+                            ccVlg.spacing = 800;
+                            ccVlg.padding.bottom = 8000;
                         }
+                    }
+                     
+                    
+                    
+                    // if (i == 1)
+                    // {
+                        // for 4 with 2 options , 5000 , 800 or 6000, 800
+                        // for 6 with 2 options, 
+                    //     GameObject previousObject = convoContentPrefab.transform.GetChild(i).gameObject;
+
+
+                    //     VerticalLayoutGroup pathVlg = previousObject.GetComponent<VerticalLayoutGroup>();
+
+                    //     pathVlg.padding.top = -600;
+                        
+                        // if (answerOptions == 2)
+                        // {
+                        //     pathVlg.padding.left = 0;
+                        //     pathVlg.padding.top = 400;
+                        //     pathVlg.padding.bottom = 600;
+                        //     pathVlg.spacing = -200;
+                        //     if (i == 1)
+                        //     {
+                        //         pathVlg.padding.top = 600;
+                        //         // pathVlg.padding.bottom = 600;
+                        //     }
+                        //     else if (i == 2)
+                        //     {
+                        //         pathVlg.padding.top = 800;
+                        //         // pathVlg.padding.bottom = 600;
+                        //     }
+                        // }
+                        // else if (answerOptions == 3)
+                        // {
+                        //     pathVlg.padding.left = 0;
+                        //     pathVlg.padding.top = 800;
+                        //     pathVlg.padding.bottom = 800;
+                        //     pathVlg.spacing = -200;
+                        // }
                         // else if (answerOptions == 4)
                         // {
-                            
-                        //     pathVlg.padding.bottom = 1000;
-                           
+                        //     pathVlg.padding.left = 0;
+                        //     pathVlg.padding.top = 1000;
+                        //     pathVlg.padding.bottom = 800;
+                        //     pathVlg.spacing = -200;
                         // }
-                    }
+                        
+                        // if (parameter > 0 && i >= 2)
+                        // {
+                        //     pathVlg.padding.top = 1200;
+                        // }
+
+
+                    // }
+                    // else
+                    // {
+                    //     mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+                        
+                    //     pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                    //     if (answerOptions == 2)
+                    //     {
+                    //         pathVlg.padding.bottom = 400;
+                    //     }
+                    //     else if (answerOptions >= 3)
+                    //     {
+                   
+                    //         pathVlg.padding.bottom = 1000;
+                    //     }
+                        
+                    // }
             }
         }
         // else
@@ -2147,8 +2221,10 @@ public class MissionManagement : MonoBehaviour
                 GameObject optionContainer;
                 VerticalLayoutGroup pathVlg;
 
+          
             for (var i = 0; i < allDetailData.conversationQuestions.Length; i++)
             {
+                
                 //  questionNumber = i;
                 if (i == 0)
                 {
@@ -2158,13 +2234,26 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
                     int dialogueNumber = i + 1;
                     mytext.text = "Conversation - Dialogue " + dialogueNumber;
+
+
+                    
                 }
                 else
                 {
+                    
+                    
                     // questionNumberValue += 1;
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    // GameObject previousObject = convoContentPrefab.transform.GetChild(i-1).gameObject;
+                    // Vector2 prefabPosition = previousObject.transform.position;
+
+                    //  RectTransform rt = (RectTransform)previousObject.transform;
+                    //      float height = rt.rect.height;
+                    //      Debug.Log("height of second MCQ is " + height);
+
                     newPrefab = Instantiate(convoContentPrefab).gameObject;
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y-1666f); // -1666f
+                    // float multiplier = i - 1;
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 100.0f); // -1666f
                     newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
 
                     GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
@@ -2241,53 +2330,28 @@ public class MissionManagement : MonoBehaviour
 
                     convoWithMCQPrefabsArray.Add(newPrefab);
 
-                     if (i > 0)
-                    {
-                        pathVlg = convoWithMCQPrefabsArray[i].GetComponent<VerticalLayoutGroup>();
 
-                        RectTransform rt = (RectTransform)convoWithMCQPrefabsArray[i].transform;
-                         float height = rt.rect.height;
-                         Debug.Log("height of MCQ is " + height);
+
+                VerticalLayoutGroup ccParentVlg = convoPassageMCQPrefabParent.GetComponent<VerticalLayoutGroup>();
+                ccParentVlg.spacing = -6000;
+
+                
+                    GameObject previousObject = convoPassageMCQPrefabParent.transform.GetChild(i).gameObject;
+
+                    VerticalLayoutGroup ccVlg = previousObject.GetComponent<VerticalLayoutGroup>();
+                    ccVlg.spacing = -6500;
+               
+                if (allDetailData.conversationQuestions.Length <= 3 && answerOptions <= 2)
+                {
                         
-                        if (answerOptions == 2)
-                        {
-                            pathVlg.padding.left = 0;
-                            pathVlg.padding.top = 400;
-                            pathVlg.padding.bottom = 600;
-                            pathVlg.spacing = -200;
-                            if (i == 1)
-                            {
-                                pathVlg.padding.top = 600;
-                                // pathVlg.padding.bottom = 600;
-                            }
-                            else if (i == 2)
-                            {
-                                pathVlg.padding.top = 800;
-                                // pathVlg.padding.bottom = 600;
-                            }
-                        }
-                        else if (answerOptions == 3)
-                        {
-                            pathVlg.padding.left = 0;
-                            pathVlg.padding.top = 800;
-                            pathVlg.padding.bottom = 800;
-                            pathVlg.spacing = -200;
-                        }
-                        else if (answerOptions == 4)
-                        {
-                            pathVlg.padding.left = 0;
-                            pathVlg.padding.top = 1000;
-                            pathVlg.padding.bottom = 800;
-                            pathVlg.spacing = -200;
-                        }
+                    ccParentVlg.spacing = -8200;
                         
-                        if (parameter > 0 && i >= 2)
-                        {
-                            pathVlg.padding.top = 1200;
-                        }
+                }
 
-
-                    }
+                  
+                    
+               
+                     
                     
                     
                 }  
@@ -2327,6 +2391,14 @@ public class MissionManagement : MonoBehaviour
 
     public void SetUpSingleConvoWithMCQ()
     {
+
+         GameObject previousObject = convoContentPrefab.transform.GetChild(0).gameObject;
+        Vector2 prefabPosition = previousObject.transform.position;
+
+        RectTransform rt = (RectTransform)previousObject.transform;
+        float height = rt.rect.height;
+        Debug.Log("height of second MCQ is " + height);
+
         GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject; // conversation board
         // GameObject board = convoBoard.transform.GetChild(0).gameObject;
         TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>(); 
@@ -2339,6 +2411,10 @@ public class MissionManagement : MonoBehaviour
             descriptionText.text = allDetailData.conversationQuestions[0].conversation;
 
             GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+            mcqBoard.transform.position = new Vector2(prefabPosition.x, height - 100.0f);//(height + 200.0f)); //600.0f
+            VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+            // pathVlg.padding.top = -500;
+
             GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
             GameObject bg = questionBoard.transform.GetChild(0).gameObject;
@@ -2395,19 +2471,22 @@ public class MissionManagement : MonoBehaviour
                 }
             }
 
-            
-                        
-                VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+             GameObject firstObject = convoPassageMCQPrefabParent.transform.GetChild(0).gameObject;
 
-                if (answerOptions == 2)
-                {
-                    pathVlg.padding.bottom = 400;
-                }
-                else if (answerOptions >= 3)
-                {
+                    VerticalLayoutGroup ccVlgfirst = firstObject.GetComponent<VerticalLayoutGroup>();
+                    ccVlgfirst.spacing = -6500;
+                        
+                // VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                // if (answerOptions == 2)
+                // {
+                //     pathVlg.padding.bottom = 400;
+                // }
+                // else if (answerOptions >= 3)
+                // {
             
-                    pathVlg.padding.bottom = 1000;
-                }
+                //     pathVlg.padding.bottom = 1000;
+                // }
                         
                     
 
@@ -2606,6 +2685,20 @@ public class MissionManagement : MonoBehaviour
 
         } 
 
+        if (newResponse.response.Count == 0)
+        {
+            Debug.Log("newResponse is " + newResponse);
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please attempt all the questions to submit",
+                    "Cancel",
+                    "Try now",
+                    Reset
+                    );
+        }
+        else
+        {
+
         string json = JsonUtility.ToJson(newResponse);
         Debug.Log(json);
 
@@ -2676,9 +2769,14 @@ public class MissionManagement : MonoBehaviour
 				);
         }
         request.Dispose();
+        }
 
     }
 
+    void PrintLine()
+    {
+        Debug.Log("Print null response");
+    }
     // public void ResettingData()  => StartCoroutine(Reset());
 
     void Reset()

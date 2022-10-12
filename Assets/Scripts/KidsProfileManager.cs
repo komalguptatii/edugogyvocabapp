@@ -268,6 +268,7 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode + "Update");
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            GoSubscribe();
             // AddTrial();
             // SceneManager.LoadScene("Settings");
 
