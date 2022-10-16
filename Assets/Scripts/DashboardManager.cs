@@ -97,9 +97,11 @@ public class DashboardManager : MonoBehaviour
         }
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
-        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; //for api.testing.edugogy.app
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
+        // auth_key = "Bearer uJKmGmzfdVeD5f3i_8NMLuz5-arHlpw1"; // Ridhi di's - Komal
+        // auth_key = "Bearer 6vI6b1PyNgh-oBZYZE-LoIKbkoC4PeGV"; //for api.testing.edugogy.app
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
+        // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
+
 
         GetUserProfile();
     }

@@ -660,11 +660,12 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
-        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; // Ridhima testing
+        //  auth_key = "Bearer uJKmGmzfdVeD5f3i_8NMLuz5-arHlpw1";  // Ridhi di's - Komal
+        // auth_key = "Bearer 6vI6b1PyNgh-oBZYZE-LoIKbkoC4PeGV"; // Ridhima testing
     }
 
     async void Start ()
@@ -1397,76 +1398,140 @@ public class MissionManagement : MonoBehaviour
                                     if (revisionCountArray[x] != 0)
                                     {
                                         revisionWordReference = x;
+                                        bool revisionConversation = false;
                                         Debug.Log("value of revision word reference " + revisionWordReference);
+                                        if (dataDisplayed["isRevisionWordConversationDone"] == true)
+                                        {
+                                            revisionConversation = true;
+                                        }
                                         dataDisplayed.Clear();
                                         dataDisplayed = copyOfdataDisplayed;
                                         dataDisplayed["isRevisionWordListDone"] = true;
+                                        if (revisionConversation == true)
+                                        {
+                                            dataDisplayed["isRevisionWordConversationDone"] = true;
+                                        }
+
+                                        if (x == numberOfRevisionWords - 1 && revisionCountArray[x] == 0)
+                                        {
+                                            parameterCountControlCheck = 0;
+                                            dataDisplayed["isRevisionWordContentDone"] = true;
+                                            Debug.Log("isRevisionWordContentDone ");
+
+                                        } 
+                                    
                                         return;
 
                                     }
-                                    else if (x == numberOfRevisionWords - 1)
+                                    else if (x == numberOfRevisionWords - 1 && revisionCountArray[x] == 0)
                                     {
-                                        parameterCountControlCheck = 0;
-                                        dataDisplayed["isRevisionWordContentDone"] = true;
-                                        Debug.Log("isRevisionWordContentDone ");
+        
+                                        Debug.Log("Last word with 0 data not returning to passages");
+                                            parameterCountControlCheck = 0;
+                                            dataDisplayed["isRevisionWordContentDone"] = true;
+                                            Debug.Log("isRevisionWordContentDone ");
 
-                                    } 
+                                    }
+                                    
+                                    
                                 }
                             } 
                         }
                      }
                      else
                      {
-                        Debug.Log("going in second loop");
-                        if (tempDataCount == revisionCountArray[revisionWordReference] + dataCountDetails.conversation_revision_word_count)
-                        {
-                            // if (tempDataCount == revisionList - 1)
-                            // {
-                                
-                                  tempDataCount = 0; // 0 for first word content
+                        Debug.Log("going in second loop" + tempDataCount + " n " + revisionList);
+                        Debug.Log("tempDataCount " + tempDataCount);
 
+               
+                        // if (tempDataCount == revisionCountArray[revisionWordReference] ) //+ dataCountDetails.conversation_revision_word_count) commented this considering that conversation will always be shown with first revision word
+                        // {
+                            
                                     if (revisionWordReference == numberOfRevisionWords - 1)
                                     {
 
-                                        // if (dataCountDetails.conversation_revision_word_count != 0 && dataDisplayed["isRevisionWordConversationDone"] == true)
-                                        // {
+                                         Debug.Log("Last word with 0 data not returning to passages in second loop");
+                                        if (dataCountDetails.conversation_revision_word_count != 0 && dataDisplayed["isRevisionWordConversationDone"] == false)
+                                        {
+                                             return;
+                                        }
+                                        else if (tempDataCount == revisionCountArray[revisionWordReference]) // + dataCountDetails.conversation_revision_word_count)
+                                        {
+                                             tempDataCount = 0; // 0 for first word content
                                             parameterCountControlCheck = 0;
                                             dataDisplayed["isRevisionWordContentDone"] = true;
                                             Debug.Log("isRevisionWordContentDone ");
-                                        // }
+                                        }
+                                        else if (dataDisplayed["isRevisionWordConversationDone"] == true)
+                                        {
+                                            if (tempDataCount == revisionCountArray[revisionWordReference] + dataCountDetails.conversation_revision_word_count)
+                                            {
+                                                tempDataCount = 0; // 0 for first word content
+                                                parameterCountControlCheck = 0;
+                                                dataDisplayed["isRevisionWordContentDone"] = true;
+                                                Debug.Log("isRevisionWordContentDone ");
+                                            }
+                                        }
+                                       return;
             
                                     }  
                                     else if (revisionWordReference < numberOfRevisionWords - 1)
                                     {
-                                        Debug.Log("isRevisionWordContentDone with ");
-
-                                        int nextReferenceNumber = revisionWordReference + 1;
-                                        for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
+                                        if (tempDataCount == revisionCountArray[revisionWordReference] ) 
                                         {
-                                        Debug.Log("number of revision words are " + numberOfRevisionWords);
-                                            if (revisionCountArray[x] != 0)
-                                            {
-                                                revisionWordReference = x;
-                                                Debug.Log("value of revision word reference " + revisionWordReference);
-                                                dataDisplayed.Clear();
-                                                dataDisplayed = copyOfdataDisplayed;
-                                                dataDisplayed["isRevisionWordListDone"] = true;
-                                                return;
+                                             tempDataCount = 0; // 0 for first word content
+                                            Debug.Log("isRevisionWordContentDone with ");
 
+                                            int nextReferenceNumber = revisionWordReference + 1;
+                                            for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
+                                            {
+                                                Debug.Log("number of revision words are " + numberOfRevisionWords);
+                                                if (revisionCountArray[x] != 0)
+                                                {
+                                                    revisionWordReference = x;
+                                                    bool revisionConversation = false;
+                                                    Debug.Log("value of revision word reference " + revisionWordReference);
+                                                    if (dataDisplayed["isRevisionWordConversationDone"] == true)
+                                                    {
+                                                        revisionConversation = true;
+                                                    }
+                                                    dataDisplayed.Clear();
+                                                    dataDisplayed = copyOfdataDisplayed;
+                                                    dataDisplayed["isRevisionWordListDone"] = true;
+                                                    dataDisplayed["isRevisionWordConversationDone"] = true;
+                                                    return;
+
+                                                }
+                                                else if (x == numberOfRevisionWords - 1)
+                                                {
+                                                
+                                                    parameterCountControlCheck = 0;
+                                                    dataDisplayed["isRevisionWordContentDone"] = true;
+                                                    Debug.Log("isRevisionWordContentDone ");
+
+                                                } 
                                             }
-                                            else if (x == numberOfRevisionWords - 1)
-                                            {
-                                            
-                                                parameterCountControlCheck = 0;
-                                                dataDisplayed["isRevisionWordContentDone"] = true;
-                                                Debug.Log("isRevisionWordContentDone ");
-
-                                            } 
                                         }
+                                        
                                     } 
-                            // }
+                                   
+                            
                           
-                        }
+                        // }
+                        // else if (dataDisplayed["isRevisionWordConversationDone"] == true && (revisionWordReference == numberOfRevisionWords - 1 && tempDataCount == revisionCountArray[revisionWordReference]))
+                        // {
+                        //      tempDataCount = 0; // 0 for first word content
+                        //      Debug.Log("Last word with 0 data not returning to passages in second loop" + revisionWordReference);
+
+                          
+                        //         // if (revisionWordReference == numberOfRevisionWords - 1)
+                        //         // {
+                        //                     parameterCountControlCheck = 0;
+                        //                     dataDisplayed["isRevisionWordContentDone"] = true;
+                        //                     Debug.Log("isRevisionWordContentDone ");
+                        //         // }
+                        
+                        // }
                      }
                     
                         
@@ -1558,6 +1623,7 @@ public class MissionManagement : MonoBehaviour
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
         
         Debug.Log("answer options is " + answerOptions);
+        answerClicked = 0;
         int noOfAttempts = 0;
         for(int x = 0; x < answerOptions; x++)
         {
@@ -1573,7 +1639,7 @@ public class MissionManagement : MonoBehaviour
         int children = optionContainer.transform.childCount;
         
         Button[] otherMCQbuttons = new Button[answerOptions];
-
+        
 
         questionNumber = parameter;
 
@@ -1619,6 +1685,13 @@ public class MissionManagement : MonoBehaviour
                     bgPathVlg.spacing = 80;
                     bgPathVlg.padding.bottom = 80;
                 }
+                else if (answerOptions <= 2)
+                {
+                    bgPathVlg.padding.bottom = 160;
+                    bgPathVlg.spacing = 140;
+                    mcqPathVlg.padding.top = 100;
+                    // mcqPathVlg.spacing = 600;
+                }
                 else
                 {
                     bgPathVlg.padding.bottom = 100;
@@ -1628,8 +1701,15 @@ public class MissionManagement : MonoBehaviour
             }
             else if (questionLength <= 70)
             {
-                bgPathVlg.spacing = 10;
-                // mcqPathVlg.spacing = 380;
+                bgPathVlg.spacing = 20;
+                bgPathVlg.padding.bottom = 160;
+                mcqPathVlg.spacing = 380;
+                mcqPathVlg.padding.top = 40;
+
+                if (answerOptions == 4)
+                {
+                    mcqPathVlg.spacing = 500;
+                }
 
             }
             else if (questionLength >= 200)
@@ -1641,7 +1721,7 @@ public class MissionManagement : MonoBehaviour
 
                 if (answerOptions == 2)
                 {
-                    mcqPathVlg.spacing -= 60;
+                    mcqPathVlg.spacing -= 100;
                     mcqPathVlg.padding.top = 120;
                 }
                 
@@ -1735,7 +1815,9 @@ public class MissionManagement : MonoBehaviour
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
         Button[] buttonArray = mcqButtonArray;
-        
+        noOfAttempts = thisnoOfAttempts;
+         Debug.Log("No of attempts is " + thisnoOfAttempts);
+         Debug.Log("No of times answer clicked is " + answerClicked);
         int tag = System.Convert.ToInt32(button.tag);
         int value = allDetailData.questions[questionNumber].questionOptions[tag].value;
         Debug.Log(button.tag);
@@ -1747,8 +1829,8 @@ public class MissionManagement : MonoBehaviour
 
         int questionId = allDetailData.questions[questionNumber].id;
         int selectedOptionsId = allDetailData.questions[questionNumber].questionOptions[tag].id;   
-        int answerClicked = 0;
-        noOfAttempts = thisnoOfAttempts;
+        // int answerClicked = 0;
+        
 
         if (value == 1)
         {
@@ -1765,17 +1847,17 @@ public class MissionManagement : MonoBehaviour
         answerClicked += 1;
         rightWrongImage.SetActive(true);
         
-       Debug.Log("No of times answer clicked is " + answerClicked);
+       
         
-        Debug.Log("No of attempts is " + noOfAttempts);
+       
        if (answerClicked == noOfAttempts)
         {
             for (int j = 0; j < buttonArray.Length; j++)
             {
                 buttonArray[j].enabled = false;
             }
-            answerClicked = 0;
-            noOfAttempts = 0;
+            // answerClicked = 0;
+            // noOfAttempts = 0;
             // buttonArray.Clear();
             // Destroy(buttonArray);
         }
@@ -1811,8 +1893,8 @@ public class MissionManagement : MonoBehaviour
     {
         isQuestion = true;
         convoWithMCQPrefabsArray.Clear();
-        // Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
-        // bar.value = 1;
+        Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        bar.value = 1;
         // passageScrollBar.value = 0.0f;
         DestroyConvoPrefabs();
         Debug.Log("setting up second passage " + parameter);
@@ -1895,6 +1977,7 @@ public class MissionManagement : MonoBehaviour
                     // GameObject 
                     newPrefab = Instantiate(mcqPrefab).gameObject;
                     newPrefab.transform.SetParent(convoContentPrefab.transform, true);
+                    newPrefab.transform.localScale = new Vector3(1, 1, 1);
 
                     // float spaceHeight = (height * (i + 1)) - 300.0f;
 
@@ -1909,10 +1992,41 @@ public class MissionManagement : MonoBehaviour
                     // Debug.Log("spaceHeight is " + spaceHeight);
                     
                     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y -100.0f);//(height + 200.0f)); //600.0f
-                    
                     VerticalLayoutGroup mcqVlg = newPrefab.GetComponent<VerticalLayoutGroup>();
                     mcqVlg.padding.top = 0;
-                    mcqVlg.spacing = -500;
+                    mcqVlg.spacing = -600;
+
+                    int options = allDetailData.passages[parameter].questions[i].questionOptions.Length;
+
+                    if (options == 3)
+                        {
+                            mcqVlg.padding.top = -200;
+                            mcqVlg.spacing = -900;
+                        }
+
+                    if (i >= 2)
+                    {
+                        GameObject obj = convoContentPrefab.transform.GetChild(i-1).gameObject;
+
+                        VerticalLayoutGroup vlg = obj.GetComponent<VerticalLayoutGroup>();
+                        float value = vlg.padding.top;
+                    
+                        if (options == 3)
+                        {
+
+                            mcqVlg.padding.top = 0;
+                            // if (value == -200)
+                            // {
+                            //     mcqVlg.padding.top = 400;
+                            // }
+
+                        }
+                    }
+                    else if (i > 4)
+                    {
+                        mcqVlg.padding.top = 100;
+                    }
+                    
 
                      convoWithMCQPrefabsArray.Add(newPrefab);
 
@@ -1938,6 +2052,9 @@ public class MissionManagement : MonoBehaviour
 
                     int answerOptions = allDetailData.passages[parameter].questions[i].questionOptions.Length;
                     Debug.Log(answerOptions);
+
+                    
+                   
 
                     int noOfAttempts = 0;
                     for(int x = 0; x < answerOptions; x++)
@@ -1983,7 +2100,9 @@ public class MissionManagement : MonoBehaviour
                     }
                     convoContentPrefab.transform.SetAsFirstSibling();
 
-                    VerticalLayoutGroup ccVlg = convoContentPrefab.GetComponent<VerticalLayoutGroup>();
+                    VerticalLayoutGroup ccVlg = convoContentPrefab.GetComponent<VerticalLayoutGroup>(); 
+                    ccVlg.padding.bottom = 0;
+                        ccVlg.spacing = 0;
                     if (allDetailData.passages[parameter].questions.Length > 4)
                     {
                         
@@ -2255,6 +2374,7 @@ public class MissionManagement : MonoBehaviour
                     // float multiplier = i - 1;
                     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 100.0f); // -1666f
                     newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
+                    newPrefab.transform.localScale = new Vector3(1, 1, 1);
 
                     GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
@@ -3400,6 +3520,7 @@ public class MissionManagement : MonoBehaviour
                 conversationText.text = revConvo.description;
                 string desc = revConvo.description;
                 Debug.Log("Length of string is " + desc.Length);
+                dataDisplayed["isRevisionWordConversationDone"] = true;
                 if (desc.Length > 400.0f)
                 {
                     pathVlg.padding.top = (int)desc.Length + 300;
@@ -3415,7 +3536,7 @@ public class MissionManagement : MonoBehaviour
                 // pathVlg.padding.top = (int)desc.Length + 200;
                 Debug.Log(revConvo.description);
                 Debug.Log(conversationText.text);
-                dataDisplayed["isRevisionWordConversationDone"] = true;
+                
             }
             
         }   
@@ -3875,12 +3996,12 @@ public class MissionManagement : MonoBehaviour
 
     public void MultipleWordSetup(int parameter)
     {
-         DestroyPrefabs();
+        DestroyPrefabs();
         HideSpeakerAndImage();
 
         Debug.Log("Value of parameter here is " + parameter);
-             Debug.Log("Value of revision reference number here is " + revisionWordReference);
-             Debug.Log("revision word name" + revisionWordDetails.name);
+        Debug.Log("Value of revision reference number here is " + revisionWordReference);
+        Debug.Log("revision word name" + revisionWordDetails.name);
 
         dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
@@ -3896,12 +4017,13 @@ public class MissionManagement : MonoBehaviour
         multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
 
         int multipleWordCount = 0;
+
         UseMultipleWord multipleWordDetails = new UseMultipleWord();
-        
+        typeOfDay.text = "Let's try to use these together!";
+
         if (dataDisplayed["isRevisionWordListDone"] == true)
         {
-             typeOfDay.text = "Lets’ try to use these together!";
-        
+            
             multipleWordCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count;
             Debug.Log("Value of multiple word count is " + multipleWordCount);
             Debug.Log("Value of parameter is " + parameter);
@@ -3911,8 +4033,7 @@ public class MissionManagement : MonoBehaviour
         }
         else
         {
-             typeOfDay.text = "Lets’ try to use these together!";
-        
+            
             multipleWordCount = dataCountDetails.new_word_data.more_data[0].use_multiple_count;
              multipleWordDetails = newWordDetails.useMultipleWords[parameter];
              word.text = multipleWordDetails.description;
@@ -4267,6 +4388,12 @@ public class MissionManagement : MonoBehaviour
 
     public void SetBottomTitleLabel()
     {
+        if (isQuestion == true)
+        {
+            answerClicked = 0;
+            noOfAttempts = 0;
+        }
+
         GameObject bottomPanel = GameObject.Find("BottomPanel");
         GameObject childObj = bottomPanel.transform.GetChild(0).gameObject;
         TMPro.TMP_Text numberText = childObj.GetComponent<TMPro.TMP_Text>();
@@ -4284,10 +4411,11 @@ public class MissionManagement : MonoBehaviour
 
     public void NextButton(Button button)
     {
-         
+
         //Check screen count   
         if (button.tag == "Next")
         {
+            
             if (screenCount != totalNumber)
             {
                     // submitButton.gameObject.SetActive(false);
@@ -4320,6 +4448,7 @@ public class MissionManagement : MonoBehaviour
 
             }
             
+            SetBottomTitleLabel();
         }
         else
         {
@@ -4340,7 +4469,7 @@ public class MissionManagement : MonoBehaviour
            
         }
 
-        SetBottomTitleLabel();
+        // SetBottomTitleLabel();
        
     }
 
@@ -4351,6 +4480,7 @@ public class MissionManagement : MonoBehaviour
 
     void GoBack()
     {
+       
         if (isQuestion == true)
         {
             questionResponseDict.Clear();
@@ -4372,6 +4502,7 @@ public class MissionManagement : MonoBehaviour
             Debug.Log("we are on first screen");
         }
 
+        SetBottomTitleLabel();
         // if (screenCount != totalNumber)
         // {
         //     submitButton.gameObject.SetActive(false);
