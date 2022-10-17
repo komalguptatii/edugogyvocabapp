@@ -124,7 +124,7 @@ public class VerifyOTPManager : MonoBehaviour
 
 
         Debug.Log(returnNumber);
-        description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for  your space flight.";
+        description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for your space flight.";
     }
 
     void SetInputCharacterLength()

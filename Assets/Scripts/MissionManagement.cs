@@ -115,6 +115,9 @@ public class MissionManagement : MonoBehaviour
     [SerializeField]
     public GameObject passageScrollBar;
 
+     [SerializeField]
+    public GameObject passageDescriptionScrollBar;
+
     private Vector3 sentenceRealPos;
     
     string auth_key;
@@ -467,13 +470,24 @@ public class MissionManagement : MonoBehaviour
         public int mcq_count;
     }
 
-    [Serializable]
+    
+
+[Serializable]
+    public class Error
+    {
+        public int code;
+        public string source;
+        public int value;
+        public string title;
+        public string detail;
+    }
+
+[Serializable]
     public class BadRequest
     {
-        public int status;
-        public string title;
-        public string message;
+        public Error[] error;
     }
+     
 
     Dictionary<string, bool> availableData = new Dictionary<string, bool>()
         {
@@ -623,6 +637,7 @@ public class MissionManagement : MonoBehaviour
     public TextMeshProUGUI missionTitle;
     public int noOfAttempts = 0;
     int answerClicked = 0;
+    int answerAttemptedForMCQ = 0;
     bool updateDUTSentencePosition = false;
     float calHeight = 0.0f;
     bool isQuestion = false;
@@ -660,7 +675,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
         // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
@@ -759,13 +774,20 @@ public class MissionManagement : MonoBehaviour
             Debug.Log("Error: in start mission" + request.error);
             Debug.Log(request.downloadHandler.text);
             string jsonString = request.downloadHandler.text;
+           
+
            BadRequest badRequestDetails = new BadRequest();
 
             badRequestDetails = JsonUtility.FromJson<BadRequest>(jsonString);
 
+            Debug.Log(badRequestDetails.error[0]);
+            int levelValue = badRequestDetails.error[0].value;
+            string titleMessage = badRequestDetails.error[0].detail;
+            
+            string displayMessage = titleMessage + " & level is " + levelValue;
             Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    badRequestDetails.message,
+                    displayMessage,
                     "Cancel",
                     "Home",
                     GoBackToDashboard
@@ -1623,7 +1645,8 @@ public class MissionManagement : MonoBehaviour
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
         
         Debug.Log("answer options is " + answerOptions);
-        answerClicked = 0;
+        answerAttemptedForMCQ = 0;
+        Debug.Log("setting value of answer clicked is " + answerClicked);
         int noOfAttempts = 0;
         for(int x = 0; x < answerOptions; x++)
         {
@@ -1726,66 +1749,7 @@ public class MissionManagement : MonoBehaviour
                 }
                 
             }
-            // if (questionLength <= 30)
-            // {
-            //     mcqPathVlg.spacing = 120;
-            // }
             
-            // if (questionLength <= 30)
-            // {
-                
-            //     mcqPathVlg.spacing = 100;
-            //     // if (answerOptions == 4)
-            //     // {
-            //     //     mcqPathVlg.spacing = -80;
-            //     // }
-            //     // else if (answerOptions > 3)
-            //     // {
-            //     //     mcqPathVlg.spacing = -160;
-            //     // }
-
-               
-                
-            // }
-            // else if (questionLength >= 32 && questionLength <= 38)
-            // {
-
-            //     mcqPathVlg.spacing = -120;
-            //     if (answerOptions == 2)
-            //     {
-            //         mcqPathVlg.spacing = -260;
-            //     }
-            // }
-            // else if (questionLength < 40)
-            // {
-            //      mcqPathVlg.spacing = -100; // -60
-            // }
-            // else if (questionLength > 70 && questionLength < 200)
-            // {
-            //     bgPathVlg.spacing = 40;
-            //     bgPathVlg.padding.bottom = 40;
-            //     if (answerOptions == 2)
-            //     {
-            //          mcqPathVlg.spacing = -300;
-                     
-            //     }
-            //     else
-            //     {
-            //         mcqPathVlg.spacing = -180;
-            //     }
-            // }
-            // else if (questionLength < 70)
-            // {
-            //     mcqPathVlg.spacing = -240;
-            // }
-            // else if (questionLength > 200)
-            // {
-            //     mcqPathVlg.spacing = -100;
-            // }
-            // else 
-            // {
-            //     mcqPathVlg.spacing = -80;
-            // }
             
         }
 
@@ -1847,21 +1811,22 @@ public class MissionManagement : MonoBehaviour
         answerClicked += 1;
         rightWrongImage.SetActive(true);
         
-       
-        
-       
+        Debug.Log("No of times answer clicked after is " + answerClicked);
+
+    //    answerAttemptedForMCQ = answerClicked;
        if (answerClicked == noOfAttempts)
         {
             for (int j = 0; j < buttonArray.Length; j++)
             {
                 buttonArray[j].enabled = false;
             }
-            // answerClicked = 0;
-            // noOfAttempts = 0;
+            answerClicked = 0;
+            noOfAttempts = 0;
             // buttonArray.Clear();
             // Destroy(buttonArray);
         }
 
+        
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
              Debug.Log("Adding for next time" + selectedOptionsId);
@@ -1895,7 +1860,10 @@ public class MissionManagement : MonoBehaviour
         convoWithMCQPrefabsArray.Clear();
         Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
         bar.value = 1;
-        // passageScrollBar.value = 0.0f;
+
+        Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
+        secondBar.value = 1;
+       
         DestroyConvoPrefabs();
         Debug.Log("setting up second passage " + parameter);
         baseParentBoard.gameObject.SetActive(false);
@@ -2316,8 +2284,12 @@ public class MissionManagement : MonoBehaviour
 
     public void ConversationWithMCQSetup(int parameter)
     {
-        // Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
-        // bar.value = 1;
+        Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
+        secondBar.value = 1;
+
         // passageScrollBar.value = 0.0f;
         isQuestion = true;
         baseParentBoard.gameObject.SetActive(false);
@@ -2511,6 +2483,11 @@ public class MissionManagement : MonoBehaviour
 
     public void SetUpSingleConvoWithMCQ()
     {
+         Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
+        secondBar.value = 1;
 
          GameObject previousObject = convoContentPrefab.transform.GetChild(0).gameObject;
         Vector2 prefabPosition = previousObject.transform.position;
@@ -3205,7 +3182,8 @@ public class MissionManagement : MonoBehaviour
                         else
                         {
                             pathVlg.padding.top = 60;
-                            pathVlg.spacing = 80;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
                         }
 
                     }
@@ -3314,7 +3292,8 @@ public class MissionManagement : MonoBehaviour
                 else
                 {
                     pathVlg.padding.top = 60;
-                    pathVlg.spacing = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
                 }
 
             }
@@ -3427,8 +3406,9 @@ public class MissionManagement : MonoBehaviour
                 }
                 else
                 {
-                    pathVlg.padding.top = 60;
-                    pathVlg.spacing = 60;
+                   pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
                 }
 
             }
@@ -3820,8 +3800,9 @@ public class MissionManagement : MonoBehaviour
                         }
                         else
                         {
-                            pathVlg.padding.top = 60;
-                            pathVlg.spacing = 60;
+                           pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
                         }
 
 
@@ -3955,8 +3936,9 @@ public class MissionManagement : MonoBehaviour
                         }
                         else
                         {
-                            pathVlg.padding.top = 60;
-                            pathVlg.spacing = 60;
+                           pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
                         }
 
             }
@@ -4088,14 +4070,31 @@ public class MissionManagement : MonoBehaviour
                     pathVlg.spacing = 400;
                     pathVlg.padding.bottom = 180;
                 }
+                else if (sentenceLength > 450)
+                {
+                    pathVlg.padding.top = 120;
+                            pathVlg.spacing = 300;
+                            pathVlg.padding.bottom = 160;
+                }
+                else if (sentenceLength > 300)
+                {
+                    pathVlg.padding.top = 160;
+                            pathVlg.spacing = 240;
+                            pathVlg.padding.bottom = 120;
+                }
+                else if (sentenceLength > 240)
+                {
+                    pathVlg.padding.top = 100;
+                    pathVlg.spacing = 120;
+                    pathVlg.padding.bottom = 100;
+                }
                 else
                 {
-                    pathVlg.padding.top = 60;
+                     pathVlg.padding.top = 60;
+                        pathVlg.spacing = 100; // 80
+                    pathVlg.padding.bottom = 100; //60
                 }
-                
-
-                
-
+           
             }
         }
         else
@@ -4388,11 +4387,11 @@ public class MissionManagement : MonoBehaviour
 
     public void SetBottomTitleLabel()
     {
-        if (isQuestion == true)
-        {
-            answerClicked = 0;
-            noOfAttempts = 0;
-        }
+        // if (isQuestion == true)
+        // {
+        //     answerClicked = 0;
+        //     noOfAttempts = 0;
+        // }
 
         GameObject bottomPanel = GameObject.Find("BottomPanel");
         GameObject childObj = bottomPanel.transform.GetChild(0).gameObject;
