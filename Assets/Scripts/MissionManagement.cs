@@ -587,6 +587,8 @@ public class MissionManagement : MonoBehaviour
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
+    public List<int> revisionWordReferenceNoArray = new List<int>();
+    public List<string> dayTypeArray = new List<string>();
     public List<int> revisionCountArray = new List<int>();
     Dictionary<int, Button[]> mcqButtonsArray = new Dictionary<int, Button[]>();
 
@@ -594,6 +596,7 @@ public class MissionManagement : MonoBehaviour
     public int optionNumber = 0;
 
     int questionNumber = 0;
+
     public int generalMCQcount = 0;
     int tempGeneralMCQCount = 0;
   
@@ -638,6 +641,9 @@ public class MissionManagement : MonoBehaviour
     public int noOfAttempts = 0;
     int answerClicked = 0;
     int answerAttemptedForMCQ = 0;
+    int previousQuestionTag = 0;
+    int internalTempQNo = 0;
+    bool isSameQuestion = false;
     bool updateDUTSentencePosition = false;
     float calHeight = 0.0f;
     bool isQuestion = false;
@@ -670,12 +676,12 @@ public class MissionManagement : MonoBehaviour
         dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(false);
 
-         if (PlayerPrefs.HasKey("auth_key"))
+        if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
         // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
@@ -1169,7 +1175,7 @@ public class MissionManagement : MonoBehaviour
             {
                 Debug.Log("Calling Noun Setup");
                 newWordNumber += 1;
-               
+                
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(NounSetup);
                 NounSetup(parameterCountControlCheck);  
@@ -1322,7 +1328,7 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("Going to check data");
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
                     Debug.Log("revisionWordReference " + revisionCountArray[revisionWordReference]);
-                    Debug.Log("count of conversation" + dataCountDetails.conversation_revision_word_count);
+                    Debug.Log("Last word with 0 data not returning to passages in second loop " + dataDisplayed["isRevisionWordConversationDone"]);
 
                     if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count != 0) && (dataDisplayed["isRevisionWordSynonymDone"] == false))
                     {
@@ -1472,7 +1478,7 @@ public class MissionManagement : MonoBehaviour
                                     if (revisionWordReference == numberOfRevisionWords - 1)
                                     {
 
-                                         Debug.Log("Last word with 0 data not returning to passages in second loop");
+                                        //  Debug.Log("Last word with 0 data not returning to passages in second loop " + dataDisplayed["isRevisionWordConversationDone"]);
                                         if (dataCountDetails.conversation_revision_word_count != 0 && dataDisplayed["isRevisionWordConversationDone"] == false)
                                         {
                                              return;
@@ -1520,7 +1526,11 @@ public class MissionManagement : MonoBehaviour
                                                     dataDisplayed.Clear();
                                                     dataDisplayed = copyOfdataDisplayed;
                                                     dataDisplayed["isRevisionWordListDone"] = true;
-                                                    dataDisplayed["isRevisionWordConversationDone"] = true;
+                                                    if (revisionConversation)
+                                                    {
+                                                        dataDisplayed["isRevisionWordConversationDone"] = true;
+                                                    }
+                                                    
                                                     return;
 
                                                 }
@@ -1536,7 +1546,7 @@ public class MissionManagement : MonoBehaviour
                                         }
                                         
                                     } 
-                                   
+                                
                             
                           
                         // }
@@ -1641,20 +1651,32 @@ public class MissionManagement : MonoBehaviour
         GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
         VerticalLayoutGroup pathVlg = optionContainer.GetComponent<VerticalLayoutGroup>();
 
+        // int oneFourthValue = (int)questionLength/4;
+        // int halfValue = (int)questionLength/2;
+        //  mcqPathVlg.spacing = 580 + (int)questionLength;
+        //     bgPathVlg.spacing = 60 + halfValue; //60
+        //     bgPathVlg.padding.bottom = 240 + halfValue; //80 - 100
+        //     bgPathVlg.padding.top = 40 + oneFourthValue; // 40 - 100
+        //     mcqPathVlg.padding.top = 120; // 60
+         mcqPathVlg.spacing = 580 + (int)questionLength;
+        bgPathVlg.spacing = 60; //60
+        bgPathVlg.padding.bottom = 240; //80 - 100
+        bgPathVlg.padding.top = 40; // 40 - 100
+        mcqPathVlg.padding.top = 120; // 60
 
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
         
         Debug.Log("answer options is " + answerOptions);
-        answerAttemptedForMCQ = 0;
+        
         Debug.Log("setting value of answer clicked is " + answerClicked);
-        int noOfAttempts = 0;
+        int noOfAnswerAttempts = 0;
         for(int x = 0; x < answerOptions; x++)
         {
             int value = allDetailData.questions[parameter].questionOptions[x].value;
 
             if (value == 1)
             {
-                noOfAttempts = noOfAttempts + 1;
+                noOfAnswerAttempts = noOfAnswerAttempts + 1;
                 Debug.Log("because value is 1");
             }
         }
@@ -1665,13 +1687,20 @@ public class MissionManagement : MonoBehaviour
         
 
         questionNumber = parameter;
+        isSameQuestion = false;
+        internalTempQNo = 0;
+        Debug.Log("No of attemps counted is " + noOfAnswerAttempts);
+        answerAttemptedForMCQ = 0;
+
 
         for(int j = 0; j < children; j++ )
         {
             Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+            VerticalLayoutGroup buttonVlg = thisButton.GetComponent<VerticalLayoutGroup>();
 
             thisButton.gameObject.SetActive(true);
             thisButton.enabled = true;
+
             if (j <= answerOptions-1)
             {
                 GameObject container = thisButton.transform.GetChild(0).gameObject;
@@ -1680,10 +1709,25 @@ public class MissionManagement : MonoBehaviour
                 //  Debug.Log("j value is " + j);
                 // Debug.Log(allDetailData.questions[parameter].questionOptions[j].option);
                 answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
+                float optionLength = answerOption.text.Length;
+                Debug.Log("optionLength " + optionLength);
+
+                // buttonVlg.padding.top = 60;
+                // buttonVlg.padding.bottom = 0;
+                // pathVlg.spacing = 40;
+
+                if (optionLength > 120)
+                {
+                    buttonVlg.padding.top = 60;
+                    buttonVlg.padding.bottom = 60;
+                    pathVlg.spacing = 100;
+                }
+               
                 GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                 rightWrongImage.SetActive(false);
                 otherMCQbuttons[j] = thisButton;
-                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons, noOfAttempts);});
+                thisButton.onClick.RemoveAllListeners();
+                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons, noOfAnswerAttempts);});
             }
             else
             {
@@ -1693,20 +1737,15 @@ public class MissionManagement : MonoBehaviour
             // pathVlg.spacing = 80;
             Debug.Log("length of question is " + questionLength);
 
-            mcqPathVlg.spacing = 500;
-            bgPathVlg.spacing = 40;
-            bgPathVlg.padding.bottom = 60;
-            bgPathVlg.padding.top = 40;
-            mcqPathVlg.padding.top = 60;
-            // mcqPathVlg.spacing = 360;
+           
             if (questionLength > 70 && questionLength < 200)
             {
                 bgPathVlg.spacing = 60;
                 if (answerOptions >= 3)
                 {
-                    // mcqPathVlg.spacing = 440;
-                    bgPathVlg.spacing = 80;
-                    bgPathVlg.padding.bottom = 80;
+                    // mcqPathVlg.spacing -= 100;
+                    bgPathVlg.spacing = 100;
+                    bgPathVlg.padding.bottom = 120;
                 }
                 else if (answerOptions <= 2)
                 {
@@ -1724,27 +1763,33 @@ public class MissionManagement : MonoBehaviour
             }
             else if (questionLength <= 70)
             {
-                bgPathVlg.spacing = 20;
+                bgPathVlg.spacing = 60; //20
                 bgPathVlg.padding.bottom = 160;
-                mcqPathVlg.spacing = 380;
+                // mcqPathVlg.spacing = 380;
                 mcqPathVlg.padding.top = 40;
 
-                if (answerOptions == 4)
+                if (answerOptions == 4 || pathVlg.spacing == 100)
                 {
                     mcqPathVlg.spacing = 500;
                 }
+                else
+                {
+                    mcqPathVlg.spacing = 460;
+                    // bgPathVlg.padding.bottom = 20;
+                }
+        
 
             }
             else if (questionLength >= 200)
             {
-                mcqPathVlg.spacing = 500 + questionLength;
-                mcqPathVlg.padding.top = 60;
+                mcqPathVlg.spacing = 580 + questionLength;
+                mcqPathVlg.padding.top = 60; //60
                 bgPathVlg.spacing = 200;
-                bgPathVlg.padding.bottom = 180;
+                bgPathVlg.padding.bottom = 240; // 180
 
-                if (answerOptions == 2)
+                if (answerOptions >= 2)
                 {
-                    mcqPathVlg.spacing -= 100;
+                    // mcqPathVlg.spacing -= 100;
                     mcqPathVlg.padding.top = 120;
                 }
                 
@@ -1776,13 +1821,33 @@ public class MissionManagement : MonoBehaviour
 
     public void CheckRightMCQAnswer(Button button, int questionNumber, Button[] mcqButtonArray, int thisnoOfAttempts)
     {
+
+        
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
+        
         Button[] buttonArray = mcqButtonArray;
-        noOfAttempts = thisnoOfAttempts;
-         Debug.Log("No of attempts is " + thisnoOfAttempts);
-         Debug.Log("No of times answer clicked is " + answerClicked);
+        int attempts = thisnoOfAttempts;
+        Debug.Log("value of  this noOfAttempts before is " + attempts);
+        Debug.Log("value of previous question tag is " + previousQuestionTag);
+        Debug.Log("value of questionNumber tag is " + questionNumber);
+        Debug.Log("value of internalTempQNo tag is " + internalTempQNo);
+        Debug.Log("value of isSameQuestion tag is " + isSameQuestion);
+
+        
+
         int tag = System.Convert.ToInt32(button.tag);
+
+        if (internalTempQNo == questionNumber)
+        {
+            isSameQuestion = true;
+        }
+
+       if (previousQuestionTag != questionNumber && isSameQuestion == false)
+       {
+            answerAttemptedForMCQ = 0;
+       }
+       Debug.Log("No of times answer attempted before is " + answerAttemptedForMCQ);
         int value = allDetailData.questions[questionNumber].questionOptions[tag].value;
         Debug.Log(button.tag);
         Debug.Log("value of" + value);
@@ -1793,7 +1858,7 @@ public class MissionManagement : MonoBehaviour
 
         int questionId = allDetailData.questions[questionNumber].id;
         int selectedOptionsId = allDetailData.questions[questionNumber].questionOptions[tag].id;   
-        // int answerClicked = 0;
+        int answerClicked = 0;
         
 
         if (value == 1)
@@ -1808,13 +1873,16 @@ public class MissionManagement : MonoBehaviour
             myImage.sprite = wrongSprite;
             SoundManagerScript.WrongAnswerSound();
         }
-        answerClicked += 1;
+        answerClicked = answerClicked + 1;
+        answerAttemptedForMCQ = answerAttemptedForMCQ + answerClicked;
+
         rightWrongImage.SetActive(true);
-        
+         Debug.Log("value of this noOfAttempts is " + attempts);
         Debug.Log("No of times answer clicked after is " + answerClicked);
+        Debug.Log("No of times answer attempted after is " + answerAttemptedForMCQ);
 
     //    answerAttemptedForMCQ = answerClicked;
-       if (answerClicked == noOfAttempts)
+       if (answerAttemptedForMCQ == attempts)
         {
             for (int j = 0; j < buttonArray.Length; j++)
             {
@@ -1825,8 +1893,16 @@ public class MissionManagement : MonoBehaviour
             // buttonArray.Clear();
             // Destroy(buttonArray);
         }
+        else
+        {
+            for (int j = 0; j < buttonArray.Length; j++)
+            {
+                buttonArray[j].enabled = true;
+            }
+        }
 
-        
+
+    
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
              Debug.Log("Adding for next time" + selectedOptionsId);
@@ -1851,6 +1927,7 @@ public class MissionManagement : MonoBehaviour
             selectedIdList.Add(selectedOptionsId);
             questionResponseDict.Add(questionId, selectedIdList);
         }
+        internalTempQNo = questionNumber;
     }
 
 
@@ -1873,6 +1950,7 @@ public class MissionManagement : MonoBehaviour
         conversationBoard.gameObject.SetActive(false);
 
         int passageCount = dataCountDetails.passage_data.passage_count;
+        convoWithMCQPrefabsArray.Clear();
 
         
         if (allDetailData.passages[parameter].questions.Length != 0)
@@ -1899,15 +1977,12 @@ public class MissionManagement : MonoBehaviour
                 VerticalLayoutGroup pathVlg;
             for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
             {
-                // questionNumberValue += 1;
-                // questionNumber = i;
                 
 
                 if (i == 0)
                 {
                     //  SetUpSinglePassageWithMCQ(parameter);
 
-                        // GameObject 
                     GameObject previousObject = convoContentPrefab.transform.GetChild(0).gameObject;
                     Vector2 prefabPosition = previousObject.transform.position;
 
@@ -1920,8 +1995,8 @@ public class MissionManagement : MonoBehaviour
                     mcqBoard.transform.position = new Vector2(prefabPosition.x, height - 1000.0f);//(height + 200.0f)); //600.0f
                     VerticalLayoutGroup mcqVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
 
-                    mcqVlg.padding.top = -400;
-                    mcqVlg.spacing = -800;
+                    mcqVlg.padding.top = -200;
+                    mcqVlg.spacing = -900;
                         
                         // pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
 
@@ -1967,32 +2042,35 @@ public class MissionManagement : MonoBehaviour
                     int options = allDetailData.passages[parameter].questions[i].questionOptions.Length;
 
                     if (options == 3)
-                        {
-                            mcqVlg.padding.top = -200;
-                            mcqVlg.spacing = -900;
-                        }
-
-                    if (i >= 2)
                     {
-                        GameObject obj = convoContentPrefab.transform.GetChild(i-1).gameObject;
 
-                        VerticalLayoutGroup vlg = obj.GetComponent<VerticalLayoutGroup>();
-                        float value = vlg.padding.top;
-                    
-                        if (options == 3)
-                        {
-
-                            mcqVlg.padding.top = 0;
-                            // if (value == -200)
-                            // {
-                            //     mcqVlg.padding.top = 400;
-                            // }
-
-                        }
+                        mcqVlg.padding.top = -200;
+                        mcqVlg.spacing = -900;
+                        
                     }
-                    else if (i > 4)
+
+                    // if (i >= 2 && i <= 3)
+                    // {
+                    //     GameObject obj = convoContentPrefab.transform.GetChild(i-1).gameObject;
+
+                    //     VerticalLayoutGroup vlg = obj.GetComponent<VerticalLayoutGroup>();
+                    //     float value = vlg.padding.top;
+                    
+                    //     if (options == 3)
+                    //     {
+                    //         mcqVlg.padding.top = 0; // -200
+                    //         if (value == -200)
+                    //         {
+                    //             mcqVlg.padding.top = -200;
+                    //         }
+
+                    //     }
+                    // }
+                    // else 
+                    if (i > 4)
                     {
                         mcqVlg.padding.top = 100;
+                        mcqVlg.spacing = -800;
                     }
                     
 
@@ -2053,10 +2131,10 @@ public class MissionManagement : MonoBehaviour
                             answerOption.text = allDetailData.passages[parameter].questions[i].questionOptions[j].option;
                             GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
-                            int pcc = parameterCountControlCheck;
+                            int pcc = parameter;//parameterCountControlCheck;
                             int k = i;
                             otherPassagebuttons[j] = thisButton;
-
+                            thisButton.onClick.RemoveAllListeners();
                             thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k,otherPassagebuttons, noOfAttempts);});
 
                         }
@@ -2097,7 +2175,7 @@ public class MissionManagement : MonoBehaviour
                         }
                         else if (answerOptions == 4)
                         {
-                            ccVlg.spacing = 800;
+                            ccVlg.spacing = 500;
                             ccVlg.padding.bottom = 8000;
                         }
                     }
@@ -2290,7 +2368,6 @@ public class MissionManagement : MonoBehaviour
         Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
         secondBar.value = 1;
 
-        // passageScrollBar.value = 0.0f;
         isQuestion = true;
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
@@ -2332,15 +2409,9 @@ public class MissionManagement : MonoBehaviour
                 else
                 {
                     
-                    
-                    // questionNumberValue += 1;
+                  
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
-                    // GameObject previousObject = convoContentPrefab.transform.GetChild(i-1).gameObject;
-                    // Vector2 prefabPosition = previousObject.transform.position;
-
-                    //  RectTransform rt = (RectTransform)previousObject.transform;
-                    //      float height = rt.rect.height;
-                    //      Debug.Log("height of second MCQ is " + height);
+                   
 
                     newPrefab = Instantiate(convoContentPrefab).gameObject;
                     // float multiplier = i - 1;
@@ -2409,6 +2480,7 @@ public class MissionManagement : MonoBehaviour
                             rightWrongImage.SetActive(false);
                             int k = i;
                             otherQbuttons[j] = thisButton;
+                            thisButton.onClick.RemoveAllListeners();
                             thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k, otherQbuttons, noOfAttempts);});
                             
 
@@ -2425,26 +2497,26 @@ public class MissionManagement : MonoBehaviour
 
 
                 VerticalLayoutGroup ccParentVlg = convoPassageMCQPrefabParent.GetComponent<VerticalLayoutGroup>();
-                ccParentVlg.spacing = -6000;
+                ccParentVlg.spacing = -9600; // -6000
 
                 
                     GameObject previousObject = convoPassageMCQPrefabParent.transform.GetChild(i).gameObject;
 
                     VerticalLayoutGroup ccVlg = previousObject.GetComponent<VerticalLayoutGroup>();
-                    ccVlg.spacing = -6500;
+                    if (isSettingCanvas)
+                    {
+                        ccVlg.spacing = -6500;
+                    }
+                    
                
                 if (allDetailData.conversationQuestions.Length <= 3 && answerOptions <= 2)
                 {
                         
-                    ccParentVlg.spacing = -8200;
+                    ccParentVlg.spacing = -6200; //-8200
                         
                 }
 
-                  
-                    
                
-                     
-                    
                     
                 }  
 
@@ -2510,7 +2582,11 @@ public class MissionManagement : MonoBehaviour
             GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
             mcqBoard.transform.position = new Vector2(prefabPosition.x, height - 100.0f);//(height + 200.0f)); //600.0f
             VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
-            // pathVlg.padding.top = -500;
+            
+            pathVlg.padding.top = 0;
+            pathVlg.padding.bottom = 0;
+            pathVlg.spacing = -700;
+
 
             GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
@@ -2558,6 +2634,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject rightWrongImage = horizontalContainer.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
                     firstQbuttons[j] = thisButton;
+                    thisButton.onClick.RemoveAllListeners();
                     thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0, firstQbuttons, noOfAttempts);});
                     
 
@@ -2570,9 +2647,13 @@ public class MissionManagement : MonoBehaviour
 
              GameObject firstObject = convoPassageMCQPrefabParent.transform.GetChild(0).gameObject;
 
-                    VerticalLayoutGroup ccVlgfirst = firstObject.GetComponent<VerticalLayoutGroup>();
-                    ccVlgfirst.spacing = -6500;
-                        
+            VerticalLayoutGroup ccVlgfirst = firstObject.GetComponent<VerticalLayoutGroup>();
+            if (isSettingCanvas)
+            {
+                ccVlgfirst.spacing = -6500;
+            }
+            
+                
                 // VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
 
                 // if (answerOptions == 2)
@@ -3010,6 +3091,7 @@ public class MissionManagement : MonoBehaviour
     public void NounSetup(int parameter)
     {
         DisplaySpeakerandImage();
+         DestroyPrefabs();
         baseParentBoard.gameObject.SetActive(true);
 
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -3451,6 +3533,7 @@ public class MissionManagement : MonoBehaviour
         conversationBoard.gameObject.SetActive(true);
         generalMCQBoard.gameObject.SetActive(false);
         revisionWordBoard.gameObject.SetActive(false);
+        conversationWithMCQBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
         conversationText.gameObject.SetActive(true);
 
@@ -3546,9 +3629,9 @@ public class MissionManagement : MonoBehaviour
 
 
         VerticalLayoutGroup pathVlg = dutParent.GetComponent<VerticalLayoutGroup>();
-        pathVlg.spacing = 200;
-        pathVlg.padding.bottom = 80;
-        pathVlg.padding.top = 80;
+        pathVlg.spacing = 240;
+        pathVlg.padding.bottom = 180;
+        pathVlg.padding.top = 120;
 
         // pathVlg.spacing = 100;
         // pathVlg.padding.bottom = 80;
@@ -3621,10 +3704,24 @@ public class MissionManagement : MonoBehaviour
 
                 if (sentenceLength > 300.0f)
                 {
-                    Debug.Log("sentenceLength second" + sentenceLength);
-                    pathVlg.spacing = 360;
-                    pathVlg.padding.bottom = 160;
-                    pathVlg.padding.top = 160;
+                    if (newWordDetails.dailyUseTips.Length == 3)
+                    {
+                        if (newWordDetails.dailyUseTips[0].description.Length +  newWordDetails.dailyUseTips[1].description.Length < 200 ) 
+                        {
+                            Debug.Log("sentenceLength second" + sentenceLength);
+                            pathVlg.spacing = 240;
+                            pathVlg.padding.bottom = 180;
+                            pathVlg.padding.top = 180;
+                        }
+                    }
+                    else
+                    {
+                         Debug.Log("sentenceLength second" + sentenceLength);
+                        pathVlg.spacing = 360;
+                        pathVlg.padding.bottom = 160;
+                        pathVlg.padding.top = 160;
+                    }
+                   
                 }
                 else if (sentenceLength > 200.0f)
                 {
@@ -3649,48 +3746,31 @@ public class MissionManagement : MonoBehaviour
                             pathVlg.padding.top = 140;
                         }
                     }
+                    else if (newWordDetails.dailyUseTips[0].description.Length < 100)
+                    {
+                        Debug.Log("sentenceLength first is " + sentenceLength);
+                        pathVlg.spacing = 240;
+                        pathVlg.padding.bottom = 180;
+                        pathVlg.padding.top = 120;
+                    }
                     else
                     {
                           Debug.Log("sentenceLength fourth" + sentenceLength);
                             pathVlg.spacing = 300;
                             pathVlg.padding.bottom = 120;
-                            pathVlg.padding.top = 120;
+                            pathVlg.padding.top = 140;
                     }
                     
                 }
-                else
-                {
-                    Debug.Log("sentenceLength fifth" + sentenceLength);
-                    pathVlg.spacing = 160;
-                    pathVlg.padding.bottom = 120;
-                    pathVlg.padding.top = 120;
-                }
-
                 // else
                 // {
-                     
-                      
-                //     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
-                //     GameObject newSentencePrefab = Instantiate(dutSentencePrefab).gameObject;
-                //     newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-                //     if (i == 1)
-                //     {
-                //         newSentencePrefab.transform.position = new Vector2(firstSentencePosition.x, firstSentencePosition.y - 164f);
+                //     // top bottom 120 - 180, spacing 240
+                //     Debug.Log("sentenceLength fifth" + sentenceLength);
+                //     pathVlg.spacing = 160;
+                //     pathVlg.padding.bottom = 120;
+                //     pathVlg.padding.top = 120;
+                // }
 
-                //     }
-                //     else
-                //     {
-                //         newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-
-                //     }
-
-                //     newSentencePrefab.transform.SetParent(dutParent, true);
-                //     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
-                //     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                //     mytext.text = newWordDetails.dailyUseTips[i].description;
-                //     sentencePrefabsArray.Add(newSentencePrefab);
-                //     Debug.Log("End of Checking in loop for second object");
-                // }  
 
             }
         }
@@ -3750,6 +3830,7 @@ public class MissionManagement : MonoBehaviour
              newOwuw = newWordDetails.otherWayUsingWords[parameter];
              meaningAsNoun.text = newOwuw.description;
               word.text = newWordDetails.name;
+              Debug.Log("description of OWUW is " + newOwuw.description);
         }
 
 
@@ -4414,6 +4495,15 @@ public class MissionManagement : MonoBehaviour
         //Check screen count   
         if (button.tag == "Next")
         {
+            if (isQuestion == true)
+            {
+                Debug.Log("value of previous question tag is " + previousQuestionTag);
+                Debug.Log("value of questionNumber tag is " + questionNumber);
+                previousQuestionTag = questionNumber;
+                answerAttemptedForMCQ = 0;
+       
+                isQuestion = false;
+            }
             
             if (screenCount != totalNumber)
             {
@@ -4482,6 +4572,9 @@ public class MissionManagement : MonoBehaviour
        
         if (isQuestion == true)
         {
+             Debug.Log("value of previous question tag is " + previousQuestionTag);
+                Debug.Log("value of questionNumber tag is " + questionNumber);
+                previousQuestionTag = questionNumber;
             questionResponseDict.Clear();
             isQuestion = false;
         }
@@ -4491,7 +4584,10 @@ public class MissionManagement : MonoBehaviour
         
             screenCount = screenCount - 1;
             // Debug.Log(screenCount + " screen count");
+
             int parameter = parameterValueArray[screenCount-1];
+            string dayType = dayTypeArray[screenCount-1];
+            int revisionWordReferenceNo = revisionWordReferenceNoArray[screenCount-1];
             Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
             Action<int> unityAction = methodCallArray[screenCount-1];
             SendInt(unityAction,parameter);
