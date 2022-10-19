@@ -590,6 +590,8 @@ public class MissionManagement : MonoBehaviour
     public List<int> revisionWordReferenceNoArray = new List<int>();
     public List<string> dayTypeArray = new List<string>();
     public List<int> revisionCountArray = new List<int>();
+    string dayType = "new";
+
     Dictionary<int, Button[]> mcqButtonsArray = new Dictionary<int, Button[]>();
 
     int buttonArrayNumber = 0;
@@ -681,7 +683,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
         // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
 
         // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
@@ -1154,6 +1156,7 @@ public class MissionManagement : MonoBehaviour
        isSettingCanvas = true;  //bool to differentiate if setting canvas or making next or back calls
         if ( availableData["isNewWordAvailable"] == true && newWordDataCount != newWordNumber)
         {
+            dayType = "new";
             isQuestion = false;
             Debug.Log("new word details");
             newWordDetails = allDetailData.newWords[0];
@@ -1175,7 +1178,8 @@ public class MissionManagement : MonoBehaviour
             {
                 Debug.Log("Calling Noun Setup");
                 newWordNumber += 1;
-                
+                dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(NounSetup);
                 NounSetup(parameterCountControlCheck);  
@@ -1186,6 +1190,8 @@ public class MissionManagement : MonoBehaviour
                 
                 Debug.Log("Calling verb Setup");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(VerbSetup);
                 VerbSetup(parameterCountControlCheck);
@@ -1196,6 +1202,8 @@ public class MissionManagement : MonoBehaviour
                 
                 Debug.Log("Calling adverb Setup");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdverbSetup);
                 AdverbSetup(parameterCountControlCheck);
@@ -1206,6 +1214,8 @@ public class MissionManagement : MonoBehaviour
                 
                 Debug.Log("Calling adjective Setup");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdjectiveSetup);
                 AdjectiveSetup(parameterCountControlCheck);
@@ -1215,6 +1225,8 @@ public class MissionManagement : MonoBehaviour
             {
                 
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(ConversationSetup);
                 ConversationSetup(parameterCountControlCheck);
@@ -1224,6 +1236,8 @@ public class MissionManagement : MonoBehaviour
             {
                Debug.Log("dut board covered");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(DailyTipsSetup);
                 DailyTipsSetup(parameterCountControlCheck);
@@ -1233,6 +1247,8 @@ public class MissionManagement : MonoBehaviour
             {
                
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AnotherWayOfUsingWordSetup);
                 AnotherWayOfUsingWordSetup(parameterCountControlCheck);
@@ -1242,6 +1258,8 @@ public class MissionManagement : MonoBehaviour
             {
                 
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(IdiomSetup);
                 IdiomSetup(parameterCountControlCheck);
@@ -1251,6 +1269,8 @@ public class MissionManagement : MonoBehaviour
             {
                
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(MultipleWordSetup);
                 MultipleWordSetup(parameterCountControlCheck);
@@ -1260,6 +1280,8 @@ public class MissionManagement : MonoBehaviour
             {
                 
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AntonymSetup);
                 AntonymSetup(parameterCountControlCheck);
@@ -1269,6 +1291,8 @@ public class MissionManagement : MonoBehaviour
             {
                    
                 newWordNumber += 1;  
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(SynonymSetup);
                 SynonymSetup(parameterCountControlCheck);
@@ -1286,6 +1310,7 @@ public class MissionManagement : MonoBehaviour
         Debug.Log("Checking for revision world " + newWordNumber + newWordDataCount);
         if ((newWordDataCount != 0 && newWordNumber == newWordDataCount) || newWordDataCount == 0) 
         {
+            dayType = "revision";
             isQuestion = false;
             dataDisplayed["isNewWordDetailsDone"] = true;
 
@@ -1299,7 +1324,8 @@ public class MissionManagement : MonoBehaviour
             // if list is displayed run for loop, all methods for first word and so on
             if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false) )
             {       
-                
+                dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(0);
                 methodCallArray.Add(RevisionWordList);  
                 RevisionWordList(0);   
@@ -1332,8 +1358,10 @@ public class MissionManagement : MonoBehaviour
 
                     if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count != 0) && (dataDisplayed["isRevisionWordSynonymDone"] == false))
                     {
-
-                         tempDataCount += 1;   
+                        
+                         tempDataCount += 1;  
+                          dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference); 
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(SynonymSetup);  
                         SynonymSetup(parameterCountControlCheck);
@@ -1343,6 +1371,8 @@ public class MissionManagement : MonoBehaviour
                     {
                      
                          tempDataCount += 1;  
+                          dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                           parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(AntonymSetup);   
                         AntonymSetup(parameterCountControlCheck);
@@ -1352,6 +1382,8 @@ public class MissionManagement : MonoBehaviour
                     {
                         Debug.Log("Checking for other of using word");
                         tempDataCount += 1;
+                         dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(AnotherWayOfUsingWordSetup); 
                         AnotherWayOfUsingWordSetup(parameterCountControlCheck);
@@ -1362,6 +1394,8 @@ public class MissionManagement : MonoBehaviour
                         Debug.Log("Calling for Multiple Word Setup " + revisionWordReference);
             
                         tempDataCount += 1; 
+                         dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
@@ -1371,6 +1405,8 @@ public class MissionManagement : MonoBehaviour
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
                     {                          
                         tempDataCount += 1;
+                         dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(IdiomSetup); 
                         IdiomSetup(parameterCountControlCheck);
@@ -1381,6 +1417,8 @@ public class MissionManagement : MonoBehaviour
 
                         Debug.Log("reading conversation");               
                          tempDataCount += 1; 
+                          dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(ConversationSetup);     
                         ConversationSetup(parameterCountControlCheck);
@@ -1575,7 +1613,9 @@ public class MissionManagement : MonoBehaviour
             {
                 Debug.Log("Check for convo mcq ");
                 //call for mcq
-                
+                dayType = "question";
+                 dayTypeArray.Add(dayType);
+                    revisionWordReferenceNoArray.Add(0);
                     Debug.Log("conversation_mcq_count" + dataCountDetails.conversation_mcq_count);
                     parameterValueArray.Add(0);
                     methodCallArray.Add(ConversationWithMCQSetup);     
@@ -1589,7 +1629,9 @@ public class MissionManagement : MonoBehaviour
             else if (dataDisplayed["isPassageMCQDone"] == false && dataCountDetails.passage_data.passage_count != 0) // && dataDisplayed["isRevisionWordContentDone"] == true) // && dataDisplayed["isConversationMCQDone"] == true)
             {
                 Debug.Log("Check for passage mcq " );
-               
+                dayType = "question";
+                 dayTypeArray.Add(dayType);
+                    revisionWordReferenceNoArray.Add(0);
                 // DestroyConvoPrefabs();
                 Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
                 parameterValueArray.Add(parameterCountControlCheck);
@@ -1603,7 +1645,9 @@ public class MissionManagement : MonoBehaviour
             }
             else if (dataDisplayed["isGeneralMCQDone"] == false && dataCountDetails.mcq_count != 0 ) // && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
             {
-            
+                 dayType = "question";
+                 dayTypeArray.Add(dayType);
+                    revisionWordReferenceNoArray.Add(0);
                  Debug.Log("Check for general mcq");
                 parameterValueArray.Add(tempGeneralMCQCount);
                 methodCallArray.Add(GeneralMCQSetup); 
@@ -2403,8 +2447,6 @@ public class MissionManagement : MonoBehaviour
                     int dialogueNumber = i + 1;
                     mytext.text = "Conversation - Dialogue " + dialogueNumber;
 
-
-                    
                 }
                 else
                 {
@@ -2497,6 +2539,7 @@ public class MissionManagement : MonoBehaviour
 
 
                 VerticalLayoutGroup ccParentVlg = convoPassageMCQPrefabParent.GetComponent<VerticalLayoutGroup>();
+                
                 ccParentVlg.spacing = -9600; // -6000
 
                 
@@ -2512,7 +2555,7 @@ public class MissionManagement : MonoBehaviour
                 if (allDetailData.conversationQuestions.Length <= 3 && answerOptions <= 2)
                 {
                         
-                    ccParentVlg.spacing = -6200; //-8200
+                    ccParentVlg.spacing = -8200; //-8200
                         
                 }
 
@@ -3548,7 +3591,9 @@ public class MissionManagement : MonoBehaviour
         Conversation convo = new Conversation();
         convo = allDetailData.conversation;
 
-        if (convo != null)
+        
+
+        if (convo != null && dayType == "new")
         {
             conversationText.text = convo.description;
             if (convo.description != null)
@@ -3574,7 +3619,7 @@ public class MissionManagement : MonoBehaviour
         
         
        
-        if (dataDisplayed["isRevisionWordListDone"] == true && dataCountDetails.conversation_revision_word_count != 0)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dataCountDetails.conversation_revision_word_count != 0 && dayType == "revision")
         {
             RevisionConversation revConvo = new RevisionConversation();
             revConvo = allDetailData.revisionConversation;
@@ -3813,8 +3858,9 @@ public class MissionManagement : MonoBehaviour
         int owuwCount = 0;
         OtherWayUsingWord newOwuw = new OtherWayUsingWord();
 
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             typeOfDay.text = "Another way of using";
             typeOfWord.text = "Brief";
              owuwCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count;
@@ -3954,8 +4000,9 @@ public class MissionManagement : MonoBehaviour
          Idiom newIdiom = new Idiom();
         int idiomCount = 0;
 
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
              idiomCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count;    
             newIdiom = revisionWordDetails.idioms[parameter];
             word.text = newIdiom.description;
@@ -4084,9 +4131,9 @@ public class MissionManagement : MonoBehaviour
         UseMultipleWord multipleWordDetails = new UseMultipleWord();
         typeOfDay.text = "Let's try to use these together!";
 
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
-            
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             multipleWordCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count;
             Debug.Log("Value of multiple word count is " + multipleWordCount);
             Debug.Log("Value of parameter is " + parameter);
@@ -4236,13 +4283,14 @@ public class MissionManagement : MonoBehaviour
         Antonym antonymDetails = new Antonym();
 
         int antonymCount = 0;
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
             // typeOfDay.text = "Antonym of " + revisionWordDetails.antonyms[revisionWordReference].description;
             typeOfDay.text = "Antonym of " + revisionWordDetails.name;
 
             typeOfWord.text = "Meaning";
             
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             antonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count;
             Debug.Log("antonymCount " + antonymCount);
             Debug.Log("value of parameter is  " + parameter);
@@ -4366,11 +4414,11 @@ public class MissionManagement : MonoBehaviour
 
         Synonym synonymDetails = new Synonym();
         int synonymCount = 0;
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision") 
         {
             typeOfDay.text = "Synonym of " + revisionWordDetails.name;
             typeOfWord.text = "Meaning";
-            
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             synonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count;
              Debug.Log("value of parameter is  " + parameter);
             Debug.Log("revisionWordReference is " + revisionWordReference);
@@ -4519,6 +4567,10 @@ public class MissionManagement : MonoBehaviour
                         Debug.Log(screenCount + " screen count" + methodCallArray.Count);
                         
                         int parameter = parameterValueArray[screenCount-1];
+                        string dayTypeValue = dayTypeArray[screenCount-1];
+                        int revisionWordReferenceNo = revisionWordReferenceNoArray[screenCount-1];
+                        dayType = dayTypeValue;
+                        revisionWordReference = revisionWordReferenceNo;
                         Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
                         Action<int> unityAction = methodCallArray[screenCount-1];
                         SendInt(unityAction,parameter);
@@ -4586,8 +4638,10 @@ public class MissionManagement : MonoBehaviour
             // Debug.Log(screenCount + " screen count");
 
             int parameter = parameterValueArray[screenCount-1];
-            string dayType = dayTypeArray[screenCount-1];
+            string dayTypeValue = dayTypeArray[screenCount-1];
             int revisionWordReferenceNo = revisionWordReferenceNoArray[screenCount-1];
+            dayType = dayTypeValue;
+            revisionWordReference = revisionWordReferenceNo;
             Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
             Action<int> unityAction = methodCallArray[screenCount-1];
             SendInt(unityAction,parameter);
