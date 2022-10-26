@@ -73,6 +73,7 @@ public class DashboardManager : MonoBehaviour
      Vector3 screenPos;
      Vector3 worldPosition;
      Vector2 newPosition;
+    public Vector3 astronautOriginalPosition;
     public ScrollRect scrollRect;
     public RectTransform scrollRectTransform;
     public RectTransform contentPanel;
@@ -80,6 +81,7 @@ public class DashboardManager : MonoBehaviour
     RectTransform maskTransform;
     float offset = -1500.0f;
     string missionNumber;
+
 
     string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
@@ -96,11 +98,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(auth_key);
         }
 
-        // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        // auth_key = "Bearer uJKmGmzfdVeD5f3i_8NMLuz5-arHlpw1"; // Ridhi di's - Komal
-        // auth_key = "Bearer 6vI6b1PyNgh-oBZYZE-LoIKbkoC4PeGV"; //for api.testing.edugogy.app
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  
-        // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
+        // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
 
 
         GetUserProfile();
@@ -158,15 +156,25 @@ public class DashboardManager : MonoBehaviour
 
             missionNumber = level.ToString();
 
-            lastReachedLevel = GameObject.Find(missionNumber).GetComponent<Button>();
-            RectTransform thistarget = lastReachedLevel.GetComponent<RectTransform>();
-            Reset(lastReachedLevel);
-            screenPos = cam.WorldToScreenPoint(thistarget.position);  // 
-            Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
+            if (level != 0)
+            {
+                lastReachedLevel = GameObject.Find(missionNumber).GetComponent<Button>();
+                
+            }
+           else
+           {
+                lastReachedLevel = GameObject.Find("1").GetComponent<Button>();
+              
+           }
 
-            Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
-            GetNormalizePosition(thistarget);
-                    
+               RectTransform thistarget = lastReachedLevel.GetComponent<RectTransform>();
+                Reset(lastReachedLevel);
+                screenPos = cam.WorldToScreenPoint(thistarget.position);  // 
+                Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
+
+                Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
+                GetNormalizePosition(thistarget);
+
             DateTime thisTime = System.DateTime.Now.Date;
             Debug.Log("this date is " + thisTime);  //09-08-2022 13:34:10
             lastTimeClicked = DateTime.Parse(PlayerPrefs.GetString("completionDateTime"));
@@ -178,8 +186,8 @@ public class DashboardManager : MonoBehaviour
             if (difference.TotalHours == 0)
             {
                 
-                // if (numberOfLevelsPerDay != 2)
-                // {
+                if (numberOfLevelsPerDay != 15) // changing 2 to 15
+                {
                     // unlock
                     //show unlock animation and move character to that level
                     Debug.Log("unlock next level");
@@ -197,32 +205,18 @@ public class DashboardManager : MonoBehaviour
                     // screenPos = cam.ScreenToWorldPoint(targetPosition);
 
                     newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
-
-                    // newPosition.x = Mathf.Clamp(newPosition.x, leftSide, rightSide);
-
-                    // if (levelNumber%2 == 0)
-                    // {
-                    //     newPosition = new Vector2(astronaut.transform.position.x + 590f, astronaut.transform.position.y + 424f);
-                    // }
-                    // else
-                    // {
-                    //     newPosition = new Vector2(astronaut.transform.position.x - 44f, astronaut.transform.position.y + 403f);
-                    // }
-
-                    // Vector2 newPosition = new Vector2(astronaut.transform.position.x + 100f, astronaut.transform.position.y + 400f);
-                    // astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
-                    // Vector2.Lerp(previousButtonPosition, newPosition, 0.2f);
-                // }
-                // else 
-                // {
+                    //changing astronaut position in Update function
+                }
+                else 
+                {
                 
-                //             //     //save datetime here and check for next level date time, when entered next date set  quota to 0
-                //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                //     popup.Init(UIController.Instance.MainCanvas,
-                //     "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
-                //     "Ok"
-                //     );
-                // }
+                    //     //save datetime here and check for next level date time, when entered next date set  quota to 0
+                    InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                    "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+                    "Ok"
+                    );
+                }
             }
                 
             // }
@@ -365,17 +359,17 @@ public class DashboardManager : MonoBehaviour
         levelId = mytext.text;
         Debug.Log("level id is " + levelId);
 
-        // if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
-        // {
+        if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
+        {
             SaveDataForPreviousLevel(); 
             GetAllDetails();
             numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
             PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-        // }
-        // else
-        // {
-        //     Debug.Log("Can't unlock this mission yet");
-        // }
+        }
+        else
+        {
+            Debug.Log("Can't unlock this mission yet");
+        }
         
     
     }
@@ -471,7 +465,7 @@ public class DashboardManager : MonoBehaviour
             {
                 if (int.Parse(profileData.subscription_remaining_day) > 0)
                 {
-                    string displayMessageForTrial = "You are left with " + profileData.subscription_remaining_day + " more trials";
+                    string displayMessageForTrial = "You are left with " + profileData.subscription_remaining_day + " missions of this level"; // missions in thia leve
 
                     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
                     popup.Init(UIController.Instance.MainCanvas,
@@ -494,22 +488,6 @@ public class DashboardManager : MonoBehaviour
             }
 
             NotifyAboutSubscriptionStatus();
-
-//             {
-//     "id": 2,
-//     "name": "Amaiv verma",
-//     "phone": "9855940600",
-//     "age_group_id": 6,
-//     "country_code_id": 88,
-//     "social_id": null,
-//     "social_media": null,
-//     "email": "",
-//     "total_level": 90,
-//     "total_passed_level": 0,
-//     "available_level": 5,
-//     "is_trial_subscription": true,
-//     "subscription_remaining_day": "4"
-// }
         }
         request.Dispose();
     }
@@ -524,41 +502,41 @@ public class DashboardManager : MonoBehaviour
         int sevendsDaysBefore = totalNumberOfLevels - 7;
         int dayBefore = totalNumberOfLevels - 1;
 
-        // if (levelsPassed == 0)
-        // {
-        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-        //     popup.Init(UIController.Instance.MainCanvas,
-        //     "Welcome aboard, astronaut! Your space mission is about to begin.",
-        //     "Ready to take off?"
-        //     );
-        // }
-        // else  if (levelsPassed == totalNumberOfLevels) // for free trial
-        // {
-        //     Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
-        //     // check for subscription period - 30, 90, 180 may change adding free trial
-        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-        //         popup.Init(UIController.Instance.MainCanvas,
-        //         "Your subscription is over, today is the last day",
-        //         "Ok"
-        //         );
+        if (levelsPassed == 0)
+        {
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+            popup.Init(UIController.Instance.MainCanvas,
+            "Welcome aboard, astronaut! Your space mission is about to begin.",
+            "Ready to take off?"
+            );
+        }
+        else  if (levelsPassed == totalNumberOfLevels) // for free trial
+        {
+            Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
+            // check for subscription period - 30, 90, 180 may change adding free trial
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                "Your subscription is over, today is the last day",
+                "Ok"
+                );
             
-        // } 
-        // else if (levelsPassed == dayBefore)
-        // {
-        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-        //         popup.Init(UIController.Instance.MainCanvas,
-        //         "Your subscription is getting over in a day",
-        //         "Ok"
-        //         );
-        // }
-        // else if (levelsPassed == sevendsDaysBefore)
-        // {
-        //     InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-        //         popup.Init(UIController.Instance.MainCanvas,
-        //         "Your subscription is getting over in coming 7 days",
-        //         "Ok"
-        //         );
-        // }
+        } 
+        else if (levelsPassed == dayBefore)
+        {
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                "Your subscription is getting over in a day",
+                "Ok"
+                );
+        }
+        else if (levelsPassed == sevendsDaysBefore)
+        {
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                "Your subscription is getting over in coming 7 days",
+                "Ok"
+                );
+        }
     }
    
 }

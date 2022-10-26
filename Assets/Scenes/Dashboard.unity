@@ -1242,6 +1242,7 @@ MonoBehaviour:
   - {fileID: 0}
   astronaut: {fileID: 1863877057}
   speed: 40
+  astronautOriginalPosition: {x: -428, y: -576, z: 0}
   scrollRect: {fileID: 234664490}
   scrollRectTransform: {fileID: 234664489}
   contentPanel: {fileID: 1459365766}
@@ -1724,7 +1725,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 502214629}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.999976
+  m_Size: 0.9999802
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2106,7 +2107,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 52.4742, y: -2532}
+  m_AnchoredPosition: {x: 52.4742, y: -2531.9998}
   m_SizeDelta: {x: -52.474, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1459365767

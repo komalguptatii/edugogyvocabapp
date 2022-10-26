@@ -84,6 +84,7 @@ public class KidsProfileManager : MonoBehaviour
     public Sprite buttonSprite;
     public Sprite deactivateButtonSprite;
     private int selectedButton;
+    bool isCallingAfterUpdate = false;
 
 
     string baseURL = "https://api.edugogy.app/v1/";
@@ -107,7 +108,8 @@ public class KidsProfileManager : MonoBehaviour
             ageImageTick[i].tag = i.ToString();
             ageButton[i].tag = i.ToString();
         }
-        //  auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
+         auth_key = "Bearer Z-UjQdDNl7Dv75dEFl5p_P9g0eKoQNe-";  // google login 
+        //  auth_key = "Bearer Udjr3iFHGhGn8uSnlfUCo21AwMiPlZF1";  // 9855940600 
 
         //Get Kids details
         GetKidProfile();
@@ -122,7 +124,6 @@ public class KidsProfileManager : MonoBehaviour
     void GetKidProfile() => StartCoroutine(GetKidProfile_Coroutine());
     // void GetAgeGroupList() => StartCoroutine(GetAgeGroupList_Coroutine());
     public void UpdateKidsProfile() => StartCoroutine(UpdateKidsName_Coroutine());
-            public void AddTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
 
 
     KidsProfile profile = new KidsProfile();
@@ -144,12 +145,16 @@ public class KidsProfileManager : MonoBehaviour
             
            
             string jsonString = request.downloadHandler.text;
+            Debug.Log(jsonString);
 
             profile = JsonUtility.FromJson<KidsProfile>(jsonString);
+
             Debug.Log(profile.name);
             Debug.Log(profile.age_group_id);
-
-            KidsName.text = profile.name;
+            
+            if (!isCallingAfterUpdate)
+            {
+                KidsName.text = profile.name;
             selectedButton = profile.age_group_id;
             ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;
             ageImageTick[profile.age_group_id - 1].enabled = true;
@@ -164,17 +169,39 @@ public class KidsProfileManager : MonoBehaviour
                     StayOnPage
                     );
             }
-            else
+            else if (profile.remaining_trial == 0)
             {
+                // should something like that Trial period is over
                 Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    "It’s time to choose your subscription level! Let’s get started!",
+                    "It’s time to choose your subscription level! Let’s get started! As trial period is over.",
                     "Cancel",
                     "Subscribe Now",
                     GoSubscribe
                     );
             }
 
+            }
+            else
+            {
+                Debug.Log("profile.subscription_remaining_day " + profile.subscription_remaining_day);
+                 int nextLevel = profile.total_passed_level + 1;
+                   PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
+                // NextLevelWillBe
+                if (profile.available_level == 0)
+                {
+                   
+                    GoSubscribe();
+                    
+                }
+                else
+                {
+                    //when not subscribed, and value of remaining days is null
+                    SceneManager.LoadScene("Dashboard");
+                    
+                }
+            }
+            
             // GetAgeGroupList();
             request.Dispose();
         }
@@ -203,38 +230,7 @@ public class KidsProfileManager : MonoBehaviour
 
     }
     
-    //On update button click, update button profile and take back to settings screen
-
-    //  IEnumerator GetAgeGroupList_Coroutine()
-    // {
-    //     // outputArea.text = "Loading...";
-
-    //     string uri = baseURL + "age-groups";
-    //     using (UnityWebRequest request = UnityWebRequest.Get(uri))
-    //     {
-
-    //         yield return request.SendWebRequest();
-            
-    //         string ageGroupJson = request.downloadHandler.text;
-    //         string jsonString = fixJson(ageGroupJson);
-    //         Debug.Log(jsonString);            
-
-    //         agegrouplist = JsonUtility.FromJson<AgeGroupList>(jsonString);
-
-    //         for (var i = 0; i < agegrouplist.items.Length; i++) 
-    //         {
-    //             var id = agegrouplist.items[i].id;
-    //             if (profile.age_group_id == id)
-    //             {
-    //                 Debug.Log(agegrouplist.items[i].title);
-    //                 // AgeGroupInput.text = agegrouplist.items[i].title + " Years";
-
-    //             }
-    //         }
-           
-    //     }
-    // }
-
+   
     IEnumerator UpdateKidsName_Coroutine()  //validate otp
     {
         profile.name = KidsName.text;
@@ -268,98 +264,17 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode + "Update");
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            GoSubscribe();
-            // AddTrial();
-            // SceneManager.LoadScene("Settings");
+            isCallingAfterUpdate = true;
+            GetKidProfile();
+            // GoSubscribe();
+           
 
-            // if (profile.remaining_trial == 2)  // remaining trial is not coming in json of update profile
-            // {
-            //     Popup popup = UIController.Instance.CreatePopup();
-            //     popup.Init(UIController.Instance.MainCanvas,
-            //         "You have 2 more chances left to change your level.",
-            //         "Cancel",
-            //         "Okay",
-            //         GoSubscribe
-            //         );
-            // }
-            // else
-            // {
-            //     Popup popup = UIController.Instance.CreatePopup();
-            //     popup.Init(UIController.Instance.MainCanvas,
-            //         "It’s time to choose your subscription level! Let’s get started!",
-            //         "Cancel",
-            //         "Subscribe Now",
-            //         GoSubscribe
-            //         );
-            // }
+    
 
         }
 
         request.Dispose();
             
-    }
-
-    IEnumerator AddTrialSubscription_Coroutine()
-    {
-             ErrorList list = new ErrorList();
-        Error error = new Error();
-
-        int randomNumber = Random.Range(1000, 2000);
-
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
-        string json = JsonUtility.ToJson(subscriptionFormData);
-
-        Debug.Log(json);
-
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        string uri = baseURL + "student-subscriptions";
-
-        var request = new UnityWebRequest(uri, "POST");
-
-        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
-
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("Error: in adding trial subscription because of no. of chances: " + request.error);
-            Debug.Log(request.downloadHandler.text);
-            Debug.Log("Status Code: " + request.responseCode);
-
-            //  string  errorJson = request.downloadHandler.text;
-            // string jsonString = fixJson(errorJson);
-            // Debug.Log(jsonString);
-            string jsonString = request.downloadHandler.text;
-
-            list = JsonUtility.FromJson<ErrorList>(jsonString);
-
-            Debug.Log(list);
-            
-            string message = list.error[0].detail;
-
-            Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    message,
-                    "Cancel",
-                    "Subscribe Now",
-                    GoSubscribe
-                    );
-
-        }
-        else
-        {
-            Debug.Log(request.result);
-            Debug.Log(request.downloadHandler.text);
-            Debug.Log("Successful trial subscripton");
-            // SceneManager.LoadScene("KidsName");
-            // PlayerPrefs.SetString("isSubscribed", "true");
-            // SceneManager.LoadScene("Dashboard");
-        }
-        request.Dispose();
     }
 
      void GoSubscribe()

@@ -46,9 +46,14 @@ public class AppleManager : MonoBehaviour
 
     string baseURLTest = "http://165.22.219.198/edugogy/api/v1";
 
+     private Animator loadingIndicator;
+    public GameObject Indicator;
 
     void Start()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
 
         // If the current platform is supported
         if (AppleAuthManager.IsCurrentPlatformSupported)
@@ -66,6 +71,8 @@ public class AppleManager : MonoBehaviour
 
         if (showingResults == true)
         {
+             loadingIndicator.enabled = true;
+        Indicator.SetActive(true);
             socialLoginRequest();
         }
             // Updates the AppleAuthManager instance to execute
@@ -276,6 +283,8 @@ public class AppleManager : MonoBehaviour
 
      void MoveToSubscription()
     {
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
         //  Debug.Log("Value of apple json is");
         SceneManager.LoadScene("KidsName");
     }

@@ -35,10 +35,32 @@ public class IAPShop : MonoBehaviour
         public Error[] error;
     }
 
+    [Serializable]
+    public class KidsProfile
+    {
+        public int id;
+        public string name;
+        public string phone;
+        public int age_group_id;
+        public int country_code_id;
+        public object social_id;
+        public object social_media;
+        public object email;
+        public int total_level;
+        public int total_passed_level;
+        public int available_level;
+        public bool is_trial_subscription;
+        public string subscription_remaining_day;
+        public int remaining_trial;
+    }
+
      string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
+     [SerializeField]
+    public Button subscribeLater;
 
     public class SubscriptionForm
     {
@@ -48,18 +70,63 @@ public class IAPShop : MonoBehaviour
 
         public string platform_plan_id;
     }
-    private void Start()
+
+    private void Awake()
     {
-        //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
-        if (PlayerPrefs.HasKey("auth_key"))
+          if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
             
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";
+    }
+
+    private void Start()
+    {
+        //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
+      
+         auth_key = "Bearer Z-UjQdDNl7Dv75dEFl5p_P9g0eKoQNe-";  // google login 
+         auth_key = "Bearer Udjr3iFHGhGn8uSnlfUCo21AwMiPlZF1";  // 9855940600 
+
+        GetProfile();
         // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
+    }
+
+    public void GetProfile() => StartCoroutine(GetKidProfile_Coroutine());
+
+
+    IEnumerator GetKidProfile_Coroutine()
+    {
+        // outputArea.text = "Loading...";
+        KidsProfile profile = new KidsProfile();
+         auth_key = PlayerPrefs.GetString("auth_key");
+        string uri = baseURL + "students/view";
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+            Debug.Log("auth key is " + auth_key);
+             request.SetRequestHeader("Authorization", auth_key);
+
+            yield return request.SendWebRequest();
+            
+           
+            string jsonString = request.downloadHandler.text;
+            Debug.Log(jsonString);
+            profile = JsonUtility.FromJson<KidsProfile>(jsonString);
+            Debug.Log(profile.is_trial_subscription);
+            Debug.Log(profile.available_level);
+
+            if (profile.is_trial_subscription == false && profile.available_level > 0)
+            {
+
+                subscribeLater.enabled = false;
+            }
+        
+            request.Dispose();
+        }
+
+        
     }
 
     public void AddTrial()

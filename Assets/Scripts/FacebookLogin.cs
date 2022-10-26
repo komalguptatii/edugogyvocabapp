@@ -46,6 +46,8 @@ public class FacebookLogin : MonoBehaviour
         //     this.name = name;
         // }
     }
+      private Animator loadingIndicator;
+    public GameObject Indicator;
 
     Values newValues = new Values();//id, email, name);
 
@@ -56,6 +58,10 @@ public class FacebookLogin : MonoBehaviour
 
     private void Awake()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         FB.Init(SetInit, onHidenUnity);
         // Panel_Add.SetActive(false);
     }
@@ -140,6 +146,8 @@ public class FacebookLogin : MonoBehaviour
         if (showingResults == true)
         {
             // StartCoroutine(SocialLogin_Coroutine(newValues.id, newValues.email, newValues.name));
+             loadingIndicator.enabled = true;
+            Indicator.SetActive(true);
             socialLoginRequest();
         }
     }

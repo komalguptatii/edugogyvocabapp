@@ -227,6 +227,7 @@ public class TextToSpeech : MonoBehaviour
         if (audioQueue.Count > 0 && !outputAudioSource.isPlaying)
         {
             PlayClip(audioQueue.Dequeue());
+            // speakerButton.gameObject.SetActive(true);
         }
 
     }
@@ -287,6 +288,7 @@ public class TextToSpeech : MonoBehaviour
             {
                 synthesizeResponse = response.Result;
                 clip = WaveFile.ParseWAV("myClip", synthesizeResponse);
+                // speakerButton.gameObject.SetActive(true);
 
                 //Place the new clip into the audio queue.
                 audioQueue.Enqueue(clip);
@@ -323,6 +325,7 @@ public class TextToSpeech : MonoBehaviour
     // Add a text sample to the text queue to be converted into audio
     public void AddTextToQueue(TextMeshProUGUI word)
     {
+        
         if (textQueue.Count > 1)
         {
             textQueue.Dequeue();
@@ -332,6 +335,7 @@ public class TextToSpeech : MonoBehaviour
         if (word.text != "")
         {
             textQueue.Enqueue(word.text);
+            // speakerButton.gameObject.SetActive(false);
             // word.text = string.Empty;
         }
 

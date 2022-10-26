@@ -601,6 +601,7 @@ public class MissionManagement : MonoBehaviour
 
     public int generalMCQcount = 0;
     int tempGeneralMCQCount = 0;
+
   
     [Serializable]
     public class QuestionResponse
@@ -652,6 +653,10 @@ public class MissionManagement : MonoBehaviour
     public Button nextButton;
     public Button backButton;
 
+    private Animator loadingIndicator;
+    public GameObject Indicator;
+    // public Canvas MainCanvas;
+
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
@@ -669,6 +674,10 @@ public class MissionManagement : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+        // loadingIndicator.enabled = false;
+        // Indicator.SetActive(false);
+
         nextButton.gameObject.SetActive(false);
         backButton.gameObject.SetActive(false);
          // start mission after fetching id from detail all api
@@ -683,12 +692,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
-        // auth_key = "Bearer YJXHt7pta3oVR4BzcCSDiyMqcJOfr2SV"; // Aman
-
-        // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        //  auth_key = "Bearer uJKmGmzfdVeD5f3i_8NMLuz5-arHlpw1";  // Ridhi di's - Komal
-        // auth_key = "Bearer 6vI6b1PyNgh-oBZYZE-LoIKbkoC4PeGV"; // Ridhima testing
+        // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
     }
 
     async void Start ()
@@ -1092,6 +1096,9 @@ public class MissionManagement : MonoBehaviour
                 
             }
         }
+
+        loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
 
         SetBottomTitleLabel();
         SetUpBaseCanvas();
@@ -3002,7 +3009,8 @@ public class MissionManagement : MonoBehaviour
 
     void Reset()
     {
-
+        // loadingIndicator.enabled = true;
+        // Indicator.SetActive(true);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
         // newWordNumber = 0;

@@ -145,13 +145,10 @@ public class VerifyOTPManager : MonoBehaviour
         if (firstDigit.text.Length == 1)
         {
             secondDigit.Select();
+            
             secondDigit.ActivateInputField();
             otpEntered = (firstDigit.text).ToString();
         }
-
-       
-
-
          
     }
 

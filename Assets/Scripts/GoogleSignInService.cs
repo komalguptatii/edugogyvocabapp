@@ -41,6 +41,10 @@ public class GoogleSignInService : MonoBehaviour
     public string name = "";
     public bool isSignInDone = false;
 
+     private Animator loadingIndicator;
+    public GameObject Indicator;
+
+
     string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
@@ -48,6 +52,10 @@ public class GoogleSignInService : MonoBehaviour
 
     private void Awake()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         configuration = new GoogleSignInConfiguration { WebClientId = webClientId, RequestEmail = true, RequestIdToken = true };
         // var dependencyResult = FirebaseApp.CheckAndFixDependenciesAsync();
         // if(dependencyResult == DependencyStatus.Available)
@@ -174,6 +182,8 @@ public class GoogleSignInService : MonoBehaviour
     {
         if (isSignInDone == true)
         {
+             loadingIndicator.enabled = true;
+            Indicator.SetActive(true);
             socialLoginRequest();
         }
     }
