@@ -653,8 +653,12 @@ public class MissionManagement : MonoBehaviour
     public Button nextButton;
     public Button backButton;
 
+    public GameObject singleSentenceScroll;
+        public GameObject multipleSentenceScroll; 
+
     private Animator loadingIndicator;
     public GameObject Indicator;
+    float sentenceUpdateValue = 423f;
     // public Canvas MainCanvas;
 
     string fixJson(string value)            // Added object type to JSON
@@ -687,6 +691,7 @@ public class MissionManagement : MonoBehaviour
         dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(false);
 
+        UpdateUIBasedOnDevice();
         if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
@@ -706,6 +711,54 @@ public class MissionManagement : MonoBehaviour
             StartMission();
         }
        
+    }
+
+    public void UpdateUIBasedOnDevice()
+    {
+        if (Screen.width == 1080)
+        {
+            
+            if (Screen.height == 2160)
+            {
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
+            }
+            else if (Screen.height == 2280 || Screen.height == 2340)
+            {
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 20.0f);
+
+            }
+            else if (Screen.height == 2256)
+            {
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 90.0f);
+
+            }
+            else
+            {
+                Debug.Log("generalMCQBoard.transform.position " + generalMCQBoard.transform.position);
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
+
+            }
+        }
+        else if (Screen.width == 828 || Screen.width == 1125 || Screen.width == 1242 || Screen.width == 1284 || Screen.width == 1172)
+        {
+            Debug.Log("Screen.width " + Screen.width);
+
+            generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 20.0f);
+        }
+        else if (Screen.width == 720 || Screen.width == 750)
+        {
+             generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
+
+        }
+        
+        if (Screen.width == 750 || Screen.width == 828 || Screen.width == 720)
+        {
+            sentenceRealPos = new Vector2(singleSentenceBoard.transform.position.x,singleSentenceBoard.transform.position.y + 90.0f);
+            sentenceUpdateValue = 350f;
+        }
+
+       
+
     }
 
 
@@ -796,7 +849,8 @@ public class MissionManagement : MonoBehaviour
             int levelValue = badRequestDetails.error[0].value;
             string titleMessage = badRequestDetails.error[0].detail;
             
-            string displayMessage = titleMessage + " & level is " + levelValue;
+            // string displayMessage = titleMessage + " & level is " + levelValue;
+            string displayMessage = "Please attempt level " + levelValue  + " prior to this one.";
             Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
                     displayMessage,
@@ -1702,13 +1756,7 @@ public class MissionManagement : MonoBehaviour
         GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
         VerticalLayoutGroup pathVlg = optionContainer.GetComponent<VerticalLayoutGroup>();
 
-        // int oneFourthValue = (int)questionLength/4;
-        // int halfValue = (int)questionLength/2;
-        //  mcqPathVlg.spacing = 580 + (int)questionLength;
-        //     bgPathVlg.spacing = 60 + halfValue; //60
-        //     bgPathVlg.padding.bottom = 240 + halfValue; //80 - 100
-        //     bgPathVlg.padding.top = 40 + oneFourthValue; // 40 - 100
-        //     mcqPathVlg.padding.top = 120; // 60
+       
          mcqPathVlg.spacing = 580 + (int)questionLength;
         bgPathVlg.spacing = 60; //60
         bgPathVlg.padding.bottom = 240; //80 - 100
@@ -1817,11 +1865,19 @@ public class MissionManagement : MonoBehaviour
                 bgPathVlg.spacing = 60; //20
                 bgPathVlg.padding.bottom = 160;
                 // mcqPathVlg.spacing = 380;
-                mcqPathVlg.padding.top = 40;
+                mcqPathVlg.padding.top = 80;
 
                 if (answerOptions == 4 || pathVlg.spacing == 100)
                 {
-                    mcqPathVlg.spacing = 500;
+                    mcqPathVlg.spacing = 580 + questionLength;
+
+                    bgPathVlg.spacing = 20;
+                }
+                else if (answerOptions == 3)
+                {
+                    mcqPathVlg.spacing = 580 + questionLength;
+
+                    bgPathVlg.spacing = 20;
                 }
                 else
                 {
@@ -2199,7 +2255,7 @@ public class MissionManagement : MonoBehaviour
 
                     VerticalLayoutGroup ccVlg = convoContentPrefab.GetComponent<VerticalLayoutGroup>(); 
                     ccVlg.padding.bottom = 0;
-                        ccVlg.spacing = 0;
+                    ccVlg.spacing = 0;
                     if (allDetailData.passages[parameter].questions.Length > 4)
                     {
                         
@@ -2207,7 +2263,7 @@ public class MissionManagement : MonoBehaviour
                         ccVlg.spacing = 660;
                         if (answerOptions == 3)
                         {
-                            ccVlg.spacing = 780;
+                            ccVlg.spacing = 900; //780
                         }
                         else if (answerOptions == 4)
                         {
@@ -2233,81 +2289,10 @@ public class MissionManagement : MonoBehaviour
                      
                     
                     
-                    // if (i == 1)
-                    // {
-                        // for 4 with 2 options , 5000 , 800 or 6000, 800
-                        // for 6 with 2 options, 
-                    //     GameObject previousObject = convoContentPrefab.transform.GetChild(i).gameObject;
-
-
-                    //     VerticalLayoutGroup pathVlg = previousObject.GetComponent<VerticalLayoutGroup>();
-
-                    //     pathVlg.padding.top = -600;
-                        
-                        // if (answerOptions == 2)
-                        // {
-                        //     pathVlg.padding.left = 0;
-                        //     pathVlg.padding.top = 400;
-                        //     pathVlg.padding.bottom = 600;
-                        //     pathVlg.spacing = -200;
-                        //     if (i == 1)
-                        //     {
-                        //         pathVlg.padding.top = 600;
-                        //         // pathVlg.padding.bottom = 600;
-                        //     }
-                        //     else if (i == 2)
-                        //     {
-                        //         pathVlg.padding.top = 800;
-                        //         // pathVlg.padding.bottom = 600;
-                        //     }
-                        // }
-                        // else if (answerOptions == 3)
-                        // {
-                        //     pathVlg.padding.left = 0;
-                        //     pathVlg.padding.top = 800;
-                        //     pathVlg.padding.bottom = 800;
-                        //     pathVlg.spacing = -200;
-                        // }
-                        // else if (answerOptions == 4)
-                        // {
-                        //     pathVlg.padding.left = 0;
-                        //     pathVlg.padding.top = 1000;
-                        //     pathVlg.padding.bottom = 800;
-                        //     pathVlg.spacing = -200;
-                        // }
-                        
-                        // if (parameter > 0 && i >= 2)
-                        // {
-                        //     pathVlg.padding.top = 1200;
-                        // }
-
-
-                    // }
-                    // else
-                    // {
-                    //     mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
-                        
-                    //     pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
-
-                    //     if (answerOptions == 2)
-                    //     {
-                    //         pathVlg.padding.bottom = 400;
-                    //     }
-                    //     else if (answerOptions >= 3)
-                    //     {
-                   
-                    //         pathVlg.padding.bottom = 1000;
-                    //     }
-                        
-                    // }
+                 
             }
         }
-        // else
-        // {
-        //     // questionNumberValue += 1;
-        //     SetUpSinglePassageWithMCQ(parameter);
-
-        // } 
+       
 
         if (isSettingCanvas == true)
         {
@@ -2413,6 +2398,7 @@ public class MissionManagement : MonoBehaviour
 
     public void ConversationWithMCQSetup(int parameter)
     {
+        DestroyConvoPrefabs();
         Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
         bar.value = 1;
 
@@ -2481,6 +2467,8 @@ public class MissionManagement : MonoBehaviour
 
 
                    mcqBoard = newPrefab.transform.GetChild(1).gameObject;
+                   VerticalLayoutGroup mcqBoardVLG = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
                     questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
                     GameObject bg = questionBoard.transform.GetChild(0).gameObject;
@@ -2509,6 +2497,8 @@ public class MissionManagement : MonoBehaviour
 
                     optionBoard = mcqBoard.transform.GetChild(1).gameObject;
                     optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+                    VerticalLayoutGroup optionContainerVLG = optionContainer.GetComponent<VerticalLayoutGroup>();
 
                         
                     int children = optionContainer.transform.childCount;
@@ -2557,7 +2547,18 @@ public class MissionManagement : MonoBehaviour
                     {
                         ccVlg.spacing = -6500;
                     }
-                    
+                    else
+                    {
+                        if (allDetailData.conversationQuestions.Length == 2)
+                        {
+                                ccVlg.padding.bottom = 0;
+                            ccVlg.spacing = -6500;
+                            optionContainerVLG.spacing = 200;
+                            optionContainerVLG.padding.top = 40;
+                            mcqBoardVLG.spacing = -500;
+                        }
+                         
+                    }
                
                 if (allDetailData.conversationQuestions.Length <= 3 && answerOptions <= 2)
                 {
@@ -2701,6 +2702,14 @@ public class MissionManagement : MonoBehaviour
             if (isSettingCanvas)
             {
                 ccVlgfirst.spacing = -6500;
+            }
+            else
+            {
+        
+                ccVlgfirst.padding.bottom = 0;
+                ccVlgfirst.spacing = -6500;
+                pathVlg.spacing = -700;
+                 
             }
             
                 
@@ -3137,10 +3146,24 @@ public class MissionManagement : MonoBehaviour
         // }
        
     }
+
+    public void SetScrollToStart()
+    {
+        
+        
+
+           Scrollbar bar = singleSentenceScroll.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar multipleSentencebar = multipleSentenceScroll.GetComponent<Scrollbar>();
+        multipleSentencebar.value = 1;
+    }
     
 
     public void NounSetup(int parameter)
     {
+     
+        SetScrollToStart();
         DisplaySpeakerandImage();
          DestroyPrefabs();
         baseParentBoard.gameObject.SetActive(true);
@@ -3239,6 +3262,7 @@ public class MissionManagement : MonoBehaviour
 
     public void VerbSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -3351,6 +3375,7 @@ public class MissionManagement : MonoBehaviour
     
     public void AdverbSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -3463,6 +3488,7 @@ public class MissionManagement : MonoBehaviour
 
     public void AdjectiveSetup(int parameter)
     {
+         SetScrollToStart();
         Debug.Log("Working on adjective");
         DestroyPrefabs();
         DisplaySpeakerandImage();
@@ -3537,6 +3563,12 @@ public class MissionManagement : MonoBehaviour
                     pathVlg.spacing = 200;
                     pathVlg.padding.bottom = 100;
                 }
+                 else if (sentenceLength > 240)
+                {
+                    pathVlg.padding.top = 80; //100
+                    pathVlg.spacing = 120;
+                    pathVlg.padding.bottom = 120; //100
+                }
                 else
                 {
                    pathVlg.padding.top = 60;
@@ -3579,6 +3611,7 @@ public class MissionManagement : MonoBehaviour
     {
         Debug.Log("ConversationHappening");
         DestroyPrefabs();
+         SetScrollToStart();
         
         baseParentBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(true);
@@ -3665,7 +3698,7 @@ public class MissionManagement : MonoBehaviour
 
     public void DailyTipsSetup(int parameter)
     {
-
+         SetScrollToStart();
         DestroyPrefabs();
         DisplaySpeakerandImage();
         typeOfDay.text = "New Word";
@@ -3788,7 +3821,7 @@ public class MissionManagement : MonoBehaviour
                             // pathVlg.padding.top = 100;
 
                              pathVlg.spacing = 180;
-                            pathVlg.padding.bottom = 100;
+                            pathVlg.padding.bottom = 120; // 100
                             pathVlg.padding.top = 140;
                         }
                         else
@@ -3844,7 +3877,7 @@ public class MissionManagement : MonoBehaviour
 
     public void AnotherWayOfUsingWordSetup(int parameter)
     {
-        // Debug.Log("Defining this 1");
+        SetScrollToStart();
         DestroyPrefabs();
         HideSpeakerAndImage();
         revisionWordBoard.gameObject.SetActive(false);
@@ -3980,6 +4013,7 @@ public class MissionManagement : MonoBehaviour
 
     public void IdiomSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         HideSpeakerAndImage();
         baseParentBoard.gameObject.SetActive(true);
@@ -4114,6 +4148,7 @@ public class MissionManagement : MonoBehaviour
 
     public void MultipleWordSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         HideSpeakerAndImage();
 
@@ -4129,10 +4164,10 @@ public class MissionManagement : MonoBehaviour
         generalMCQBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(false);
 
+        
+        singleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + sentenceUpdateValue);
 
-        singleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
-
-        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
+        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + sentenceUpdateValue);
 
         int multipleWordCount = 0;
 
@@ -4220,9 +4255,9 @@ public class MissionManagement : MonoBehaviour
                 }
                 else if (sentenceLength > 240)
                 {
-                    pathVlg.padding.top = 100;
+                    pathVlg.padding.top = 80; //100
                     pathVlg.spacing = 120;
-                    pathVlg.padding.bottom = 100;
+                    pathVlg.padding.bottom = 120; //100
                 }
                 else
                 {
@@ -4268,7 +4303,7 @@ public class MissionManagement : MonoBehaviour
 
     public void AntonymSetup(int parameter)
     {
-
+         SetScrollToStart();
         DestroyPrefabs();
          HideSpeakerAndImage();
         baseParentBoard.gameObject.SetActive(true);
@@ -4398,7 +4433,7 @@ public class MissionManagement : MonoBehaviour
     
     public void SynonymSetup(int parameter)
     {
-
+         SetScrollToStart();
          DestroyPrefabs();
         HideSpeakerAndImage();
         dutBoard.gameObject.SetActive(false);
@@ -4406,6 +4441,7 @@ public class MissionManagement : MonoBehaviour
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
         conversationWithMCQBoard.gameObject.SetActive(false);
+        conversationBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
 
         // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))

@@ -15,6 +15,7 @@ using UnityEngine.SceneManagement;
 
 public class IAPShop : MonoBehaviour
 {
+    private string onetimePeriod = "com.techies.edugogy.onemonth";
     private string timePeriod = "com.techies.edugogy.sixmonth";
     private string subPeriod = "com.techies.edugogy.threemonth";
     string auth_key;
@@ -71,6 +72,9 @@ public class IAPShop : MonoBehaviour
         public string platform_plan_id;
     }
 
+    string typeOfPlatform = "";
+    public Sprite Image1;
+
     private void Awake()
     {
           if (PlayerPrefs.HasKey("auth_key"))
@@ -79,15 +83,22 @@ public class IAPShop : MonoBehaviour
             Debug.Log(auth_key);
             
         }
+        // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
     }
 
     private void Start()
     {
         //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
       
-         auth_key = "Bearer Z-UjQdDNl7Dv75dEFl5p_P9g0eKoQNe-";  // google login 
-         auth_key = "Bearer Udjr3iFHGhGn8uSnlfUCo21AwMiPlZF1";  // 9855940600 
-
+       if (Application.platform == RuntimePlatform.Android)
+        {
+            typeOfPlatform = "android";
+        }
+        else
+        {
+            typeOfPlatform = "apple";
+        }
+         
         GetProfile();
         // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
@@ -100,8 +111,8 @@ public class IAPShop : MonoBehaviour
     {
         // outputArea.text = "Loading...";
         KidsProfile profile = new KidsProfile();
-         auth_key = PlayerPrefs.GetString("auth_key");
         string uri = baseURL + "students/view";
+
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             request.SetRequestHeader("Content-Type", "application/json");
@@ -109,7 +120,6 @@ public class IAPShop : MonoBehaviour
              request.SetRequestHeader("Authorization", auth_key);
 
             yield return request.SendWebRequest();
-            
            
             string jsonString = request.downloadHandler.text;
             Debug.Log(jsonString);
@@ -119,8 +129,12 @@ public class IAPShop : MonoBehaviour
 
             if (profile.is_trial_subscription == false && profile.available_level > 0)
             {
-
                 subscribeLater.enabled = false;
+                 subscribeLater.GetComponent<Image>().sprite = Image1;
+
+                //opacity
+                // subscribeLater.GetComponent<Image>().SetTransparency(50.0f);
+
             }
         
             request.Dispose();
@@ -148,7 +162,7 @@ public class IAPShop : MonoBehaviour
     {
         int randomNumber = Random.Range(2000, 3000);
 
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "com.techies.edugogy.sixmonth" };
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = typeOfPlatform, platform_plan_id = onetimePeriod };
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
@@ -189,7 +203,7 @@ public class IAPShop : MonoBehaviour
 
         int randomNumber = Random.Range(1000, 2000);
 
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = typeOfPlatform, platform_plan_id = "trial" };
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
@@ -378,3 +392,16 @@ public class IAPShop : MonoBehaviour
 
     }
 }
+
+ public static class Extensions
+ {
+      public static void SetTransparency(this UnityEngine.UI.Image p_image, float p_transparency)
+      {
+          if (p_image != null)
+          {
+              UnityEngine.Color __alpha = p_image.color;
+              __alpha.a = p_transparency;
+              p_image.color = __alpha;
+          }
+      }
+  }

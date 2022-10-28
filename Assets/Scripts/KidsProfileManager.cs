@@ -85,6 +85,9 @@ public class KidsProfileManager : MonoBehaviour
     public Sprite deactivateButtonSprite;
     private int selectedButton;
     bool isCallingAfterUpdate = false;
+    private Animator loadingIndicator;
+    public GameObject Indicator;
+    public Button updateButton;
 
 
     string baseURL = "https://api.edugogy.app/v1/";
@@ -94,6 +97,9 @@ public class KidsProfileManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+        updateButton.enabled = false;
+
          if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
@@ -108,8 +114,7 @@ public class KidsProfileManager : MonoBehaviour
             ageImageTick[i].tag = i.ToString();
             ageButton[i].tag = i.ToString();
         }
-         auth_key = "Bearer Z-UjQdDNl7Dv75dEFl5p_P9g0eKoQNe-";  // google login 
-        //  auth_key = "Bearer Udjr3iFHGhGn8uSnlfUCo21AwMiPlZF1";  // 9855940600 
+          
 
         //Get Kids details
         GetKidProfile();
@@ -125,6 +130,16 @@ public class KidsProfileManager : MonoBehaviour
     // void GetAgeGroupList() => StartCoroutine(GetAgeGroupList_Coroutine());
     public void UpdateKidsProfile() => StartCoroutine(UpdateKidsName_Coroutine());
 
+    public void takeUpdateConfirmation()
+    {
+        Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Changing your level now will end your current subscription. Do you still want to continue?",
+                    "Cancel",
+                    "Continue",
+                    UpdateKidsProfile
+                    );
+    }
 
     KidsProfile profile = new KidsProfile();
     AgeGroupList agegrouplist = new AgeGroupList();
@@ -154,6 +169,10 @@ public class KidsProfileManager : MonoBehaviour
             
             if (!isCallingAfterUpdate)
             {
+                updateButton.enabled = true;
+                     loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+        
                 KidsName.text = profile.name;
             selectedButton = profile.age_group_id;
             ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;

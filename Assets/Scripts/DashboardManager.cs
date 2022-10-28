@@ -89,6 +89,8 @@ public class DashboardManager : MonoBehaviour
     // string baseURL = "http://165.22.219.198/edugogy/api/v1/";
 
     float leftSide, rightSide;
+    float clampValue = 150.0f;
+    bool isUnleashPotential = false;
 
     private void Awake() 
     {
@@ -99,9 +101,21 @@ public class DashboardManager : MonoBehaviour
         }
 
         // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
-
+        UpdateDeviceBasedUI();
 
         GetUserProfile();
+    }
+
+    public void UpdateDeviceBasedUI()
+    {
+        if (Screen.width == 750)
+        {
+            clampValue = 85.0f;
+        }
+        else if (Screen.width == 828 || Screen.width == 768)
+        {
+            clampValue = 95.0f;
+        }
     }
 
     private void Reset(Button levelButton)
@@ -143,7 +157,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(nextLevelWillbe);
              Debug.Log("Checking for TimeSpan");
             int levelNumber = int.Parse(nextLevelWillbe);
-            for (int z = 1; z <= levelNumber; z++)
+            for (int z = 1; z <= levelNumber - 1; z++)
             {
                 Button button = GameObject.Find(z.ToString()).GetComponent<Button>();
                 GameObject lockImage = button.transform.GetChild(1).gameObject;
@@ -181,12 +195,17 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(lastTimeClicked); //08/09/2022 13:33:38
 
             TimeSpan difference = thisTime.Subtract(lastTimeClicked);
-            // Debug.Log("difference is " + difference); // 00:00:32.3895120
+            Debug.Log("difference is " + difference); // 00:00:32.3895120
+            // total hour difference is coming on same day is 0 & next day as 1 - reset numberOFLevelsPerday
+            Debug.Log("numberOfLevelsPerDay is " + numberOfLevelsPerDay); // 00:00:32.3895120
+ 
+            numberOfLevelsPerDay = PlayerPrefs.GetInt("numberOfLevelsPerDay");
+            Debug.Log("numberOfLevelsPerDay is " + numberOfLevelsPerDay); // 00:00:32.3895120
 
             if (difference.TotalHours == 0)
             {
                 
-                if (numberOfLevelsPerDay != 15) // changing 2 to 15
+                if (numberOfLevelsPerDay < 2) // changing 2 to 15
                 {
                     // unlock
                     //show unlock animation and move character to that level
@@ -207,17 +226,42 @@ public class DashboardManager : MonoBehaviour
                     newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
                     //changing astronaut position in Update function
                 }
-                else 
+                else if (numberOfLevelsPerDay >= 2 )
                 {
                 
-                    //     //save datetime here and check for next level date time, when entered next date set  quota to 0
-                    InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                    popup.Init(UIController.Instance.MainCanvas,
-                    "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
-                    "Ok"
-                    );
+                Debug.Log("You have unleashed your true potential");
+                isUnleashPotential = true;
+                
+                    // //     //save datetime here and check for next level date time, when entered next date set  quota to 0
+                    // InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                    // popup.Init(UIController.Instance.MainCanvas,
+                    // "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+                    // "Ok"
+                    // );
                 }
             }
+            else if (difference.TotalHours == 1)
+            {
+                numberOfLevelsPerDay = 0;
+                PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+                Debug.Log("unlock next level");
+                    Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
+                     GameObject lockImage = button.transform.GetChild(1).gameObject;
+                    // lockImage.SetActive(false);
+                    button.tag = "Unlocked";
+                    animator = lockImage.GetComponent<Animator>();
+                    // animator.Play("LockUnlock");
+                    characterAnim = astronaut.GetComponent<Animator>();
+                    // characterAnim.Play("AstroMoving");
+                    islevelUnlocked = true;
+
+                    targetPosition = lockImage.transform.position;
+                    // screenPos = cam.ScreenToWorldPoint(targetPosition);
+
+                    newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+
+            }
+
                 
             // }
         }
@@ -238,7 +282,7 @@ public class DashboardManager : MonoBehaviour
             Bounds bounds = new Bounds (Vector3.zero, new Vector3(width, height, 0));
 
             Vector2 clampedPosition = new Vector2(
-                Mathf.Clamp(desiredPos.x, 0, Screen.width - 150.0f),
+                Mathf.Clamp(desiredPos.x, 0, Screen.width - clampValue),
                 Mathf.Clamp(desiredPos.y, 0, Screen.height) );
             
             Vector2 smoothPos = Vector2.Lerp(astronaut.transform.position, clampedPosition, Time.deltaTime);
@@ -247,6 +291,16 @@ public class DashboardManager : MonoBehaviour
             // astronaut.transform.position = Vector2.Lerp(astronaut.transform.position, newPosition, Time.deltaTime);
             animator.Play("LockUnlock");
         //     islevelUnlocked = false;
+        }
+
+        if (isUnleashPotential)
+        {
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+            popup.Init(UIController.Instance.MainCanvas,
+            "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+            "Okay"
+            );
+            isUnleashPotential = false;
         }
 
     }
@@ -271,7 +325,6 @@ public class DashboardManager : MonoBehaviour
         Debug.Log("local scale is" + pathPrefab.transform.localScale.y);
         int z = 0;
 
-        
 
         for(int i = 0; i < 36; i++)
         {
@@ -361,16 +414,27 @@ public class DashboardManager : MonoBehaviour
 
         if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
         {
+             numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
+            PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
             SaveDataForPreviousLevel(); 
             GetAllDetails();
-            numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
-            PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+            
         }
         else
         {
             Debug.Log("Can't unlock this mission yet");
+            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                        popup.Init(UIController.Instance.MainCanvas,
+                        "Can't unlock this mission yet",
+                        "Okay"
+                        );
+
         }
         
+        //For testing
+        SaveDataForPreviousLevel(); 
+            GetAllDetails();
+     
     
     }
 
@@ -420,6 +484,8 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(allDetailData.id);        //4
             Debug.Log(allDetailData.type);      //1
 
+           
+
             PlayerPrefs.SetInt("StartLevelID", allDetailData.id);
             PlayerPrefs.SetInt("LevelId",int.Parse(levelId));
             
@@ -458,35 +524,49 @@ public class DashboardManager : MonoBehaviour
             string responseJson = request.downloadHandler.text;
             profileData = JsonUtility.FromJson<ProfileDetails>(responseJson);            
 
-            totalNumberOfLevels = profileData.total_level;
-            levelsPassed = profileData.total_passed_level;
-            
-            if (profileData.is_trial_subscription == true)
+            if (profileData.available_level == 0)
             {
-                if (int.Parse(profileData.subscription_remaining_day) > 0)
-                {
-                    string displayMessageForTrial = "You are left with " + profileData.subscription_remaining_day + " missions of this level"; // missions in thia leve
-
-                    InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                    popup.Init(UIController.Instance.MainCanvas,
-                    displayMessageForTrial,
-                    "Okay"
-                    );
-                }
-                else
-                {
-                    // if (chances == 0)
-                     Popup popup = UIController.Instance.CreatePopup();
-                    popup.Init(UIController.Instance.MainCanvas,
-                    "You have completed your trial phase. It’s time to choose your level and subscribe!",
-                    "Cancel",
-                    "Subscribe Now",
-                    GoSubscribe
-                    );
-                }
-                 
+                Popup popup = UIController.Instance.CreatePopup();
+                        popup.Init(UIController.Instance.MainCanvas,
+                        "You are not authorized to this level unless subscribed for. Please subscribe",
+                        "Cancel",
+                        "Subscribe Now",
+                        GoSubscribe
+                        );
             }
+            else
+            {
+                totalNumberOfLevels = profileData.available_level;
+                levelsPassed = profileData.total_passed_level;
+                
+                if (profileData.is_trial_subscription == true)
+                {
+                    if (int.Parse(profileData.subscription_remaining_day) > 0)
+                    {
+                        string displayMessageForTrial = "You are left with " + profileData.subscription_remaining_day + " missions of this level"; // missions in thia leve
 
+                        InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                        popup.Init(UIController.Instance.MainCanvas,
+                        displayMessageForTrial,
+                        "Okay"
+                        );
+                    }
+                    else
+                    {
+                        // if (chances == 0)
+                        Popup popup = UIController.Instance.CreatePopup();
+                        popup.Init(UIController.Instance.MainCanvas,
+                        "You have completed your trial phase. It’s time to choose your level and subscribe!",
+                        "Cancel",
+                        "Subscribe Now",
+                        GoSubscribe
+                        );
+                    }
+                    
+                }
+
+            }
+            
             NotifyAboutSubscriptionStatus();
         }
         request.Dispose();
