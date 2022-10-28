@@ -697,7 +697,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
+        auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
     }
 
     async void Start ()
@@ -3018,30 +3018,8 @@ public class MissionManagement : MonoBehaviour
 
     void Reset()
     {
-        // loadingIndicator.enabled = true;
-        // Indicator.SetActive(true);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-        // newWordNumber = 0;
-        // tempDataCount = 0;
-        // parameterCountControlCheck = 0;
-        // revisionListDisplayed = false;
-        // questionResponseDict.Clear();
-        // screenCount = 1;
-        // Debug.Log("Resetting values");
         
-        // availableData.Clear();
-        // dataDisplayed.Clear();
-        // yield return dataDisplayed = copyOfdataDisplayed;
-        // yield return availableData = copyOfavailableData;
-        // baseParentBoard.gameObject.SetActive(true);
-        // generalMCQBoard.gameObject.SetActive(false);
-        // submitButton.gameObject.SetActive(false);
-        // parameterValueArray.Clear();
-        // methodCallArray.Clear();
-        // DecideTypeOfDataAvailable();
-        // SetUpBaseCanvas();
-        // SetBottomTitleLabel();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void GoBackToDashboard()
@@ -3081,6 +3059,7 @@ public class MissionManagement : MonoBehaviour
             string userJson = request.downloadHandler.text;
             ResponseResult result = new ResponseResult();
             result = JsonUtility.FromJson<ResponseResult>(userJson);
+            int numberOfLevelsPerDay = PlayerPrefs.GetInt("numberOfLevelsPerDay");
 
             if (result.is_passed == 1)
             {
@@ -3093,6 +3072,14 @@ public class MissionManagement : MonoBehaviour
             else
             {
                 // PlayerPrefs.SetBool("isPassed", false);
+            }
+
+
+            int isReattempting = PlayerPrefs.GetInt("isReattempting");
+
+            if (numberOfLevelsPerDay == 2 && isReattempting == 0)
+            {
+                PlayerPrefs.SetInt("totalLevelsPassed", levelId);
             }
            
             GoBackToDashboard();

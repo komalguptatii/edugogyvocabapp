@@ -1411,7 +1411,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7940927}
         m_TargetAssemblyTypeName: KidsProfileManager, Assembly-CSharp
-        m_MethodName: UpdateKidsProfile
+        m_MethodName: takeUpdateConfirmation
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

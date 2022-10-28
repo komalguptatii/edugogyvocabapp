@@ -81,6 +81,7 @@ public class DashboardManager : MonoBehaviour
     RectTransform maskTransform;
     float offset = -1500.0f;
     string missionNumber;
+    bool isTrial = false;
 
 
     string baseURL = "https://api.edugogy.app/v1/";
@@ -92,6 +93,8 @@ public class DashboardManager : MonoBehaviour
     float clampValue = 150.0f;
     bool isUnleashPotential = false;
 
+    ProfileDetails profileData = new ProfileDetails();
+
     private void Awake() 
     {
         if (PlayerPrefs.HasKey("auth_key"))
@@ -100,7 +103,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(auth_key);
         }
 
-        // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
+        auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
         UpdateDeviceBasedUI();
 
         GetUserProfile();
@@ -157,15 +160,35 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(nextLevelWillbe);
              Debug.Log("Checking for TimeSpan");
             int levelNumber = int.Parse(nextLevelWillbe);
-            for (int z = 1; z <= levelNumber - 1; z++)
-            {
-                Button button = GameObject.Find(z.ToString()).GetComponent<Button>();
-                GameObject lockImage = button.transform.GetChild(1).gameObject;
-                lockImage.SetActive(false);
-                button.tag = "Unlocked";
-            }
-            
+            int totalLevelsPassed = PlayerPrefs.GetInt("totalLevelsPassed");
+            Debug.Log("total levels passed is " + totalLevelsPassed);
             int level = levelNumber - 1;
+
+            if (level < totalLevelsPassed)
+            {
+                for (int z = 1; z <= totalLevelsPassed; z++)
+                {
+                    Button button = GameObject.Find(z.ToString()).GetComponent<Button>();
+                    GameObject lockImage = button.transform.GetChild(1).gameObject;
+                    lockImage.SetActive(false);
+                    button.tag = "Unlocked";
+                }
+            }
+            else
+            {
+                for (int z = 1; z <= level; z++)
+                {
+                    Button button = GameObject.Find(z.ToString()).GetComponent<Button>();
+                    GameObject lockImage = button.transform.GetChild(1).gameObject;
+                    lockImage.SetActive(false);
+                    button.tag = "Unlocked";
+                }
+            }
+             
+            
+           
+            
+            
             Debug.Log("level number is " + level);
 
             missionNumber = level.ToString();
@@ -202,65 +225,102 @@ public class DashboardManager : MonoBehaviour
             numberOfLevelsPerDay = PlayerPrefs.GetInt("numberOfLevelsPerDay");
             Debug.Log("numberOfLevelsPerDay is " + numberOfLevelsPerDay); // 00:00:32.3895120
 
-            if (difference.TotalHours == 0)
+            if (profileData.is_trial_subscription == false)
             {
-                
-                if (numberOfLevelsPerDay < 2) // changing 2 to 15
+                if (difference.TotalHours == 0)
                 {
-                    // unlock
-                    //show unlock animation and move character to that level
+                    
+                    if (numberOfLevelsPerDay < 2) // changing 2 to 15
+                    {
+                        // unlock
+                        //show unlock animation and move character to that level
+                        Debug.Log("unlock next level");
+                        Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
+                        GameObject lockImage = button.transform.GetChild(1).gameObject;
+                        // lockImage.SetActive(false);
+                        button.tag = "Unlocked";
+                        animator = lockImage.GetComponent<Animator>();
+                        // animator.Play("LockUnlock");
+                        characterAnim = astronaut.GetComponent<Animator>();
+                        // characterAnim.Play("AstroMoving");
+                        islevelUnlocked = true;
+
+                        targetPosition = lockImage.transform.position;
+                        // screenPos = cam.ScreenToWorldPoint(targetPosition);
+
+                        newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+                        //changing astronaut position in Update function
+                    }
+                    else if (numberOfLevelsPerDay >= 2 )
+                    {
+                    
+                    Debug.Log("You have unleashed your true potential");
+                    isUnleashPotential = true;
+                    
+                        // //     //save datetime here and check for next level date time, when entered next date set  quota to 0
+                        // InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                        // popup.Init(UIController.Instance.MainCanvas,
+                        // "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
+                        // "Ok"
+                        // );
+                    }
+                }
+                else if (difference.TotalHours == 1)
+                {
+                    numberOfLevelsPerDay = 0;
+                    PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
                     Debug.Log("unlock next level");
-                    Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
-                     GameObject lockImage = button.transform.GetChild(1).gameObject;
-                    // lockImage.SetActive(false);
-                    button.tag = "Unlocked";
-                    animator = lockImage.GetComponent<Animator>();
-                    // animator.Play("LockUnlock");
-                    characterAnim = astronaut.GetComponent<Animator>();
-                    // characterAnim.Play("AstroMoving");
-                    islevelUnlocked = true;
+                        Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
+                        GameObject lockImage = button.transform.GetChild(1).gameObject;
+                        // lockImage.SetActive(false);
+                        button.tag = "Unlocked";
+                        animator = lockImage.GetComponent<Animator>();
+                        // animator.Play("LockUnlock");
+                        characterAnim = astronaut.GetComponent<Animator>();
+                        // characterAnim.Play("AstroMoving");
+                        islevelUnlocked = true;
 
-                    targetPosition = lockImage.transform.position;
-                    // screenPos = cam.ScreenToWorldPoint(targetPosition);
+                        targetPosition = lockImage.transform.position;
+                        // screenPos = cam.ScreenToWorldPoint(targetPosition);
 
-                    newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
-                    //changing astronaut position in Update function
-                }
-                else if (numberOfLevelsPerDay >= 2 )
-                {
-                
-                Debug.Log("You have unleashed your true potential");
-                isUnleashPotential = true;
-                
-                    // //     //save datetime here and check for next level date time, when entered next date set  quota to 0
-                    // InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                    // popup.Init(UIController.Instance.MainCanvas,
-                    // "Well done!You have unleashed your true potential. Meet us tomorrow to unlock the next mission!",
-                    // "Ok"
-                    // );
-                }
+                        newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+
+                }   
             }
-            else if (difference.TotalHours == 1)
+            else 
             {
-                numberOfLevelsPerDay = 0;
-                PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-                Debug.Log("unlock next level");
-                    Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
-                     GameObject lockImage = button.transform.GetChild(1).gameObject;
-                    // lockImage.SetActive(false);
-                    button.tag = "Unlocked";
-                    animator = lockImage.GetComponent<Animator>();
-                    // animator.Play("LockUnlock");
-                    characterAnim = astronaut.GetComponent<Animator>();
-                    // characterAnim.Play("AstroMoving");
-                    islevelUnlocked = true;
+                if (level < 6)
+                {
+                    PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+                    Debug.Log("unlock next level");
+                        Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
+                        GameObject lockImage = button.transform.GetChild(1).gameObject;
+                        // lockImage.SetActive(false);
+                        button.tag = "Unlocked";
+                        animator = lockImage.GetComponent<Animator>();
+                        // animator.Play("LockUnlock");
+                        characterAnim = astronaut.GetComponent<Animator>();
+                        // characterAnim.Play("AstroMoving");
+                        islevelUnlocked = true;
 
-                    targetPosition = lockImage.transform.position;
-                    // screenPos = cam.ScreenToWorldPoint(targetPosition);
+                        targetPosition = lockImage.transform.position;
+                        // screenPos = cam.ScreenToWorldPoint(targetPosition);
 
-                    newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
+                        newPosition = new Vector2(targetPosition.x + 228f, targetPosition.y);
 
+                }
+                else
+                {
+                    Popup popup = UIController.Instance.CreatePopup();
+                        popup.Init(UIController.Instance.MainCanvas,
+                        "You have completed your trial phase. It’s time to choose your level and subscribe!",
+                        "Cancel",
+                        "Subscribe Now",
+                        GoSubscribe
+                        );
+                }
             }
+            
 
                 
             // }
@@ -414,27 +474,41 @@ public class DashboardManager : MonoBehaviour
 
         if (EventSystem.current.currentSelectedGameObject.tag == "Unlocked")
         {
-             numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
-            PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-            SaveDataForPreviousLevel(); 
-            GetAllDetails();
-            
+            if (numberOfLevelsPerDay < 2 && profileData.is_trial_subscription == false)
+            {
+                numberOfLevelsPerDay = numberOfLevelsPerDay + 1;
+                PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
+                PlayerPrefs.SetInt("isReattempting", 0);
+                SaveDataForPreviousLevel(); 
+                GetAllDetails();
+            }
+            else if (profileData.is_trial_subscription == true && int.Parse(levelId) < 6)
+            {
+                SaveDataForPreviousLevel(); 
+                GetAllDetails();
+            }
+            else
+            {
+                int totalLevelsPassed = PlayerPrefs.GetInt("totalLevelsPassed");
+
+                if (int.Parse(levelId) <= totalLevelsPassed)
+                {
+                    PlayerPrefs.SetInt("isReattempting", 1);
+                }
+                
+                GetAllDetails();
+            }
         }
         else
         {
             Debug.Log("Can't unlock this mission yet");
             InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                        popup.Init(UIController.Instance.MainCanvas,
-                        "Can't unlock this mission yet",
-                        "Okay"
-                        );
+            popup.Init(UIController.Instance.MainCanvas,
+            "Can't unlock this mission yet",
+            "Okay"
+            );
 
         }
-        
-        //For testing
-        SaveDataForPreviousLevel(); 
-            GetAllDetails();
-     
     
     }
 
@@ -501,7 +575,6 @@ public class DashboardManager : MonoBehaviour
     // called this API for dev purpose only - may be remove it later
     IEnumerator GetUserProfile_Coroutine()
     {
-        ProfileDetails profileData = new ProfileDetails();
         string uri = baseURL + "students/view";
 
         var request = new UnityWebRequest(uri, "GET");
@@ -522,7 +595,8 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(request.downloadHandler.text);
 
             string responseJson = request.downloadHandler.text;
-            profileData = JsonUtility.FromJson<ProfileDetails>(responseJson);            
+            profileData = JsonUtility.FromJson<ProfileDetails>(responseJson);   
+            isTrial = profileData.is_trial_subscription;         
 
             if (profileData.available_level == 0)
             {
