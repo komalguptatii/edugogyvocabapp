@@ -3419,7 +3419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc3b76db024e4dc2969a3537005cbc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Indicator: {fileID: 0}
+  Indicator: {fileID: 267314613}
 --- !u!114 &1587905816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3446,7 +3446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d1c4941e114b40e0ad2a1914cc18675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  webClientId: 849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com
+  webClientId: 82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com
   email: 
   name: 
   isSignInDone: 0
@@ -3471,6 +3471,7 @@ MonoBehaviour:
   googleBtn: {fileID: 1621132961}
   selectedCountryCode: 0
   countryListjson: 
+  Indicator: {fileID: 267314613}
 --- !u!1 &1595543581
 GameObject:
   m_ObjectHideFlags: 0

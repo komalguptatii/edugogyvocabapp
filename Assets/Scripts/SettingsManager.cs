@@ -20,12 +20,13 @@ public class SettingsManager : MonoBehaviour
         if (PlayerPrefs.HasKey("platform"))
         {
             string typeOfPlatform = PlayerPrefs.GetString("platform");
-            if (typeOfPlatform == "facebook")
-            {
-                // if 
-                FB.LogOut();
-            }
-            else if (typeOfPlatform == "google")
+            // if (typeOfPlatform == "facebook")
+            // {
+            //     // if 
+            //     FB.LogOut();
+            // }
+            
+            if (typeOfPlatform == "google")
             {
                 OnSignOut();
             }

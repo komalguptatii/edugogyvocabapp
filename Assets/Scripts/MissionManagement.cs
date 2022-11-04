@@ -686,6 +686,7 @@ public class MissionManagement : MonoBehaviour
         backButton.gameObject.SetActive(false);
          // start mission after fetching id from detail all api
         sentenceRealPos = new Vector2(singleSentenceBoard.transform.position.x,singleSentenceBoard.transform.position.y - 50.0f);
+
         singleSentenceBoard.gameObject.SetActive(true);
         multipleSentenceBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
@@ -697,7 +698,7 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr";  
+        //  auth_key = "Bearer r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4";
     }
 
     async void Start ()
@@ -850,7 +851,7 @@ public class MissionManagement : MonoBehaviour
             string titleMessage = badRequestDetails.error[0].detail;
             
             // string displayMessage = titleMessage + " & level is " + levelValue;
-            string displayMessage = "Please attempt level " + levelValue  + " prior to this one.";
+            string displayMessage = "Please attempt mission number " + levelValue  + " prior to this one.";
             Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
                     displayMessage,

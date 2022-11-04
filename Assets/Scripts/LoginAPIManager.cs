@@ -86,6 +86,10 @@ public class LoginAPIManager : MonoBehaviour
     CountryCodeList listObject = new CountryCodeList();
 
      public string countryListjson;
+      private Animator loadingIndicator;
+    public GameObject Indicator;
+    // public Canvas LoginCanvas;
+    
 
       string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
@@ -101,6 +105,10 @@ public class LoginAPIManager : MonoBehaviour
 
     void Awake()
     {
+          loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         if (Application.platform == RuntimePlatform.Android)
         {
             Debug.Log("will hide apple sign in button here later");
@@ -269,10 +277,15 @@ public class LoginAPIManager : MonoBehaviour
 
     IEnumerator ProcessLoginRequest_Coroutine()  // Actually this is API to sign up
     {
+        loadingIndicator.enabled = true;
+        Indicator.SetActive(true);
+        // LoginCanvas.interactable = false;
+
         SignedUpUser userSignUp = new SignedUpUser();
         //Validation for Login via mobile number
         bool isDataValid = ValidateLoginData();
-        if (isDataValid == true){
+        if (isDataValid == true)
+        {
             // "9855940600", 88 - country code id not code
         LoginForm loginFormData = new LoginForm { phone = phoneNumberInput.text, country_code_id = selectedCountryCode };
         string json = JsonUtility.ToJson(loginFormData);
@@ -292,6 +305,9 @@ public class LoginAPIManager : MonoBehaviour
 
         if (request.error != null)
         {
+             loadingIndicator.enabled = false;
+            Indicator.SetActive(false);
+
             Debug.Log("Error: " + request.error);
             if (request.responseCode == 422)
             {
@@ -324,6 +340,11 @@ public class LoginAPIManager : MonoBehaviour
             // { "auth_key":"3VcmTskZ5jRINDiaO_489b0pdVsbTEy6"}
 
         }
+        }
+        else
+        {
+            loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
         }
     }
 

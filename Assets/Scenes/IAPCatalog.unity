@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 25503767}
   m_Layer: 5
   m_Name: 3 month
-  m_TagString: Untagged
+  m_TagString: Walk
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -188,7 +188,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.4, g: 0.4, b: 0.6627451, a: 0.39215687}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1233,6 +1233,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 861095887}
+  - {fileID: 1042051148}
   - {fileID: 1931956334}
   - {fileID: 690132754}
   m_Father: {fileID: 0}
@@ -1255,9 +1256,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 297c6132bdee84c41ba7a46033fd8feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transactionId: {fileID: 1042051149}
   subscribeLater: {fileID: 1802332512}
   Image1: {fileID: 21300000, guid: 1e4d34b59ec154e369fa45a8cc765683, type: 3}
+  selectedSpaceCapture: {fileID: 21300000, guid: 3fc51de84dfac48d48ffc890622ac9de, type: 3}
+  selectedSpaceWalk: {fileID: 21300000, guid: e4e184043e1574d7c994a85bba82ea62, type: 3}
+  selectedSpaceExploration: {fileID: 21300000, guid: a7338c2176eb24b77b32852e833332ce, type: 3}
+  inActiveSpaceCapture: {fileID: 21300000, guid: 6b895c96fc9ca467ea88cca8bb4acdb9, type: 3}
+  inActiveSpaceWalk: {fileID: 21300000, guid: 2c3c22155de59470aa8fd40aa1e3db0b, type: 3}
+  inActiveSpaceExploration: {fileID: 21300000, guid: c0861b5e265dd454a9fd7bd2c21d6082, type: 3}
+  ExplorationButton: {fileID: 1130637733}
+  WalkButton: {fileID: 25503767}
+  CaptureButton: {fileID: 778920195}
+  subscribeNowButton: {fileID: 482975136}
 --- !u!1 &690132753
 GameObject:
   m_ObjectHideFlags: 0
@@ -1292,9 +1302,8 @@ RectTransform:
   - {fileID: 1911156321}
   - {fileID: 81459831}
   - {fileID: 997592687}
-  - {fileID: 1042051148}
   m_Father: {fileID: 667596087}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1316,7 +1325,7 @@ GameObject:
   - component: {fileID: 778920195}
   m_Layer: 5
   m_Name: 6 month
-  m_TagString: Untagged
+  m_TagString: Capture
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1366,7 +1375,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.4, g: 0.4, b: 0.6627451, a: 0.39215687}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1436,7 +1445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a5f511b0d8142cba0aeb92d0b264c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  productId: com.techies.edugogy.threemonth
+  productId: com.techies.edugogy.sixmonth
   buttonType: 0
   consumePurchase: 1
   onPurchaseComplete:
@@ -1739,7 +1748,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1042051148
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1752,12 +1761,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 690132754}
-  m_RootOrder: 6
+  m_Father: {fileID: 667596087}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -127}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 533.6523, y: -1680}
   m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1042051149
@@ -1789,8 +1798,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1813,8 +1822,8 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -1872,7 +1881,7 @@ GameObject:
   - component: {fileID: 1130637733}
   m_Layer: 5
   m_Name: 1 month
-  m_TagString: Untagged
+  m_TagString: Exploration
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1922,7 +1931,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.4, g: 0.4, b: 0.6627451, a: 0.39215687}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1992,7 +2001,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a5f511b0d8142cba0aeb92d0b264c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  productId: com.techies.edugogy.threemonth
+  productId: com.techies.edugogy.onemonth
   buttonType: 0
   consumePurchase: 1
   onPurchaseComplete:
@@ -2767,7 +2776,7 @@ RectTransform:
   - {fileID: 778920194}
   - {fileID: 2058910019}
   m_Father: {fileID: 667596087}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}

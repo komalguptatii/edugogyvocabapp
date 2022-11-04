@@ -85,7 +85,7 @@ public class AppleManager : MonoBehaviour
                 QuickLogin();
                 isLoggedIn = false;
             }
-            Debug.Log("If already logged in");
+            // Debug.Log("If already logged in");
         }
 
     }

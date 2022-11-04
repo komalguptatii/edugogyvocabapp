@@ -78,6 +78,9 @@ public class VerifyOTPManager : MonoBehaviour
     string auth_key;
 
      string baseURL = "https://api.edugogy.app/v1/";
+
+       private Animator loadingIndicator;
+    public GameObject Indicator;
         // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
@@ -91,6 +94,10 @@ public class VerifyOTPManager : MonoBehaviour
 
     void Awake()
     {
+         loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         SetInputCharacterLength();
         if (PlayerPrefs.HasKey("phone"))
         {
@@ -223,6 +230,8 @@ public class VerifyOTPManager : MonoBehaviour
             profile = JsonUtility.FromJson<KidsProfile>(jsonString);
             Debug.Log(profile.name);
             Debug.Log(profile.age_group_id);
+            loadingIndicator.enabled = false;
+            Indicator.SetActive(false);
 
             if (profile.name != "" && profile.age_group_id != 0)
             {
@@ -255,6 +264,8 @@ public class VerifyOTPManager : MonoBehaviour
         }
         else
         {
+             loadingIndicator.enabled = true;
+        Indicator.SetActive(true);
             var otp = int.Parse(otpEntered);
         Debug.Log(otp);
         GetAuthKey getKey = new GetAuthKey();
@@ -279,6 +290,9 @@ public class VerifyOTPManager : MonoBehaviour
 
         if (request.error != null)
         {
+             loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+        
             Debug.Log("Error: " + request.error);
              Debug.Log("Status Code: " + request.responseCode);
 
@@ -335,6 +349,8 @@ public class VerifyOTPManager : MonoBehaviour
 
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login
     {
+
+       
 
         ResetInputs();
         ResendOTP resendOTP = new ResendOTP();

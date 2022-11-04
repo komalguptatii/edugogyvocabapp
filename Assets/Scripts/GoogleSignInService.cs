@@ -15,7 +15,8 @@ using System.Text;
 public class GoogleSignInService : MonoBehaviour
 {
     // public Text infoText;
-    public string webClientId = "849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com";
+    // public string webClientId = "849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com";
+    public string webClientId = "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com";
 
     public FirebaseAuth auth;
     public FirebaseApp app;

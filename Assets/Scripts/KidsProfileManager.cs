@@ -84,6 +84,7 @@ public class KidsProfileManager : MonoBehaviour
     public Sprite buttonSprite;
     public Sprite deactivateButtonSprite;
     private int selectedButton;
+    int previousAgeGroupId;
     bool isCallingAfterUpdate = false;
     private Animator loadingIndicator;
     public GameObject Indicator;
@@ -108,6 +109,8 @@ public class KidsProfileManager : MonoBehaviour
 
         }
          
+        // auth_key = "Bearer r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4"; 
+
           for(int i = 0; i < ageImageTick.Length; i++)
         {
             ageImageTick[i].enabled = false;
@@ -132,13 +135,22 @@ public class KidsProfileManager : MonoBehaviour
 
     public void takeUpdateConfirmation()
     {
-        Popup popup = UIController.Instance.CreatePopup();
+        //Pending -  if already is_trial_subscription is true - don't ask any pop up, if subscribe then this pop up - Also here issue is is_trial_subscription coming false yet
+        if (profile.is_trial_subscription == true)
+        {
+            UpdateKidsProfile();
+        }
+        else
+        {
+            Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
                     "Changing your level now will end your current subscription. Do you still want to continue?",
                     "Cancel",
                     "Continue",
                     UpdateKidsProfile
                     );
+        }
+        
     }
 
     KidsProfile profile = new KidsProfile();
@@ -166,6 +178,7 @@ public class KidsProfileManager : MonoBehaviour
 
             Debug.Log(profile.name);
             Debug.Log(profile.age_group_id);
+            previousAgeGroupId = profile.age_group_id;
             
             if (!isCallingAfterUpdate)
             {
@@ -178,27 +191,32 @@ public class KidsProfileManager : MonoBehaviour
             ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;
             ageImageTick[profile.age_group_id - 1].enabled = true;
             
-            if (profile.remaining_trial == 2)
+            if (profile.is_trial_subscription == true)
             {
-                Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    "You have 2 more chances left to change your level.",
-                    "Cancel",
-                    "Okay",
-                    StayOnPage
-                    );
+                if (profile.remaining_trial > 0)
+                {
+
+                    Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                        "You have " + profile.remaining_trial + " more chances left to change your level.",
+                        "Cancel",
+                        "Okay",
+                        StayOnPage
+                        );
+                }
+                else if (profile.remaining_trial == 0)
+                {
+                    // should something like that Trial period is over
+                    Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                        "It’s time to choose your subscription level! Let’s get started! As trial period is over.",
+                        "Cancel",
+                        "Choose level",
+                        StayOnPage
+                        );
+                }
             }
-            else if (profile.remaining_trial == 0)
-            {
-                // should something like that Trial period is over
-                Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    "It’s time to choose your subscription level! Let’s get started! As trial period is over.",
-                    "Cancel",
-                    "Subscribe Now",
-                    GoSubscribe
-                    );
-            }
+            
 
             }
             else
@@ -254,6 +272,8 @@ public class KidsProfileManager : MonoBehaviour
     {
         profile.name = KidsName.text;
         profile.age_group_id = selectedButton + 1;
+        int currentAgeGroupId = selectedButton + 1;
+        
         string json = JsonUtility.ToJson(profile);
 
         // Debug.Log(json);
@@ -283,6 +303,17 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode + "Update");
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            if (previousAgeGroupId != currentAgeGroupId)
+            {
+                //ResetPlayerPrefs data to start with Mission 1
+
+                PlayerPrefs.DeleteKey("NextLevelWillBe");
+                PlayerPrefs.DeleteKey("numberOfLevelsPerDay");
+                PlayerPrefs.DeleteKey("completionDateTime");
+                PlayerPrefs.DeleteKey("isReattempting");
+                PlayerPrefs.DeleteKey("totalLevelsPassed");
+                Debug.Log("Deleting Keys");
+            }
             isCallingAfterUpdate = true;
             GetKidProfile();
             // GoSubscribe();
