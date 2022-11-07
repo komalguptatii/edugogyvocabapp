@@ -19,6 +19,7 @@ public class AppleManager : MonoBehaviour
     public string AppleUserIdKey { get; private set; }
 
     public bool isLoggedIn = true;
+    
     public bool isQuickLogin = false;
 
     [Serializable]
