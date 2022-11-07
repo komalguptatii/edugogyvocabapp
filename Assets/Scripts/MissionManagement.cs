@@ -113,7 +113,10 @@ public class MissionManagement : MonoBehaviour
     public Button submitButton;
 
     [SerializeField]
-    public Scrollbar passageScrollBar;
+    public GameObject passageScrollBar;
+
+     [SerializeField]
+    public GameObject passageDescriptionScrollBar;
 
     private Vector3 sentenceRealPos;
     
@@ -467,13 +470,24 @@ public class MissionManagement : MonoBehaviour
         public int mcq_count;
     }
 
-    [Serializable]
+    
+
+[Serializable]
+    public class Error
+    {
+        public int code;
+        public string source;
+        public int value;
+        public string title;
+        public string detail;
+    }
+
+[Serializable]
     public class BadRequest
     {
-        public int status;
-        public string title;
-        public string message;
+        public Error[] error;
     }
+     
 
     Dictionary<string, bool> availableData = new Dictionary<string, bool>()
         {
@@ -573,15 +587,21 @@ public class MissionManagement : MonoBehaviour
 
     public List<Action<int>> methodCallArray = new List<Action<int>>();
     public List<int> parameterValueArray = new List<int>();
+    public List<int> revisionWordReferenceNoArray = new List<int>();
+    public List<string> dayTypeArray = new List<string>();
     public List<int> revisionCountArray = new List<int>();
+    string dayType = "new";
+
     Dictionary<int, Button[]> mcqButtonsArray = new Dictionary<int, Button[]>();
 
     int buttonArrayNumber = 0;
     public int optionNumber = 0;
 
     int questionNumber = 0;
+
     public int generalMCQcount = 0;
     int tempGeneralMCQCount = 0;
+
   
     [Serializable]
     public class QuestionResponse
@@ -623,14 +643,31 @@ public class MissionManagement : MonoBehaviour
     public TextMeshProUGUI missionTitle;
     public int noOfAttempts = 0;
     int answerClicked = 0;
+    int answerAttemptedForMCQ = 0;
+    int previousQuestionTag = 0;
+    int internalTempQNo = 0;
+    bool isSameQuestion = false;
     bool updateDUTSentencePosition = false;
     float calHeight = 0.0f;
+    bool isQuestion = false;
+    public Button nextButton;
+    public Button backButton;
+
+    public GameObject singleSentenceScroll;
+        public GameObject multipleSentenceScroll; 
+
+    private Animator loadingIndicator;
+    public GameObject Indicator;
+    float sentenceUpdateValue = 423f;
+    // public Canvas MainCanvas;
 
     string fixJson(string value)            // Added object type to JSON
     {
         value = "{\"items\":" + value + "}";
         return value;
     }
+
+    public FontStyles Style;
 
     string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
@@ -641,23 +678,30 @@ public class MissionManagement : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+        // loadingIndicator.enabled = false;
+        // Indicator.SetActive(false);
+
+        nextButton.gameObject.SetActive(false);
+        backButton.gameObject.SetActive(false);
          // start mission after fetching id from detail all api
-        sentenceRealPos = singleSentenceBoard.transform.position;
+        sentenceRealPos = new Vector2(singleSentenceBoard.transform.position.x,singleSentenceBoard.transform.position.y - 50.0f);
+
         singleSentenceBoard.gameObject.SetActive(true);
         multipleSentenceBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(false);
 
-         if (PlayerPrefs.HasKey("auth_key"))
+        UpdateUIBasedOnDevice();
+        if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  //mine
+        //   auth_key = "Bearer nFWb5vW43uctmurD3X7vbO_AlW14YjKr"; // Komal
+        //  auth_key = "Bearer jIU9J018VJlwCnY91C-0wVzkNuuwy8NN"; // Ridhima, 9-10
+                //   auth_key = "Bearer ZIwP6xqcHiEdKk_LV4YKxH3bwluLLXio"; // Aman, 12-13
 
-        // auth_key = "Bearer usFEr6V4JK0P4OUz_eoZVvYMrzIRxATo";  // Ridhima - Mehak Key
-        // auth_key = "Bearer DTYp7oipE2vzpRvlNv-hJ4mRuR1skyrg"; // Ridhi di's - Komal
-        // auth_key = "Bearer tUOc6R-eobQl-a6DbrW8NYiqUI-D6Gvr"; // Ridhima testing
     }
 
     async void Start ()
@@ -671,6 +715,54 @@ public class MissionManagement : MonoBehaviour
             StartMission();
         }
        
+    }
+
+    public void UpdateUIBasedOnDevice()
+    {
+        if (Screen.width == 1080)
+        {
+            
+            if (Screen.height == 2160)
+            {
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
+            }
+            else if (Screen.height == 2280 || Screen.height == 2340)
+            {
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 20.0f);
+
+            }
+            else if (Screen.height == 2256)
+            {
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 90.0f);
+
+            }
+            else
+            {
+                Debug.Log("generalMCQBoard.transform.position " + generalMCQBoard.transform.position);
+                generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
+
+            }
+        }
+        else if (Screen.width == 828 || Screen.width == 1125 || Screen.width == 1242 || Screen.width == 1284 || Screen.width == 1172)
+        {
+            Debug.Log("Screen.width " + Screen.width);
+
+            generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 20.0f);
+        }
+        else if (Screen.width == 720 || Screen.width == 750)
+        {
+             generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
+
+        }
+        
+        if (Screen.width == 750 || Screen.width == 828 || Screen.width == 720)
+        {
+            sentenceRealPos = new Vector2(singleSentenceBoard.transform.position.x,singleSentenceBoard.transform.position.y + 90.0f);
+            sentenceUpdateValue = 350f;
+        }
+
+       
+
     }
 
 
@@ -751,13 +843,21 @@ public class MissionManagement : MonoBehaviour
             Debug.Log("Error: in start mission" + request.error);
             Debug.Log(request.downloadHandler.text);
             string jsonString = request.downloadHandler.text;
+           
+
            BadRequest badRequestDetails = new BadRequest();
 
             badRequestDetails = JsonUtility.FromJson<BadRequest>(jsonString);
 
+            Debug.Log(badRequestDetails.error[0]);
+            int levelValue = badRequestDetails.error[0].value;
+            string titleMessage = badRequestDetails.error[0].detail;
+            
+            // string displayMessage = titleMessage + " & level is " + levelValue;
+            string displayMessage = "Please attempt mission number " + levelValue  + " prior to this one.";
             Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    badRequestDetails.message,
+                    displayMessage,
                     "Cancel",
                     "Home",
                     GoBackToDashboard
@@ -875,11 +975,13 @@ public class MissionManagement : MonoBehaviour
         //total count for each revision word
         // for back button  - working on calling method with parameter
        //15 + 5 + 2
-        int convoPlusList = dataCountDetails.conversation_revision_word_count + revisionList;
-        Debug.Log("convoPlusList " + convoPlusList);
+       
+        // int convoPlusList = dataCountDetails.conversation_revision_word_count + revisionList;
+        // Debug.Log("convoPlusList " + convoPlusList);
 
+        revisionList = dataCountDetails.conversation_revision_word_count + revisionList;
 
-        totalNumber = totalNumber + dataCountDetails.passage_data.passage_count + convoPlusList;
+        totalNumber = totalNumber + dataCountDetails.passage_data.passage_count + revisionList;
 
         
         // 22 + 1
@@ -1012,7 +1114,8 @@ public class MissionManagement : MonoBehaviour
         {
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-
+            nextButton.gameObject.SetActive(true);
+            backButton.gameObject.SetActive(true);
             string jsonString = request.downloadHandler.text;
            
             allDetailData = JsonUtility.FromJson<AllDetail>(jsonString);
@@ -1052,6 +1155,9 @@ public class MissionManagement : MonoBehaviour
             }
         }
 
+        loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         SetBottomTitleLabel();
         SetUpBaseCanvas();
     }
@@ -1068,17 +1174,68 @@ public class MissionManagement : MonoBehaviour
 				);
     }
 
+    public float TextWidthApproximation (string text, TMP_FontAsset fontAsset, float fontSize, FontStyles style)
+    {
+        // Compute scale of the target point size relative to the sampling point size of the font asset.
+        float pointSizeScale = fontSize / (fontAsset.faceInfo.pointSize * fontAsset.faceInfo.scale);
+        float emScale = fontSize * 0.01f;
+ 
+        float styleSpacingAdjustment = (style & FontStyles.Bold) == FontStyles.Bold ? fontAsset.boldSpacing : 0;
+        float normalSpacingAdjustment = fontAsset.normalSpacingOffset;
+ 
+        float width = 0;
+ 
+        for (int i = 0; i < text.Length; i++)
+        {
+            char unicode = text[i];
+            TMP_Character character;
+            // Make sure the given unicode exists in the font asset.
+            if (fontAsset.characterLookupTable.TryGetValue(unicode, out character))
+                width += character.glyph.metrics.horizontalAdvance * pointSizeScale + (styleSpacingAdjustment + normalSpacingAdjustment) * emScale;
+        }
+ 
+        return width;
+    }
+
+    // int calculateLength(string message)
+    //  {
+    //      int totalLength = 0;
+ 
+    //      TMP_FontAsset myFont = word.font;  //chatText is my Text component
+    //      CharacterInfo characterInfo = new CharacterInfo();
+ 
+    //      char[] arr = message.ToCharArray();
+ 
+    //      foreach(char c in arr)
+    //      {
+    //          myFont.TMP_CharacterInfo(c, out characterInfo, word.fontSize);  
+ 
+    //          totalLength += characterInfo.advance;
+    //      }
+ 
+    //      return totalLength;
+    //  }
+
     public void SetUpBaseCanvas()
     {
        isSettingCanvas = true;  //bool to differentiate if setting canvas or making next or back calls
         if ( availableData["isNewWordAvailable"] == true && newWordDataCount != newWordNumber)
         {
+            dayType = "new";
+            isQuestion = false;
             Debug.Log("new word details");
             newWordDetails = allDetailData.newWords[0];
             if (newWordDetails.type == 1)
             {
+               
                 typeOfDay.text = "New Word";
-                word.text = newWordDetails.name;                
+                word.text = newWordDetails.name; 
+                
+                // TMP_FontAsset myFont = word.font;
+                // float wordLength = TextWidthApproximation(word.text, myFont, 32.0f, Style);//newWordDetails.name.Length;
+                // // float wordLength = newWordDetails.name.Length * 42.5f;
+                //  Debug.Log("word length is " + wordLength);
+                // speakerButton.transform.position = new Vector2(word.transform.position.x + wordLength, speakerButton.transform.position.y);
             }
             
             // if ((dataCountDetails.new_word_data.more_data[0].noun_count != 0) && (parameterCountControlCheck != dataCountDetails.new_word_data.more_data[0].noun_count) && (dataDisplayed["isNounDone"] == false)) // check if data displayed or not, add check count condition
@@ -1086,7 +1243,8 @@ public class MissionManagement : MonoBehaviour
             {
                 Debug.Log("Calling Noun Setup");
                 newWordNumber += 1;
-               
+                dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(NounSetup);
                 NounSetup(parameterCountControlCheck);  
@@ -1097,6 +1255,8 @@ public class MissionManagement : MonoBehaviour
                 
                 Debug.Log("Calling verb Setup");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(VerbSetup);
                 VerbSetup(parameterCountControlCheck);
@@ -1107,6 +1267,8 @@ public class MissionManagement : MonoBehaviour
                 
                 Debug.Log("Calling adverb Setup");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdverbSetup);
                 AdverbSetup(parameterCountControlCheck);
@@ -1117,6 +1279,8 @@ public class MissionManagement : MonoBehaviour
                 
                 Debug.Log("Calling adjective Setup");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AdjectiveSetup);
                 AdjectiveSetup(parameterCountControlCheck);
@@ -1126,6 +1290,8 @@ public class MissionManagement : MonoBehaviour
             {
                 
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(ConversationSetup);
                 ConversationSetup(parameterCountControlCheck);
@@ -1135,6 +1301,8 @@ public class MissionManagement : MonoBehaviour
             {
                Debug.Log("dut board covered");
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(DailyTipsSetup);
                 DailyTipsSetup(parameterCountControlCheck);
@@ -1144,6 +1312,8 @@ public class MissionManagement : MonoBehaviour
             {
                
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AnotherWayOfUsingWordSetup);
                 AnotherWayOfUsingWordSetup(parameterCountControlCheck);
@@ -1153,6 +1323,8 @@ public class MissionManagement : MonoBehaviour
             {
                 
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(IdiomSetup);
                 IdiomSetup(parameterCountControlCheck);
@@ -1162,6 +1334,8 @@ public class MissionManagement : MonoBehaviour
             {
                
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(MultipleWordSetup);
                 MultipleWordSetup(parameterCountControlCheck);
@@ -1171,6 +1345,8 @@ public class MissionManagement : MonoBehaviour
             {
                 
                 newWordNumber += 1;
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(AntonymSetup);
                 AntonymSetup(parameterCountControlCheck);
@@ -1180,6 +1356,8 @@ public class MissionManagement : MonoBehaviour
             {
                    
                 newWordNumber += 1;  
+                 dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(SynonymSetup);
                 SynonymSetup(parameterCountControlCheck);
@@ -1197,6 +1375,8 @@ public class MissionManagement : MonoBehaviour
         Debug.Log("Checking for revision world " + newWordNumber + newWordDataCount);
         if ((newWordDataCount != 0 && newWordNumber == newWordDataCount) || newWordDataCount == 0) 
         {
+            dayType = "revision";
+            isQuestion = false;
             dataDisplayed["isNewWordDetailsDone"] = true;
 
              HideSpeakerAndImage();
@@ -1209,7 +1389,8 @@ public class MissionManagement : MonoBehaviour
             // if list is displayed run for loop, all methods for first word and so on
             if ((availableData["isRevisionWordsAvailable"] == true) && (dataDisplayed["isRevisionWordListDone"] == false) )
             {       
-                
+                dayTypeArray.Add(dayType);
+                revisionWordReferenceNoArray.Add(0);
                 parameterValueArray.Add(0);
                 methodCallArray.Add(RevisionWordList);  
                 RevisionWordList(0);   
@@ -1233,17 +1414,19 @@ public class MissionManagement : MonoBehaviour
                 return;
                
             }
-            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 && revisionCountArray[revisionWordReference] > 0 )
+            else if (dataDisplayed["isRevisionWordListDone"] == true && dataDisplayed["isRevisionWordContentDone"] == false && revisionList - 1 > 0 )//&& revisionCountArray[revisionWordReference] > 0 )
             {          
                     Debug.Log("Going to check data");
                     revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
-                    Debug.Log(revisionWordDetails.id);
-                    Debug.Log("count of synonym" + dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count);
+                    Debug.Log("revisionWordReference " + revisionCountArray[revisionWordReference]);
+                    Debug.Log("Last word with 0 data not returning to passages in second loop " + dataDisplayed["isRevisionWordConversationDone"]);
 
                     if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count != 0) && (dataDisplayed["isRevisionWordSynonymDone"] == false))
                     {
-
-                         tempDataCount += 1;   
+                        
+                         tempDataCount += 1;  
+                          dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference); 
                          parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(SynonymSetup);  
                         SynonymSetup(parameterCountControlCheck);
@@ -1253,6 +1436,8 @@ public class MissionManagement : MonoBehaviour
                     {
                      
                          tempDataCount += 1;  
+                          dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                           parameterValueArray.Add(parameterCountControlCheck);
                          methodCallArray.Add(AntonymSetup);   
                         AntonymSetup(parameterCountControlCheck);
@@ -1262,6 +1447,8 @@ public class MissionManagement : MonoBehaviour
                     {
                         Debug.Log("Checking for other of using word");
                         tempDataCount += 1;
+                         dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(AnotherWayOfUsingWordSetup); 
                         AnotherWayOfUsingWordSetup(parameterCountControlCheck);
@@ -1272,6 +1459,8 @@ public class MissionManagement : MonoBehaviour
                         Debug.Log("Calling for Multiple Word Setup " + revisionWordReference);
             
                         tempDataCount += 1; 
+                         dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(MultipleWordSetup);    
                         MultipleWordSetup(parameterCountControlCheck);
@@ -1281,6 +1470,8 @@ public class MissionManagement : MonoBehaviour
                     else if ((dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count != 0) && (dataDisplayed["isRevisionWordIdiomsDone"] == false))
                     {                          
                         tempDataCount += 1;
+                         dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(IdiomSetup); 
                         IdiomSetup(parameterCountControlCheck);
@@ -1291,6 +1482,8 @@ public class MissionManagement : MonoBehaviour
 
                         Debug.Log("reading conversation");               
                          tempDataCount += 1; 
+                          dayTypeArray.Add(dayType);
+                        revisionWordReferenceNoArray.Add(revisionWordReference);
                         parameterValueArray.Add(parameterCountControlCheck);
                         methodCallArray.Add(ConversationSetup);     
                         ConversationSetup(parameterCountControlCheck);
@@ -1336,66 +1529,144 @@ public class MissionManagement : MonoBehaviour
                                     if (revisionCountArray[x] != 0)
                                     {
                                         revisionWordReference = x;
+                                        bool revisionConversation = false;
                                         Debug.Log("value of revision word reference " + revisionWordReference);
+                                        if (dataDisplayed["isRevisionWordConversationDone"] == true)
+                                        {
+                                            revisionConversation = true;
+                                        }
                                         dataDisplayed.Clear();
                                         dataDisplayed = copyOfdataDisplayed;
                                         dataDisplayed["isRevisionWordListDone"] = true;
+                                        if (revisionConversation == true)
+                                        {
+                                            dataDisplayed["isRevisionWordConversationDone"] = true;
+                                        }
+
+                                        if (x == numberOfRevisionWords - 1 && revisionCountArray[x] == 0)
+                                        {
+                                            parameterCountControlCheck = 0;
+                                            dataDisplayed["isRevisionWordContentDone"] = true;
+                                            Debug.Log("isRevisionWordContentDone ");
+
+                                        } 
+                                    
                                         return;
 
                                     }
-                                    else if (x == numberOfRevisionWords - 1)
+                                    else if (x == numberOfRevisionWords - 1 && revisionCountArray[x] == 0)
                                     {
-                                        parameterCountControlCheck = 0;
-                                        dataDisplayed["isRevisionWordContentDone"] = true;
-                                        Debug.Log("isRevisionWordContentDone ");
+        
+                                        Debug.Log("Last word with 0 data not returning to passages");
+                                            parameterCountControlCheck = 0;
+                                            dataDisplayed["isRevisionWordContentDone"] = true;
+                                            Debug.Log("isRevisionWordContentDone ");
 
-                                    } 
+                                    }
+                                    
+                                    
                                 }
                             } 
                         }
                      }
                      else
                      {
-                        Debug.Log("going in second loop");
-                        if (tempDataCount == revisionCountArray[revisionWordReference])// && tempDataCount != 0)
-                        {
-                            tempDataCount = 0; // 0 for first word content
+                        Debug.Log("going in second loop" + tempDataCount + " n " + revisionList);
+                        Debug.Log("tempDataCount " + tempDataCount);
 
-                            if (revisionWordReference == numberOfRevisionWords - 1)
-                            {
-                                parameterCountControlCheck = 0;
-                                dataDisplayed["isRevisionWordContentDone"] = true;
-                                Debug.Log("isRevisionWordContentDone ");
-
-                            }  
-                            else if (revisionWordReference < numberOfRevisionWords - 1)
-                            {
-                                Debug.Log("isRevisionWordContentDone with ");
-
-                                int nextReferenceNumber = revisionWordReference + 1;
-                                for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
-                                {
-                                   Debug.Log("number of revision words are " + numberOfRevisionWords);
-                                    if (revisionCountArray[x] != 0)
+               
+                        // if (tempDataCount == revisionCountArray[revisionWordReference] ) //+ dataCountDetails.conversation_revision_word_count) commented this considering that conversation will always be shown with first revision word
+                        // {
+                            
+                                    if (revisionWordReference == numberOfRevisionWords - 1)
                                     {
-                                        revisionWordReference = x;
-                                        Debug.Log("value of revision word reference " + revisionWordReference);
-                                        dataDisplayed.Clear();
-                                        dataDisplayed = copyOfdataDisplayed;
-                                        dataDisplayed["isRevisionWordListDone"] = true;
-                                        return;
 
-                                    }
-                                    else if (x == numberOfRevisionWords - 1)
+                                        //  Debug.Log("Last word with 0 data not returning to passages in second loop " + dataDisplayed["isRevisionWordConversationDone"]);
+                                        if (dataCountDetails.conversation_revision_word_count != 0 && dataDisplayed["isRevisionWordConversationDone"] == false)
+                                        {
+                                             return;
+                                        }
+                                        else if (tempDataCount == revisionCountArray[revisionWordReference]) // + dataCountDetails.conversation_revision_word_count)
+                                        {
+                                             tempDataCount = 0; // 0 for first word content
+                                            parameterCountControlCheck = 0;
+                                            dataDisplayed["isRevisionWordContentDone"] = true;
+                                            Debug.Log("isRevisionWordContentDone ");
+                                        }
+                                        else if (dataDisplayed["isRevisionWordConversationDone"] == true)
+                                        {
+                                            if (tempDataCount == revisionCountArray[revisionWordReference] + dataCountDetails.conversation_revision_word_count)
+                                            {
+                                                tempDataCount = 0; // 0 for first word content
+                                                parameterCountControlCheck = 0;
+                                                dataDisplayed["isRevisionWordContentDone"] = true;
+                                                Debug.Log("isRevisionWordContentDone ");
+                                            }
+                                        }
+                                       return;
+            
+                                    }  
+                                    else if (revisionWordReference < numberOfRevisionWords - 1)
                                     {
-                                        parameterCountControlCheck = 0;
-                                        dataDisplayed["isRevisionWordContentDone"] = true;
-                                        Debug.Log("isRevisionWordContentDone ");
+                                        if (tempDataCount == revisionCountArray[revisionWordReference] ) 
+                                        {
+                                             tempDataCount = 0; // 0 for first word content
+                                            Debug.Log("isRevisionWordContentDone with ");
 
+                                            int nextReferenceNumber = revisionWordReference + 1;
+                                            for(int x = nextReferenceNumber; x < numberOfRevisionWords; x++)
+                                            {
+                                                Debug.Log("number of revision words are " + numberOfRevisionWords);
+                                                if (revisionCountArray[x] != 0)
+                                                {
+                                                    revisionWordReference = x;
+                                                    bool revisionConversation = false;
+                                                    Debug.Log("value of revision word reference " + revisionWordReference);
+                                                    if (dataDisplayed["isRevisionWordConversationDone"] == true)
+                                                    {
+                                                        revisionConversation = true;
+                                                    }
+                                                    dataDisplayed.Clear();
+                                                    dataDisplayed = copyOfdataDisplayed;
+                                                    dataDisplayed["isRevisionWordListDone"] = true;
+                                                    if (revisionConversation)
+                                                    {
+                                                        dataDisplayed["isRevisionWordConversationDone"] = true;
+                                                    }
+                                                    
+                                                    return;
+
+                                                }
+                                                else if (x == numberOfRevisionWords - 1)
+                                                {
+                                                
+                                                    parameterCountControlCheck = 0;
+                                                    dataDisplayed["isRevisionWordContentDone"] = true;
+                                                    Debug.Log("isRevisionWordContentDone ");
+
+                                                } 
+                                            }
+                                        }
+                                        
                                     } 
-                                }
-                            } 
-                        }
+                                
+                            
+                          
+                        // }
+                        // else if (dataDisplayed["isRevisionWordConversationDone"] == true && (revisionWordReference == numberOfRevisionWords - 1 && tempDataCount == revisionCountArray[revisionWordReference]))
+                        // {
+                        //      tempDataCount = 0; // 0 for first word content
+                        //      Debug.Log("Last word with 0 data not returning to passages in second loop" + revisionWordReference);
+
+                          
+                        //         // if (revisionWordReference == numberOfRevisionWords - 1)
+                        //         // {
+                        //                     parameterCountControlCheck = 0;
+                        //                     dataDisplayed["isRevisionWordContentDone"] = true;
+                        //                     Debug.Log("isRevisionWordContentDone ");
+                        //         // }
+                        
+                        // }
                      }
                     
                         
@@ -1407,11 +1678,13 @@ public class MissionManagement : MonoBehaviour
             {
                 Debug.Log("Check for convo mcq ");
                 //call for mcq
-                
+                dayType = "question";
+                 dayTypeArray.Add(dayType);
+                    revisionWordReferenceNoArray.Add(0);
                     Debug.Log("conversation_mcq_count" + dataCountDetails.conversation_mcq_count);
                     parameterValueArray.Add(0);
                     methodCallArray.Add(ConversationWithMCQSetup);     
-
+                    
                     ConversationWithMCQSetup(0); // conversation mcq will be one only for now as per requirement from client
                     return;
                     // // make a method to display these mcqs & dataDisplayed["isConversationMCQDone"] is true after displaying and taking answer
@@ -1421,12 +1694,14 @@ public class MissionManagement : MonoBehaviour
             else if (dataDisplayed["isPassageMCQDone"] == false && dataCountDetails.passage_data.passage_count != 0) // && dataDisplayed["isRevisionWordContentDone"] == true) // && dataDisplayed["isConversationMCQDone"] == true)
             {
                 Debug.Log("Check for passage mcq " );
-               
+                dayType = "question";
+                 dayTypeArray.Add(dayType);
+                    revisionWordReferenceNoArray.Add(0);
                 // DestroyConvoPrefabs();
                 Debug.Log("passage_count" + dataCountDetails.passage_data.passage_count);
                 parameterValueArray.Add(parameterCountControlCheck);
                 methodCallArray.Add(PassageMCQSetup);  
-
+                
                 PassageMCQSetup(parameterCountControlCheck);
                 return;
 
@@ -1435,11 +1710,15 @@ public class MissionManagement : MonoBehaviour
             }
             else if (dataDisplayed["isGeneralMCQDone"] == false && dataCountDetails.mcq_count != 0 ) // && dataDisplayed["isRevisionWordContentDone"] == true) // dataDisplayed["isPassageMCQDone"] == true && 
             {
-            
+                 dayType = "question";
+                 dayTypeArray.Add(dayType);
+                    revisionWordReferenceNoArray.Add(0);
                  Debug.Log("Check for general mcq");
                 parameterValueArray.Add(tempGeneralMCQCount);
-                methodCallArray.Add(GeneralMCQSetup);  
+                methodCallArray.Add(GeneralMCQSetup); 
+                
                 GeneralMCQSetup(tempGeneralMCQCount);
+
                 return;
             } 
         }
@@ -1447,6 +1726,7 @@ public class MissionManagement : MonoBehaviour
 
     public void GeneralMCQSetup(int parameter)
     {
+        isQuestion = true; 
         DestroyConvoPrefabs();
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -1467,45 +1747,63 @@ public class MissionManagement : MonoBehaviour
         }
 
         GameObject mcqBoard = generalMCQContent.transform.GetChild(1).gameObject;
+        VerticalLayoutGroup mcqPathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
         GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
         GameObject bg = questionBoard.transform.GetChild(0).gameObject;
+        VerticalLayoutGroup bgPathVlg = bg.GetComponent<VerticalLayoutGroup>();
 
         TMPro.TMP_Text questionText = bg.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
         questionText.text = allDetailData.questions[parameter].title;
+        float questionLength = allDetailData.questions[parameter].title.Length;
 
         GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
         GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+        VerticalLayoutGroup pathVlg = optionContainer.GetComponent<VerticalLayoutGroup>();
+
+       
+         mcqPathVlg.spacing = 580 + (int)questionLength;
+        bgPathVlg.spacing = 60; //60
+        bgPathVlg.padding.bottom = 240; //80 - 100
+        bgPathVlg.padding.top = 40; // 40 - 100
+        mcqPathVlg.padding.top = 120; // 60
 
         int answerOptions = allDetailData.questions[parameter].questionOptions.Length;
         
         Debug.Log("answer options is " + answerOptions);
-        int noOfAttempts = 0;
+        
+        Debug.Log("setting value of answer clicked is " + answerClicked);
+        int noOfAnswerAttempts = 0;
         for(int x = 0; x < answerOptions; x++)
         {
             int value = allDetailData.questions[parameter].questionOptions[x].value;
 
             if (value == 1)
             {
-                noOfAttempts = noOfAttempts + 1;
+                noOfAnswerAttempts = noOfAnswerAttempts + 1;
                 Debug.Log("because value is 1");
             }
         }
-         
-
-
 
         int children = optionContainer.transform.childCount;
         
         Button[] otherMCQbuttons = new Button[answerOptions];
-
+        
 
         questionNumber = parameter;
+        isSameQuestion = false;
+        internalTempQNo = 0;
+        Debug.Log("No of attemps counted is " + noOfAnswerAttempts);
+        answerAttemptedForMCQ = 0;
+
 
         for(int j = 0; j < children; j++ )
         {
             Button thisButton = optionContainer.transform.GetChild(j).GetComponent<Button>();
+            VerticalLayoutGroup buttonVlg = thisButton.GetComponent<VerticalLayoutGroup>();
+
             thisButton.gameObject.SetActive(true);
             thisButton.enabled = true;
+
             if (j <= answerOptions-1)
             {
                 GameObject container = thisButton.transform.GetChild(0).gameObject;
@@ -1514,29 +1812,101 @@ public class MissionManagement : MonoBehaviour
                 //  Debug.Log("j value is " + j);
                 // Debug.Log(allDetailData.questions[parameter].questionOptions[j].option);
                 answerOption.text = allDetailData.questions[parameter].questionOptions[j].option;
+                float optionLength = answerOption.text.Length;
+                Debug.Log("optionLength " + optionLength);
+
+                // buttonVlg.padding.top = 60;
+                // buttonVlg.padding.bottom = 0;
+                // pathVlg.spacing = 40;
+
+                if (optionLength > 120)
+                {
+                    buttonVlg.padding.top = 60;
+                    buttonVlg.padding.bottom = 60;
+                    pathVlg.spacing = 100;
+                }
+               
                 GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                 rightWrongImage.SetActive(false);
                 otherMCQbuttons[j] = thisButton;
-                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons, noOfAttempts);});
+                thisButton.onClick.RemoveAllListeners();
+                thisButton.onClick.AddListener(delegate{CheckRightMCQAnswer(thisButton,questionNumber, otherMCQbuttons, noOfAnswerAttempts);});
             }
             else
             {
-                thisButton.gameObject.SetActive(false);
-                
-                // var rectTransform = optionBoard.GetComponent<RectTransform>();
-                // if (rectTransform != null)
-                // {
-                //     rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, rectTransform.sizeDelta.y - 155.2f);
-                // }
+                thisButton.gameObject.SetActive(false);            
+            }
 
-                // var rectTransform2 = mcqBoard.GetComponent<RectTransform>();
-                // if (rectTransform2 != null)
-                // {
-                //     rectTransform2.sizeDelta = new Vector2(rectTransform2.sizeDelta.x, rectTransform2.sizeDelta.y - 155.2f);
-                // }
-                
+            // pathVlg.spacing = 80;
+            Debug.Log("length of question is " + questionLength);
+
+           
+            if (questionLength > 70 && questionLength < 200)
+            {
+                bgPathVlg.spacing = 60;
+                if (answerOptions >= 3)
+                {
+                    // mcqPathVlg.spacing -= 100;
+                    bgPathVlg.spacing = 100;
+                    bgPathVlg.padding.bottom = 120;
+                }
+                else if (answerOptions <= 2)
+                {
+                    bgPathVlg.padding.bottom = 160;
+                    bgPathVlg.spacing = 140;
+                    mcqPathVlg.padding.top = 100;
+                    // mcqPathVlg.spacing = 600;
+                }
+                else
+                {
+                    bgPathVlg.padding.bottom = 100;
+                    bgPathVlg.spacing = 100;
+                }
                 
             }
+            else if (questionLength <= 70)
+            {
+                bgPathVlg.spacing = 60; //20
+                bgPathVlg.padding.bottom = 160;
+                // mcqPathVlg.spacing = 380;
+                mcqPathVlg.padding.top = 80;
+
+                if (answerOptions == 4 || pathVlg.spacing == 100)
+                {
+                    mcqPathVlg.spacing = 580 + questionLength;
+
+                    bgPathVlg.spacing = 20;
+                }
+                else if (answerOptions == 3)
+                {
+                    mcqPathVlg.spacing = 580 + questionLength;
+
+                    bgPathVlg.spacing = 20;
+                }
+                else
+                {
+                    mcqPathVlg.spacing = 460;
+                    // bgPathVlg.padding.bottom = 20;
+                }
+        
+
+            }
+            else if (questionLength >= 200)
+            {
+                mcqPathVlg.spacing = 580 + questionLength;
+                mcqPathVlg.padding.top = 60; //60
+                bgPathVlg.spacing = 200;
+                bgPathVlg.padding.bottom = 240; // 180
+
+                if (answerOptions >= 2)
+                {
+                    // mcqPathVlg.spacing -= 100;
+                    mcqPathVlg.padding.top = 120;
+                }
+                
+            }
+            
+            
         }
 
         if (isSettingCanvas == true)
@@ -1562,11 +1932,33 @@ public class MissionManagement : MonoBehaviour
 
     public void CheckRightMCQAnswer(Button button, int questionNumber, Button[] mcqButtonArray, int thisnoOfAttempts)
     {
+
+        
         // int questionNumber - check the answer value 1 for particular question
         // allDetailData.conversationQuestions[0].questionOptions[j].option - j is option number
-        Button[] buttonArray = mcqButtonArray;
         
+        Button[] buttonArray = mcqButtonArray;
+        int attempts = thisnoOfAttempts;
+        Debug.Log("value of  this noOfAttempts before is " + attempts);
+        Debug.Log("value of previous question tag is " + previousQuestionTag);
+        Debug.Log("value of questionNumber tag is " + questionNumber);
+        Debug.Log("value of internalTempQNo tag is " + internalTempQNo);
+        Debug.Log("value of isSameQuestion tag is " + isSameQuestion);
+
+        
+
         int tag = System.Convert.ToInt32(button.tag);
+
+        if (internalTempQNo == questionNumber)
+        {
+            isSameQuestion = true;
+        }
+
+       if (previousQuestionTag != questionNumber && isSameQuestion == false)
+       {
+            answerAttemptedForMCQ = 0;
+       }
+       Debug.Log("No of times answer attempted before is " + answerAttemptedForMCQ);
         int value = allDetailData.questions[questionNumber].questionOptions[tag].value;
         Debug.Log(button.tag);
         Debug.Log("value of" + value);
@@ -1578,7 +1970,7 @@ public class MissionManagement : MonoBehaviour
         int questionId = allDetailData.questions[questionNumber].id;
         int selectedOptionsId = allDetailData.questions[questionNumber].questionOptions[tag].id;   
         int answerClicked = 0;
-        noOfAttempts = thisnoOfAttempts;
+        
 
         if (value == 1)
         {
@@ -1592,13 +1984,16 @@ public class MissionManagement : MonoBehaviour
             myImage.sprite = wrongSprite;
             SoundManagerScript.WrongAnswerSound();
         }
-        answerClicked += 1;
+        answerClicked = answerClicked + 1;
+        answerAttemptedForMCQ = answerAttemptedForMCQ + answerClicked;
+
         rightWrongImage.SetActive(true);
-        
-       Debug.Log("No of times answer clicked is " + answerClicked);
-        
-        Debug.Log("No of attempts is " + noOfAttempts);
-       if (answerClicked == noOfAttempts)
+         Debug.Log("value of this noOfAttempts is " + attempts);
+        Debug.Log("No of times answer clicked after is " + answerClicked);
+        Debug.Log("No of times answer attempted after is " + answerAttemptedForMCQ);
+
+    //    answerAttemptedForMCQ = answerClicked;
+       if (answerAttemptedForMCQ == attempts)
         {
             for (int j = 0; j < buttonArray.Length; j++)
             {
@@ -1609,7 +2004,16 @@ public class MissionManagement : MonoBehaviour
             // buttonArray.Clear();
             // Destroy(buttonArray);
         }
+        else
+        {
+            for (int j = 0; j < buttonArray.Length; j++)
+            {
+                buttonArray[j].enabled = true;
+            }
+        }
 
+
+    
         if (questionResponseDict.ContainsKey(questionId))       // Check if dictionary contains question id as key
         {
              Debug.Log("Adding for next time" + selectedOptionsId);
@@ -1634,18 +2038,20 @@ public class MissionManagement : MonoBehaviour
             selectedIdList.Add(selectedOptionsId);
             questionResponseDict.Add(questionId, selectedIdList);
         }
+        internalTempQNo = questionNumber;
     }
 
 
     public void PassageMCQSetup(int parameter)
     {
-        // if (parameter != 0)
-        // {
-             
-        // }
-        // Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
-        // bar.value = 1;
-        passageScrollBar.value = 0.0f;
+        isQuestion = true;
+        convoWithMCQPrefabsArray.Clear();
+        Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
+        secondBar.value = 1;
+       
         DestroyConvoPrefabs();
         Debug.Log("setting up second passage " + parameter);
         baseParentBoard.gameObject.SetActive(false);
@@ -1655,6 +2061,7 @@ public class MissionManagement : MonoBehaviour
         conversationBoard.gameObject.SetActive(false);
 
         int passageCount = dataCountDetails.passage_data.passage_count;
+        convoWithMCQPrefabsArray.Clear();
 
         
         if (allDetailData.passages[parameter].questions.Length != 0)
@@ -1663,32 +2070,47 @@ public class MissionManagement : MonoBehaviour
 
              GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject;
 
-                    TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-                    mytext.text = "Passage " + (parameter + 1);
+            TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+            mytext.text = "Passage " + (parameter + 1);
 
-                    GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
-                    GameObject descContainer = scrollBar.transform.GetChild(0).gameObject;
-                    
-                    TMPro.TMP_Text descriptionText = descContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
-                    descriptionText.text = allDetailData.passages[parameter].description;
+            GameObject scrollBar = convoBoard.transform.GetChild(2).gameObject;
+            GameObject descContainer = scrollBar.transform.GetChild(0).gameObject;
+            
+            TMPro.TMP_Text descriptionText = descContainer.transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
+            descriptionText.text = allDetailData.passages[parameter].description;
 
             Debug.Log("debugging value of parameter here " + parameter);
-            for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
-            {
-                // questionNumberValue += 1;
-                // questionNumber = i;
-                GameObject questionBoard;
+            GameObject questionBoard;
                 GameObject newPrefab;
                 GameObject mcqBoard;
                 GameObject optionBoard;
                 GameObject optionContainer;
+                VerticalLayoutGroup pathVlg;
+            for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
+            {
+                
 
                 if (i == 0)
                 {
                     //  SetUpSinglePassageWithMCQ(parameter);
 
-                        // GameObject 
-                        mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+                    GameObject previousObject = convoContentPrefab.transform.GetChild(0).gameObject;
+                    Vector2 prefabPosition = previousObject.transform.position;
+
+                     RectTransform rt = (RectTransform)previousObject.transform;
+                         float height = rt.rect.height;
+                         Debug.Log("height of MCQ is " + height);
+                    
+                    mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+
+                    mcqBoard.transform.position = new Vector2(prefabPosition.x, height - 1000.0f);//(height + 200.0f)); //600.0f
+                    VerticalLayoutGroup mcqVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                    mcqVlg.padding.top = -200;
+                    mcqVlg.spacing = -900;
+                        
+                        // pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
                         // GameObject 
                         questionBoard = mcqBoard.transform.GetChild(0).gameObject;
                 optionBoard = mcqBoard.transform.GetChild(1).gameObject;
@@ -1698,13 +2120,70 @@ public class MissionManagement : MonoBehaviour
                 else
                 {
 
-                    Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    // Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
+                    GameObject previousObject = convoContentPrefab.transform.GetChild(i-1).gameObject;
+                    Vector2 prefabPosition = previousObject.transform.position;
+
+                     RectTransform rt = (RectTransform)previousObject.transform;
+                         float height = rt.rect.height;
+                         Debug.Log("height of second MCQ is " + height);
 
                     // GameObject 
                     newPrefab = Instantiate(mcqPrefab).gameObject;
                     newPrefab.transform.SetParent(convoContentPrefab.transform, true);
+                    newPrefab.transform.localScale = new Vector3(1, 1, 1);
 
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 400.0f);
+                    // float spaceHeight = (height * (i + 1)) - 300.0f;
+
+                    // for (var m = 0; m < i; m++)
+                    // {
+                    //     GameObject currentObj = convoContentPrefab.transform.GetChild(m).gameObject;
+                    //     RectTransform rth = (RectTransform)currentObj.transform;
+                    //      float tempheight = rth.rect.height + 320.0f;
+
+                    //     spaceHeight += tempheight;
+                    // }
+                    // Debug.Log("spaceHeight is " + spaceHeight);
+                    
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y -100.0f);//(height + 200.0f)); //600.0f
+                    VerticalLayoutGroup mcqVlg = newPrefab.GetComponent<VerticalLayoutGroup>();
+                    mcqVlg.padding.top = 0;
+                    mcqVlg.spacing = -600;
+
+                    int options = allDetailData.passages[parameter].questions[i].questionOptions.Length;
+
+                    if (options == 3)
+                    {
+
+                        mcqVlg.padding.top = -200;
+                        mcqVlg.spacing = -900;
+                        
+                    }
+
+                    // if (i >= 2 && i <= 3)
+                    // {
+                    //     GameObject obj = convoContentPrefab.transform.GetChild(i-1).gameObject;
+
+                    //     VerticalLayoutGroup vlg = obj.GetComponent<VerticalLayoutGroup>();
+                    //     float value = vlg.padding.top;
+                    
+                    //     if (options == 3)
+                    //     {
+                    //         mcqVlg.padding.top = 0; // -200
+                    //         if (value == -200)
+                    //         {
+                    //             mcqVlg.padding.top = -200;
+                    //         }
+
+                    //     }
+                    // }
+                    // else 
+                    if (i > 4)
+                    {
+                        mcqVlg.padding.top = 100;
+                        mcqVlg.spacing = -800;
+                    }
+                    
 
                      convoWithMCQPrefabsArray.Add(newPrefab);
 
@@ -1715,21 +2194,6 @@ public class MissionManagement : MonoBehaviour
                          optionContainer = optionBoard.transform.GetChild(0).gameObject;
                 }
 
-               
-                
-                    // if (i == 1)
-                    // {
-                    //     newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 800.0f);
-
-                    // }
-                    // else
-                    // {
-
-                    // }
-                     
-
-                        //    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
-                    
 
                     GameObject bg = questionBoard.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
@@ -1745,6 +2209,9 @@ public class MissionManagement : MonoBehaviour
 
                     int answerOptions = allDetailData.passages[parameter].questions[i].questionOptions.Length;
                     Debug.Log(answerOptions);
+
+                    
+                   
 
                     int noOfAttempts = 0;
                     for(int x = 0; x < answerOptions; x++)
@@ -1775,10 +2242,10 @@ public class MissionManagement : MonoBehaviour
                             answerOption.text = allDetailData.passages[parameter].questions[i].questionOptions[j].option;
                             GameObject rightWrongImage = container.transform.GetChild(2).gameObject;
                             rightWrongImage.SetActive(false);
-                            int pcc = parameterCountControlCheck;
+                            int pcc = parameter;//parameterCountControlCheck;
                             int k = i;
                             otherPassagebuttons[j] = thisButton;
-
+                            thisButton.onClick.RemoveAllListeners();
                             thisButton.onClick.AddListener(delegate{CheckRightAnswerForPassageQuestion(thisButton, pcc,k,otherPassagebuttons, noOfAttempts);});
 
                         }
@@ -1786,21 +2253,50 @@ public class MissionManagement : MonoBehaviour
                         {
                             thisButton.gameObject.SetActive(false);
                         }
+                          
                     }
                     convoContentPrefab.transform.SetAsFirstSibling();
 
+                    VerticalLayoutGroup ccVlg = convoContentPrefab.GetComponent<VerticalLayoutGroup>(); 
+                    ccVlg.padding.bottom = 0;
+                    ccVlg.spacing = 0;
+                    if (allDetailData.passages[parameter].questions.Length > 4)
+                    {
+                        
+                        ccVlg.padding.bottom = 5000;
+                        ccVlg.spacing = 660;
+                        if (answerOptions == 3)
+                        {
+                            ccVlg.spacing = 900; //780
+                        }
+                        else if (answerOptions == 4)
+                        {
+                            ccVlg.spacing = 900;
+                        }
+                    }
+                    else
+                    {
 
+                        ccVlg.padding.bottom = 6500;
+                        ccVlg.spacing = 700;
+                        
+                        if (answerOptions == 3)
+                        {
+                            ccVlg.spacing = 980;
+                        }
+                        else if (answerOptions == 4)
+                        {
+                            ccVlg.spacing = 500;
+                            ccVlg.padding.bottom = 8000;
+                        }
+                    }
+                     
                     
-                // }  
-
+                    
+                 
             }
         }
-        // else
-        // {
-        //     // questionNumberValue += 1;
-        //     SetUpSinglePassageWithMCQ(parameter);
-
-        // } 
+       
 
         if (isSettingCanvas == true)
         {
@@ -1906,7 +2402,14 @@ public class MissionManagement : MonoBehaviour
 
     public void ConversationWithMCQSetup(int parameter)
     {
-        passageScrollBar.value = 0.0f;
+        DestroyConvoPrefabs();
+        Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
+        secondBar.value = 1;
+
+        isQuestion = true;
         baseParentBoard.gameObject.SetActive(false);
         conversationWithMCQBoard.gameObject.SetActive(true);
         generalMCQBoard.gameObject.SetActive(false);
@@ -1920,9 +2423,17 @@ public class MissionManagement : MonoBehaviour
         {
             convoWithMCQPrefabsArray.Add(convoContentPrefab);
 
-    
+            GameObject questionBoard;
+                GameObject newPrefab;
+                GameObject mcqBoard;
+                GameObject optionBoard;
+                GameObject optionContainer;
+                VerticalLayoutGroup pathVlg;
+
+          
             for (var i = 0; i < allDetailData.conversationQuestions.Length; i++)
             {
+                
                 //  questionNumber = i;
                 if (i == 0)
                 {
@@ -1932,14 +2443,20 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
                     int dialogueNumber = i + 1;
                     mytext.text = "Conversation - Dialogue " + dialogueNumber;
+
                 }
                 else
                 {
-                    // questionNumberValue += 1;
+                    
+                  
                     Vector2 prefabPosition = convoWithMCQPrefabsArray[i - 1].transform.position;
-                    GameObject newPrefab = Instantiate(convoContentPrefab).gameObject;
-                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y-1666f); // -1666f
+                   
+
+                    newPrefab = Instantiate(convoContentPrefab).gameObject;
+                    // float multiplier = i - 1;
+                    newPrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 100.0f); // -1666f
                     newPrefab.transform.SetParent(convoPassageMCQPrefabParent, true);
+                    newPrefab.transform.localScale = new Vector3(1, 1, 1);
 
                     GameObject convoBoard = newPrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
@@ -1953,8 +2470,10 @@ public class MissionManagement : MonoBehaviour
                     descriptionText.text = allDetailData.conversationQuestions[i].conversation;
 
 
-                    GameObject mcqBoard = newPrefab.transform.GetChild(1).gameObject;
-                    GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
+                   mcqBoard = newPrefab.transform.GetChild(1).gameObject;
+                   VerticalLayoutGroup mcqBoardVLG = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                    questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
                     GameObject bg = questionBoard.transform.GetChild(0).gameObject;
             TMPro.TMP_Text questionHeader = bg.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
@@ -1980,8 +2499,10 @@ public class MissionManagement : MonoBehaviour
                         }
                     }
 
-                    GameObject optionBoard = mcqBoard.transform.GetChild(1).gameObject;
-                    GameObject optionContainer = optionBoard.transform.GetChild(0).gameObject;
+                    optionBoard = mcqBoard.transform.GetChild(1).gameObject;
+                    optionContainer = optionBoard.transform.GetChild(0).gameObject;
+
+                    VerticalLayoutGroup optionContainerVLG = optionContainer.GetComponent<VerticalLayoutGroup>();
 
                         
                     int children = optionContainer.transform.childCount;
@@ -2002,6 +2523,7 @@ public class MissionManagement : MonoBehaviour
                             rightWrongImage.SetActive(false);
                             int k = i;
                             otherQbuttons[j] = thisButton;
+                            thisButton.onClick.RemoveAllListeners();
                             thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, k, otherQbuttons, noOfAttempts);});
                             
 
@@ -2014,6 +2536,42 @@ public class MissionManagement : MonoBehaviour
                     convoContentPrefab.transform.SetAsFirstSibling();
 
                     convoWithMCQPrefabsArray.Add(newPrefab);
+
+
+
+                VerticalLayoutGroup ccParentVlg = convoPassageMCQPrefabParent.GetComponent<VerticalLayoutGroup>();
+                
+                ccParentVlg.spacing = -9600; // -6000
+
+                
+                    GameObject previousObject = convoPassageMCQPrefabParent.transform.GetChild(i).gameObject;
+
+                    VerticalLayoutGroup ccVlg = previousObject.GetComponent<VerticalLayoutGroup>();
+                    if (isSettingCanvas)
+                    {
+                        ccVlg.spacing = -6500;
+                    }
+                    else
+                    {
+                        if (allDetailData.conversationQuestions.Length == 2)
+                        {
+                                ccVlg.padding.bottom = 0;
+                            ccVlg.spacing = -6500;
+                            optionContainerVLG.spacing = 200;
+                            optionContainerVLG.padding.top = 40;
+                            mcqBoardVLG.spacing = -500;
+                        }
+                         
+                    }
+               
+                if (allDetailData.conversationQuestions.Length <= 3 && answerOptions <= 2)
+                {
+                        
+                    ccParentVlg.spacing = -8200; //-8200
+                        
+                }
+
+               
                     
                 }  
 
@@ -2052,6 +2610,19 @@ public class MissionManagement : MonoBehaviour
 
     public void SetUpSingleConvoWithMCQ()
     {
+         Scrollbar bar = passageScrollBar.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar secondBar = passageDescriptionScrollBar.GetComponent<Scrollbar>();
+        secondBar.value = 1;
+
+         GameObject previousObject = convoContentPrefab.transform.GetChild(0).gameObject;
+        Vector2 prefabPosition = previousObject.transform.position;
+
+        RectTransform rt = (RectTransform)previousObject.transform;
+        float height = rt.rect.height;
+        Debug.Log("height of second MCQ is " + height);
+
         GameObject convoBoard = convoContentPrefab.transform.GetChild(0).gameObject; // conversation board
         // GameObject board = convoBoard.transform.GetChild(0).gameObject;
         TMPro.TMP_Text mytext = convoBoard.transform.GetChild(0).GetComponent<TMPro.TMP_Text>(); 
@@ -2064,6 +2635,14 @@ public class MissionManagement : MonoBehaviour
             descriptionText.text = allDetailData.conversationQuestions[0].conversation;
 
             GameObject mcqBoard = convoContentPrefab.transform.GetChild(1).gameObject;
+            mcqBoard.transform.position = new Vector2(prefabPosition.x, height - 100.0f);//(height + 200.0f)); //600.0f
+            VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+            
+            pathVlg.padding.top = 0;
+            pathVlg.padding.bottom = 0;
+            pathVlg.spacing = -700;
+
+
             GameObject questionBoard = mcqBoard.transform.GetChild(0).gameObject;
 
             GameObject bg = questionBoard.transform.GetChild(0).gameObject;
@@ -2110,6 +2689,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject rightWrongImage = horizontalContainer.transform.GetChild(2).gameObject;
                     rightWrongImage.SetActive(false);
                     firstQbuttons[j] = thisButton;
+                    thisButton.onClick.RemoveAllListeners();
                     thisButton.onClick.AddListener(delegate{CheckRightAnswerOfQuestion(thisButton, 0, firstQbuttons, noOfAttempts);});
                     
 
@@ -2119,6 +2699,37 @@ public class MissionManagement : MonoBehaviour
                     thisButton.gameObject.SetActive(false);
                 }
             }
+
+             GameObject firstObject = convoPassageMCQPrefabParent.transform.GetChild(0).gameObject;
+
+            VerticalLayoutGroup ccVlgfirst = firstObject.GetComponent<VerticalLayoutGroup>();
+            if (isSettingCanvas)
+            {
+                ccVlgfirst.spacing = -6500;
+            }
+            else
+            {
+        
+                ccVlgfirst.padding.bottom = 0;
+                ccVlgfirst.spacing = -6500;
+                pathVlg.spacing = -700;
+                 
+            }
+            
+                
+                // VerticalLayoutGroup pathVlg = mcqBoard.GetComponent<VerticalLayoutGroup>();
+
+                // if (answerOptions == 2)
+                // {
+                //     pathVlg.padding.bottom = 400;
+                // }
+                // else if (answerOptions >= 3)
+                // {
+            
+                //     pathVlg.padding.bottom = 1000;
+                // }
+                        
+                    
 
     }
 
@@ -2315,6 +2926,20 @@ public class MissionManagement : MonoBehaviour
 
         } 
 
+        if (newResponse.response.Count == 0)
+        {
+            Debug.Log("newResponse is " + newResponse);
+             Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Please attempt all the questions to submit",
+                    "Cancel",
+                    "Try now",
+                    Reset
+                    );
+        }
+        else
+        {
+
         string json = JsonUtility.ToJson(newResponse);
         Debug.Log(json);
 
@@ -2356,6 +2981,7 @@ public class MissionManagement : MonoBehaviour
             string message = "";
             // string scores = result.score_percentage.ToString();
             double scores = result.score_percentage;
+            Debug.Log("scores is " + scores);
             // scores = Mathf.Round((float)scores * 100f) / 100f;
             // string roundedScore = scores.ToString();
             int thousandths = (int)(Mathf.Round((float)scores * 100f) / 100f);
@@ -2384,35 +3010,20 @@ public class MissionManagement : MonoBehaviour
 				);
         }
         request.Dispose();
+        }
 
     }
 
+    void PrintLine()
+    {
+        Debug.Log("Print null response");
+    }
     // public void ResettingData()  => StartCoroutine(Reset());
 
     void Reset()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-        // newWordNumber = 0;
-        // tempDataCount = 0;
-        // parameterCountControlCheck = 0;
-        // revisionListDisplayed = false;
-        // questionResponseDict.Clear();
-        // screenCount = 1;
-        // Debug.Log("Resetting values");
         
-        // availableData.Clear();
-        // dataDisplayed.Clear();
-        // yield return dataDisplayed = copyOfdataDisplayed;
-        // yield return availableData = copyOfavailableData;
-        // baseParentBoard.gameObject.SetActive(true);
-        // generalMCQBoard.gameObject.SetActive(false);
-        // submitButton.gameObject.SetActive(false);
-        // parameterValueArray.Clear();
-        // methodCallArray.Clear();
-        // DecideTypeOfDataAvailable();
-        // SetUpBaseCanvas();
-        // SetBottomTitleLabel();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void GoBackToDashboard()
@@ -2452,6 +3063,7 @@ public class MissionManagement : MonoBehaviour
             string userJson = request.downloadHandler.text;
             ResponseResult result = new ResponseResult();
             result = JsonUtility.FromJson<ResponseResult>(userJson);
+            int numberOfLevelsPerDay = PlayerPrefs.GetInt("numberOfLevelsPerDay");
 
             if (result.is_passed == 1)
             {
@@ -2464,6 +3076,14 @@ public class MissionManagement : MonoBehaviour
             else
             {
                 // PlayerPrefs.SetBool("isPassed", false);
+            }
+
+
+            int isReattempting = PlayerPrefs.GetInt("isReattempting");
+
+            if (numberOfLevelsPerDay == 2 && isReattempting == 0)
+            {
+                PlayerPrefs.SetInt("totalLevelsPassed", levelId);
             }
            
             GoBackToDashboard();
@@ -2481,6 +3101,8 @@ public class MissionManagement : MonoBehaviour
             revisionWordBoard.gameObject.SetActive(true);
             generalMCQBoard.gameObject.SetActive(false);
             conversationBoard.gameObject.SetActive(false);
+            conversationWithMCQBoard.gameObject.SetActive(false);
+
             
             revisionWordList.text = "";
             listOfrevisionWords = "";
@@ -2515,11 +3137,26 @@ public class MissionManagement : MonoBehaviour
         // }
        
     }
+
+    public void SetScrollToStart()
+    {
+        
+        
+
+           Scrollbar bar = singleSentenceScroll.GetComponent<Scrollbar>();
+        bar.value = 1;
+
+        Scrollbar multipleSentencebar = multipleSentenceScroll.GetComponent<Scrollbar>();
+        multipleSentencebar.value = 1;
+    }
     
 
     public void NounSetup(int parameter)
     {
+     
+        SetScrollToStart();
         DisplaySpeakerandImage();
+         DestroyPrefabs();
         baseParentBoard.gameObject.SetActive(true);
 
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -2527,8 +3164,12 @@ public class MissionManagement : MonoBehaviour
          conversationBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
 
 
+
+         singleSentenceBoard.transform.position = sentenceRealPos;
+        multipleSentenceBoard.transform.position = sentenceRealPos;
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Noun";
@@ -2568,14 +3209,18 @@ public class MissionManagement : MonoBehaviour
                     // Vector2 prefabPosition = new Vector2(sentencePrefabsArray[i - 1].transform.position.x - 160f, sentencePrefabsArray[i - 1].transform.position.y - 164f);
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
                     newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f); //prefabPosition.x - 160f
+                    
                     newSentencePrefab.transform.SetParent(parent, true);
 
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newNoun.nounSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
                 }  
+
+                
 
             }
         }
@@ -2608,6 +3253,7 @@ public class MissionManagement : MonoBehaviour
 
     public void VerbSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -2616,13 +3262,19 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
          dutBoard.gameObject.SetActive(false);
          generalBaseBoard.gameObject.SetActive(true);
+         revisionWordBoard.gameObject.SetActive(false);
 
+
+
+          singleSentenceBoard.transform.position = sentenceRealPos;
+        multipleSentenceBoard.transform.position = sentenceRealPos;
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Verb";
         word.text = newWordDetails.name; 
         Verb newVerb = new Verb();
         int verbCount = dataCountDetails.new_word_data.more_data[0].verb_count;
+
 
         Debug.Log("Length of verb" + newWordDetails.verbs.Length);
                 newVerb = newWordDetails.verbs[parameter];
@@ -2635,6 +3287,7 @@ public class MissionManagement : MonoBehaviour
                     singleSentenceBoard.gameObject.SetActive(false);
                     multipleSentenceBoard.gameObject.SetActive(true);
                     Debug.Log("Length " + newVerb.verbSentences.Length);
+                    float sentenceLength = 0.0f;
                     for (var i = 0; i < newVerb.verbSentences.Length; i++)
                     {
                         Debug.Log("Running in For loop " + i);
@@ -2645,7 +3298,8 @@ public class MissionManagement : MonoBehaviour
                             Debug.Log("i is 0 here");
                             GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                            mytext.text = newVerb.verbSentences[0].description;                     
+                            mytext.text = newVerb.verbSentences[0].description;   
+                            sentenceLength += newVerb.verbSentences[0].description.Length;                 
                         }
                         else
                         {
@@ -2659,8 +3313,26 @@ public class MissionManagement : MonoBehaviour
                             TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                             mytext.text = newVerb.verbSentences[i].description;
                             sentencePrefabsArray.Add(newSentencePrefab);
+                            newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                             Debug.Log("End of Checking in loop for second object");
+                            sentenceLength += newVerb.verbSentences[i].description.Length;                 
+
                         }  
+
+                         VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                        Debug.Log("sentence length here is " + sentenceLength);
+                        if (sentenceLength > 300)
+                        {
+                            pathVlg.padding.top = 160;
+                            pathVlg.spacing = 200;
+                            pathVlg.padding.bottom = 100;
+                        }
+                        else
+                        {
+                            pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
+                        }
 
                     }
                 }
@@ -2694,6 +3366,7 @@ public class MissionManagement : MonoBehaviour
     
     public void AdverbSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         DisplaySpeakerandImage();
         conversationWithMCQBoard.gameObject.SetActive(false);
@@ -2702,8 +3375,12 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
          dutBoard.gameObject.SetActive(false);
          generalBaseBoard.gameObject.SetActive(true);
+        revisionWordBoard.gameObject.SetActive(false);
 
 
+
+          singleSentenceBoard.transform.position = sentenceRealPos;
+        multipleSentenceBoard.transform.position = sentenceRealPos;
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Adverb";
@@ -2712,6 +3389,8 @@ public class MissionManagement : MonoBehaviour
         int adverbCount = dataCountDetails.new_word_data.more_data[0].adverb_count;
         newAdverb = newWordDetails.adverbs[parameter];
         meaningAsNoun.text = newAdverb.description;
+
+        float sentenceLength = 0.0f;
 
         if (newAdverb.adverbSentences.Length > 1)
         {
@@ -2731,6 +3410,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdverb.adverbSentences[0].description;  
+                    sentenceLength += newAdverb.adverbSentences[0].description.Length;
                 
                 }
                 else
@@ -2745,8 +3425,25 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdverb.adverbSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newAdverb.adverbSentences[i].description.Length;
                 }  
+
+                 VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                Debug.Log("sentence length here is " + sentenceLength);
+                if (sentenceLength > 300)
+                {
+                    pathVlg.padding.top = 160;
+                    pathVlg.spacing = 200;
+                    pathVlg.padding.bottom = 100;
+                }
+                else
+                {
+                    pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
+                }
 
             }
             Debug.Log(sentencePrefabsArray.Count);
@@ -2782,6 +3479,7 @@ public class MissionManagement : MonoBehaviour
 
     public void AdjectiveSetup(int parameter)
     {
+         SetScrollToStart();
         Debug.Log("Working on adjective");
         DestroyPrefabs();
         DisplaySpeakerandImage();
@@ -2791,7 +3489,12 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
         dutBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
+                 revisionWordBoard.gameObject.SetActive(false);
 
+
+
+          singleSentenceBoard.transform.position = sentenceRealPos;
+        multipleSentenceBoard.transform.position = sentenceRealPos;
 
         typeOfDay.text = "New Word";
         typeOfWord.text = "Adjective";
@@ -2803,6 +3506,7 @@ public class MissionManagement : MonoBehaviour
         newAdjective = newWordDetails.adjectives[parameter];
         meaningAsNoun.text = newAdjective.description;
 
+         float sentenceLength = 0.0f;
 
         if (newAdjective.adjectiveSentences.Length > 1)
         {
@@ -2821,7 +3525,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newAdjective.adjectiveSentences[0].description;                     
+                    mytext.text = newAdjective.adjectiveSentences[0].description;    
+                    sentenceLength += newAdjective.adjectiveSentences[0].description.Length;                 
                 }
                 else
                 {
@@ -2829,14 +3534,38 @@ public class MissionManagement : MonoBehaviour
                         
                     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 20f);//164f);
                     newSentencePrefab.transform.SetParent(parent, true);
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newAdjective.adjectiveSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newAdjective.adjectiveSentences[i].description.Length;
                 }  
+
+                VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                Debug.Log("sentence length here is " + sentenceLength);
+                if (sentenceLength > 300)
+                {
+                    pathVlg.padding.top = 160;
+                    pathVlg.spacing = 200;
+                    pathVlg.padding.bottom = 100;
+                }
+                 else if (sentenceLength > 240)
+                {
+                    pathVlg.padding.top = 80; //100
+                    pathVlg.spacing = 120;
+                    pathVlg.padding.bottom = 120; //100
+                }
+                else
+                {
+                   pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
+                }
 
             }
         }
@@ -2873,34 +3602,83 @@ public class MissionManagement : MonoBehaviour
     {
         Debug.Log("ConversationHappening");
         DestroyPrefabs();
+         SetScrollToStart();
         
         baseParentBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(true);
         generalMCQBoard.gameObject.SetActive(false);
         revisionWordBoard.gameObject.SetActive(false);
+        conversationWithMCQBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(false);
         conversationText.gameObject.SetActive(true);
-       
-        
-        // if (revisionListDisplayed == true)
-        // {
-           
-        // }
-        // else
-        // {
-             Conversation convo = new Conversation();
-            convo = allDetailData.conversation;
-            conversationText.text = convo.description;
-        // }
 
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+       
+        float sentenceLength = 0.0f;
+
+       
+        VerticalLayoutGroup pathVlg = conversationBoard.GetComponent<VerticalLayoutGroup>();
+
+        // conversationBoard.transform.position = new Vector2(conversationBoard.transform.position.x, conversationBoard.transform.position.y - 200.0f);
+    
+        Conversation convo = new Conversation();
+        convo = allDetailData.conversation;
+
+        
+
+        if (convo != null && dayType == "new")
+        {
+            conversationText.text = convo.description;
+            if (convo.description != null)
+            {
+                 string desc = convo.description;
+                Debug.Log("Length of string is " + convo.description);
+                if (desc.Length > 400.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length + 350;
+                }
+                else if (desc.Length < 220.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length;
+                }
+                else
+                {
+                    pathVlg.padding.top = (int)desc.Length + 200;
+                }
+                
+            }
+           
+        }
+        
+        
+       
+        if (dataDisplayed["isRevisionWordListDone"] == true && dataCountDetails.conversation_revision_word_count != 0 && dayType == "revision")
         {
             RevisionConversation revConvo = new RevisionConversation();
             revConvo = allDetailData.revisionConversation;
-            conversationText.text = revConvo.description;
-            Debug.Log(revConvo.description);
-            Debug.Log(conversationText.text);
-            dataDisplayed["isRevisionWordConversationDone"] = true;
+            if (revConvo != null)
+            {
+                conversationText.text = revConvo.description;
+                string desc = revConvo.description;
+                Debug.Log("Length of string is " + desc.Length);
+                dataDisplayed["isRevisionWordConversationDone"] = true;
+                if (desc.Length > 400.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length + 300;
+                }
+                else if (desc.Length < 220.0f)
+                {
+                    pathVlg.padding.top = (int)desc.Length;
+                }
+                else
+                {
+                    pathVlg.padding.top = (int)desc.Length + 200;
+                }
+                // pathVlg.padding.top = (int)desc.Length + 200;
+                Debug.Log(revConvo.description);
+                Debug.Log(conversationText.text);
+                
+            }
+            
         }   
         else
         {
@@ -2911,11 +3689,14 @@ public class MissionManagement : MonoBehaviour
 
     public void DailyTipsSetup(int parameter)
     {
-
+         SetScrollToStart();
         DestroyPrefabs();
+        DisplaySpeakerandImage();
         typeOfDay.text = "New Word";
         baseParentBoard.gameObject.SetActive(true);
         conversationBoard.gameObject.SetActive(false);
+        conversationWithMCQBoard.gameObject.SetActive(false);
+
         generalBaseBoard.gameObject.SetActive(false);
         dutBoard.gameObject.SetActive(true);
         singleSentenceBoard.gameObject.SetActive(false);
@@ -2923,8 +3704,32 @@ public class MissionManagement : MonoBehaviour
         generalMCQBoard.gameObject.SetActive(false);
         revisionWordBoard.gameObject.SetActive(false);
 
-        // dutSentencePrefab2.gameObject.SetActive(false);
-        // dutSentencePrefab3.gameObject.SetActive(false);
+
+        VerticalLayoutGroup pathVlg = dutParent.GetComponent<VerticalLayoutGroup>();
+        pathVlg.spacing = 240;
+        pathVlg.padding.bottom = 180;
+        pathVlg.padding.top = 120;
+
+        // pathVlg.spacing = 100;
+        // pathVlg.padding.bottom = 80;
+        // pathVlg.padding.top = 80;
+
+        // RectTransform rectTransform = dutSentencePrefab.GetComponent<RectTransform>();
+        // RectTransform rectTransform2 = dutSentencePrefab2.GetComponent<RectTransform>();
+        // RectTransform rectTransform3 = dutSentencePrefab3.GetComponent<RectTransform>();
+
+        // float totalHeight = rectTransform.rect.height + rectTransform2.rect.height + rectTransform3.rect.height;
+        
+        // if (totalHeight > 300.0f)
+        // {
+        //     Debug.Log("totalHeight " + totalHeight);
+        //     pathVlg.spacing = 400;
+        //     pathVlg.padding.bottom = 160;
+        //     pathVlg.padding.top = 160;
+        // }
+
+        float sentenceLength = 0.0f;
+
         word.text = newWordDetails.name; 
 
         if (newWordDetails.dailyUseTips.Length > 1)
@@ -2945,7 +3750,8 @@ public class MissionManagement : MonoBehaviour
                     
                     GameObject childObj = dutSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newWordDetails.dailyUseTips[0].description;                     
+                    mytext.text = newWordDetails.dailyUseTips[0].description; 
+                    sentenceLength +=  newWordDetails.dailyUseTips[0].description.Length;                  
                 }
                 else if (i == 1)
                 {
@@ -2954,12 +3760,11 @@ public class MissionManagement : MonoBehaviour
 
 
                     GameObject childObj = dutSentencePrefab2.transform.GetChild(0).gameObject;
-                    // RectTransform rt = childObj.GetComponent<TMPro.TMP_Text>().rectTransform;
-                    //  calHeight = rt.rect.height -  dutSentencePrefab.transform.position.y - 200.0f;
-                    //     updateDUTSentencePosition = true;
-
+                    
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newWordDetails.dailyUseTips[i].description;  
+                    mytext.text = newWordDetails.dailyUseTips[i].description;
+                    sentenceLength +=  newWordDetails.dailyUseTips[i].description.Length;                  
+  
                 }
                 else if (i == 2)
                 {
@@ -2968,34 +3773,81 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = dutSentencePrefab3.transform.GetChild(0).gameObject;
 
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newWordDetails.dailyUseTips[i].description;  
+                    mytext.text = newWordDetails.dailyUseTips[i].description; 
+                    sentenceLength +=  newWordDetails.dailyUseTips[i].description.Length;                  
+ 
                 }
+                Debug.Log("sentenceLength " + sentenceLength);
 
+                if (sentenceLength > 300.0f)
+                {
+                    if (newWordDetails.dailyUseTips.Length == 3)
+                    {
+                        if (newWordDetails.dailyUseTips[0].description.Length +  newWordDetails.dailyUseTips[1].description.Length < 200 ) 
+                        {
+                            Debug.Log("sentenceLength second" + sentenceLength);
+                            pathVlg.spacing = 240;
+                            pathVlg.padding.bottom = 180;
+                            pathVlg.padding.top = 180;
+                        }
+                    }
+                    else
+                    {
+                         Debug.Log("sentenceLength second" + sentenceLength);
+                        pathVlg.spacing = 360;
+                        pathVlg.padding.bottom = 160;
+                        pathVlg.padding.top = 160;
+                    }
+                   
+                }
+                else if (sentenceLength > 200.0f)
+                {
+                    if (newWordDetails.dailyUseTips.Length == 3)
+                    {
+                        if (newWordDetails.dailyUseTips[1].description.Length +  newWordDetails.dailyUseTips[2].description.Length < 200 ) 
+                        {
+                            Debug.Log("sentenceLength third" + sentenceLength);
+                            // pathVlg.spacing = 160;
+                            // pathVlg.padding.bottom = 100;
+                            // pathVlg.padding.top = 100;
+
+                             pathVlg.spacing = 180;
+                            pathVlg.padding.bottom = 120; // 100
+                            pathVlg.padding.top = 140;
+                        }
+                        else
+                        {
+                            Debug.Log("sentenceLength first is " + sentenceLength);
+                            pathVlg.spacing = 300;
+                            pathVlg.padding.bottom = 120;
+                            pathVlg.padding.top = 140;
+                        }
+                    }
+                    else if (newWordDetails.dailyUseTips[0].description.Length < 100)
+                    {
+                        Debug.Log("sentenceLength first is " + sentenceLength);
+                        pathVlg.spacing = 240;
+                        pathVlg.padding.bottom = 180;
+                        pathVlg.padding.top = 120;
+                    }
+                    else
+                    {
+                          Debug.Log("sentenceLength fourth" + sentenceLength);
+                            pathVlg.spacing = 300;
+                            pathVlg.padding.bottom = 120;
+                            pathVlg.padding.top = 140;
+                    }
+                    
+                }
                 // else
                 // {
-                     
-                      
-                //     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
-                //     GameObject newSentencePrefab = Instantiate(dutSentencePrefab).gameObject;
-                //     newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-                //     if (i == 1)
-                //     {
-                //         newSentencePrefab.transform.position = new Vector2(firstSentencePosition.x, firstSentencePosition.y - 164f);
+                //     // top bottom 120 - 180, spacing 240
+                //     Debug.Log("sentenceLength fifth" + sentenceLength);
+                //     pathVlg.spacing = 160;
+                //     pathVlg.padding.bottom = 120;
+                //     pathVlg.padding.top = 120;
+                // }
 
-                //     }
-                //     else
-                //     {
-                //         newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
-
-                //     }
-
-                //     newSentencePrefab.transform.SetParent(dutParent, true);
-                //     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
-                //     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                //     mytext.text = newWordDetails.dailyUseTips[i].description;
-                //     sentencePrefabsArray.Add(newSentencePrefab);
-                //     Debug.Log("End of Checking in loop for second object");
-                // }  
 
             }
         }
@@ -3009,12 +3861,14 @@ public class MissionManagement : MonoBehaviour
             mytext.text = newWordDetails.dailyUseTips[0].description;
         }
 
+        
+
         dataDisplayed["isDUTDone"] = true;
     }
 
     public void AnotherWayOfUsingWordSetup(int parameter)
     {
-        // Debug.Log("Defining this 1");
+        SetScrollToStart();
         DestroyPrefabs();
         HideSpeakerAndImage();
         revisionWordBoard.gameObject.SetActive(false);
@@ -3030,17 +3884,18 @@ public class MissionManagement : MonoBehaviour
         baseParentBoard.gameObject.SetActive(true);
 
 
-        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y);// - 200f);
-        // multipleSentenceBoard.transform.position.y = sentenceRealPos.y + 50f;
+        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y - 50.0f);// - 200f);
+        // multipleSentenceBoard.transform.position = sentenceRealPos; //+ 50f;
 
         int owuwCount = 0;
         OtherWayUsingWord newOwuw = new OtherWayUsingWord();
 
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             typeOfDay.text = "Another way of using";
             typeOfWord.text = "Brief";
-             owuwCount = dataCountDetails.revision_word_data.more_data[0].other_way_using_count;
+             owuwCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].other_way_using_count;
              newOwuw = revisionWordDetails.otherWayUsingWords[parameter];
              meaningAsNoun.text = newOwuw.description;
              word.text = revisionWordDetails.name;
@@ -3053,6 +3908,7 @@ public class MissionManagement : MonoBehaviour
              newOwuw = newWordDetails.otherWayUsingWords[parameter];
              meaningAsNoun.text = newOwuw.description;
               word.text = newWordDetails.name;
+              Debug.Log("description of OWUW is " + newOwuw.description);
         }
 
 
@@ -3062,6 +3918,9 @@ public class MissionManagement : MonoBehaviour
 
             singleSentenceBoard.gameObject.SetActive(false);
             multipleSentenceBoard.gameObject.SetActive(true);
+
+            float sentenceLength = 0.0f;
+
             for (var i = 0; i < newOwuw.otherWayUsingWordSentences.Length; i++)
             {
                     
@@ -3070,7 +3929,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newOwuw.otherWayUsingWordSentences[0].description;                     
+                    mytext.text = newOwuw.otherWayUsingWordSentences[0].description; 
+                    sentenceLength += newOwuw.otherWayUsingWordSentences[0].description.Length;                   
                 }
                 else
                 {
@@ -3084,8 +3944,26 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newOwuw.otherWayUsingWordSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newOwuw.otherWayUsingWordSentences[i].description.Length;
                 }  
+
+                 VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                        Debug.Log("sentence length here is " + sentenceLength);
+                        if (sentenceLength > 300)
+                        {
+                            pathVlg.padding.top = 160;
+                            pathVlg.spacing = 200;
+                            pathVlg.padding.bottom = 100;
+                        }
+                        else
+                        {
+                           pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
+                        }
+
 
             }
         }
@@ -3099,8 +3977,10 @@ public class MissionManagement : MonoBehaviour
         }
         if (isSettingCanvas == true)
         {
+            Debug.Log("owuwCount is " + owuwCount);
             if (parameterCountControlCheck == owuwCount - 1)
             {
+                parameterCountControlCheck = 0;     //resetting 
                 Debug.Log("OWUW is complete here");
                     if (dataDisplayed["isRevisionWordListDone"] == true)
                 {
@@ -3108,9 +3988,9 @@ public class MissionManagement : MonoBehaviour
                 }   
                 else
                 {
-                dataDisplayed["isnewWordOWUWordDone"] = true;
+                    dataDisplayed["isnewWordOWUWordDone"] = true;
                 }
-                parameterCountControlCheck = 0;     //resetting 
+                
             }
             else 
             {
@@ -3124,6 +4004,7 @@ public class MissionManagement : MonoBehaviour
 
     public void IdiomSetup(int parameter)
     {
+         SetScrollToStart();
         DestroyPrefabs();
         HideSpeakerAndImage();
         baseParentBoard.gameObject.SetActive(true);
@@ -3152,9 +4033,10 @@ public class MissionManagement : MonoBehaviour
          Idiom newIdiom = new Idiom();
         int idiomCount = 0;
 
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
-             idiomCount = dataCountDetails.revision_word_data.more_data[0].idiom_count;    
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
+             idiomCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].idiom_count;    
             newIdiom = revisionWordDetails.idioms[parameter];
             word.text = newIdiom.description;
             meaningAsNoun.text = newIdiom.meaning;  
@@ -3168,7 +4050,7 @@ public class MissionManagement : MonoBehaviour
         }
        
 
-
+        float sentenceLength = 0.0f;
         if (newIdiom.idiomSentences.Length > 1)
         {
             sentencePrefabsArray.Add(sentencePrefab);
@@ -3183,7 +4065,8 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = newIdiom.idiomSentences[0].description;                     
+                    mytext.text = newIdiom.idiomSentences[0].description; 
+                    sentenceLength += newIdiom.idiomSentences[0].description.Length;                  
                 }
                 else
                 {
@@ -3191,14 +4074,33 @@ public class MissionManagement : MonoBehaviour
                       
                     Vector2 prefabPosition = sentencePrefabsArray[i - 1].transform.position;
                     GameObject newSentencePrefab = Instantiate(sentencePrefab).gameObject;
-                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 164f);
+                    newSentencePrefab.transform.position = new Vector2(prefabPosition.x, prefabPosition.y - 50f); // 164f
                     newSentencePrefab.transform.SetParent(parent, true);
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = newIdiom.idiomSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength += newIdiom.idiomSentences[i].description.Length;                  
+
                 }  
+
+
+                 VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                        Debug.Log("sentence length here is " + sentenceLength);
+                        if (sentenceLength > 300)
+                        {
+                            pathVlg.padding.top = 160;
+                            pathVlg.spacing = 200;
+                            pathVlg.padding.bottom = 100;
+                        }
+                        else
+                        {
+                           pathVlg.padding.top = 60;
+                            pathVlg.spacing = 100; // 80
+                            pathVlg.padding.bottom = 100; //60
+                        }
 
             }
         }
@@ -3237,12 +4139,13 @@ public class MissionManagement : MonoBehaviour
 
     public void MultipleWordSetup(int parameter)
     {
-         DestroyPrefabs();
+         SetScrollToStart();
+        DestroyPrefabs();
         HideSpeakerAndImage();
 
         Debug.Log("Value of parameter here is " + parameter);
-             Debug.Log("Value of revision reference number here is " + revisionWordReference);
-             Debug.Log("revision word name" + revisionWordDetails.name);
+        Debug.Log("Value of revision reference number here is " + revisionWordReference);
+        Debug.Log("revision word name" + revisionWordDetails.name);
 
         dutBoard.gameObject.SetActive(false);
         baseParentBoard.gameObject.SetActive(true);
@@ -3252,33 +4155,36 @@ public class MissionManagement : MonoBehaviour
         generalMCQBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(false);
 
+        
+        singleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + sentenceUpdateValue);
 
-        singleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
-
-        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + 423f);
+        multipleSentenceBoard.transform.position = new Vector2(sentenceRealPos.x, sentenceRealPos.y + sentenceUpdateValue);
 
         int multipleWordCount = 0;
+
         UseMultipleWord multipleWordDetails = new UseMultipleWord();
-        
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        typeOfDay.text = "Let's try to use these together!";
+
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
-             typeOfDay.text = "Lets’ try to use these together!";
-        
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             multipleWordCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].use_multiple_count;
             Debug.Log("Value of multiple word count is " + multipleWordCount);
+            Debug.Log("Value of parameter is " + parameter);
             
              multipleWordDetails = revisionWordDetails.useMultipleWords[parameter];
             word.text = multipleWordDetails.description;
         }
         else
         {
-             typeOfDay.text = "Lets’ try to use these together!";
-        
+            
             multipleWordCount = dataCountDetails.new_word_data.more_data[0].use_multiple_count;
              multipleWordDetails = newWordDetails.useMultipleWords[parameter];
              word.text = multipleWordDetails.description;
         }
        
+
+        float sentenceLength = 0.0f;
 
         if (multipleWordDetails.useMultipleWordSentences.Length > 1)
         {
@@ -3295,7 +4201,10 @@ public class MissionManagement : MonoBehaviour
                     Debug.Log("i is 0 here");
                     GameObject childObj = sentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
-                    mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;                     
+                    mytext.text = multipleWordDetails.useMultipleWordSentences[0].description;      
+                    sentenceLength +=  multipleWordDetails.useMultipleWordSentences[0].description.Length; 
+                    Debug.Log("sentence length  for 1 here is " + sentenceLength);                 
+               
                 }
                 else
                 {
@@ -3309,9 +4218,45 @@ public class MissionManagement : MonoBehaviour
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = multipleWordDetails.useMultipleWordSentences[i].description;
                     sentencePrefabsArray.Add(newSentencePrefab);
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     Debug.Log("End of Checking in loop for second object");
+                    sentenceLength +=  multipleWordDetails.useMultipleWordSentences[i].description.Length;                  
+
                 }  
 
+                VerticalLayoutGroup pathVlg = parent.GetComponent<VerticalLayoutGroup>();
+                Debug.Log("sentence length here is " + sentenceLength);
+                if (sentenceLength > 500)
+                {
+                    pathVlg.padding.top = 160;
+                    pathVlg.spacing = 400;
+                    pathVlg.padding.bottom = 180;
+                }
+                else if (sentenceLength > 450)
+                {
+                    pathVlg.padding.top = 120;
+                            pathVlg.spacing = 300;
+                            pathVlg.padding.bottom = 160;
+                }
+                else if (sentenceLength > 300)
+                {
+                    pathVlg.padding.top = 160;
+                            pathVlg.spacing = 240;
+                            pathVlg.padding.bottom = 120;
+                }
+                else if (sentenceLength > 240)
+                {
+                    pathVlg.padding.top = 80; //100
+                    pathVlg.spacing = 120;
+                    pathVlg.padding.bottom = 120; //100
+                }
+                else
+                {
+                     pathVlg.padding.top = 60;
+                        pathVlg.spacing = 100; // 80
+                    pathVlg.padding.bottom = 100; //60
+                }
+           
             }
         }
         else
@@ -3349,7 +4294,7 @@ public class MissionManagement : MonoBehaviour
 
     public void AntonymSetup(int parameter)
     {
-
+         SetScrollToStart();
         DestroyPrefabs();
          HideSpeakerAndImage();
         baseParentBoard.gameObject.SetActive(true);
@@ -3359,36 +4304,39 @@ public class MissionManagement : MonoBehaviour
         conversationWithMCQBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
         conversationBoard.gameObject.SetActive(false);
+        
 
-        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
-        {
-            //Change position of sentence boards
-            // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
-            // singleSentenceBoardPos.y -= 423f;
+        // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false && dataDisplayed["isRevisionWordSynonymDone"] == false))
+        // {
+           
             singleSentenceBoard.transform.position = sentenceRealPos;
 
-            // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
-            // multipleSentenceBoardPos.y -= 423f;
             multipleSentenceBoard.transform.position = sentenceRealPos;
-        }
+        // }
 
         Antonym antonymDetails = new Antonym();
 
         int antonymCount = 0;
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision")
         {
             // typeOfDay.text = "Antonym of " + revisionWordDetails.antonyms[revisionWordReference].description;
             typeOfDay.text = "Antonym of " + revisionWordDetails.name;
 
             typeOfWord.text = "Meaning";
             
-            antonymCount = dataCountDetails.revision_word_data.more_data[parameter].antonym_count;
-            antonymDetails = revisionWordDetails.antonyms[parameter];
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
+            antonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].antonym_count;
+            Debug.Log("antonymCount " + antonymCount);
+            Debug.Log("value of parameter is  " + parameter);
+            Debug.Log("revisionWordReference is " + revisionWordReference);
+            antonymDetails = revisionWordDetails.antonyms[parameter]; // replace parameter with revision word reference
+            Debug.Log("value of antonymDetails is  " + antonymDetails);
             meaningAsNoun.text = antonymDetails.meaning;
+            Debug.Log("value of meaning is  " + antonymDetails.meaning);
 
             word.text = revisionWordDetails.antonyms[parameter].description;
-            Debug.Log("revisionWordReference is " + revisionWordReference);
-            Debug.Log("Description is " + revisionWordDetails.antonyms[parameter].description);
+            
+            // Debug.Log("Description is " + revisionWordDetails.antonyms[revisionWordReference].description);
         }
         else
         {
@@ -3429,6 +4377,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = antonymDetails.antonymSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
                 }  
@@ -3475,7 +4424,7 @@ public class MissionManagement : MonoBehaviour
     
     public void SynonymSetup(int parameter)
     {
-
+         SetScrollToStart();
          DestroyPrefabs();
         HideSpeakerAndImage();
         dutBoard.gameObject.SetActive(false);
@@ -3483,10 +4432,11 @@ public class MissionManagement : MonoBehaviour
         revisionWordBoard.gameObject.SetActive(false);
         generalBaseBoard.gameObject.SetActive(true);
         conversationWithMCQBoard.gameObject.SetActive(false);
+        conversationBoard.gameObject.SetActive(false);
         generalMCQBoard.gameObject.SetActive(false);
 
-        if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
-        {
+        // if (dataDisplayed["isnewWordUsingMultipleWordsDone"] == true && (dataDisplayed["isnewWordAntonymDone"] == false && dataDisplayed["isnewWordSynonymDone"] == false ))
+        // {
             //Change position of sentence boards
             // Vector3 singleSentenceBoardPos = singleSentenceBoard.transform.position;
             // singleSentenceBoardPos.y -= 423f;
@@ -3495,21 +4445,23 @@ public class MissionManagement : MonoBehaviour
             // Vector3 multipleSentenceBoardPos = multipleSentenceBoard.transform.position;
             // multipleSentenceBoardPos.y -= 423f;
             multipleSentenceBoard.transform.position = sentenceRealPos;
-        } 
+        // } 
 
         Synonym synonymDetails = new Synonym();
         int synonymCount = 0;
-        if (dataDisplayed["isRevisionWordListDone"] == true)
+        if (dataDisplayed["isRevisionWordListDone"] == true && dayType == "revision") 
         {
             typeOfDay.text = "Synonym of " + revisionWordDetails.name;
-            word.text = revisionWordDetails.synonyms[revisionWordReference].description;
             typeOfWord.text = "Meaning";
-            
+            revisionWordDetails = allDetailData.revisionWords[revisionWordReference];
             synonymCount = dataCountDetails.revision_word_data.more_data[revisionWordReference].synonym_count;
-
-            
+             Debug.Log("value of parameter is  " + parameter);
+            Debug.Log("revisionWordReference is " + revisionWordReference);
+            Debug.Log("Value of parameter is " + parameter);
             synonymDetails = revisionWordDetails.synonyms[parameter];
             meaningAsNoun.text = synonymDetails.meaning;
+            word.text = revisionWordDetails.synonyms[parameter].description;
+
         }
         else
         {
@@ -3552,6 +4504,7 @@ public class MissionManagement : MonoBehaviour
                     GameObject childObj = newSentencePrefab.transform.GetChild(0).gameObject;
                     TMPro.TMP_Text mytext = childObj.GetComponent<TMPro.TMP_Text>();
                     mytext.text = synonymDetails.synonymSentences[i].description;
+                    newSentencePrefab.transform.localScale = new Vector3(1, 1, 1);
                     sentencePrefabsArray.Add(newSentencePrefab);
                     Debug.Log("End of Checking in loop for second object");
                 }  
@@ -3598,18 +4551,43 @@ public class MissionManagement : MonoBehaviour
 
     public void SetBottomTitleLabel()
     {
+        // if (isQuestion == true)
+        // {
+        //     answerClicked = 0;
+        //     noOfAttempts = 0;
+        // }
+
         GameObject bottomPanel = GameObject.Find("BottomPanel");
         GameObject childObj = bottomPanel.transform.GetChild(0).gameObject;
         TMPro.TMP_Text numberText = childObj.GetComponent<TMPro.TMP_Text>();
         numberText.text = screenCount + "/" + totalNumber;
+
+         if (screenCount != totalNumber)
+        {
+            submitButton.gameObject.SetActive(false);
+        }
+        else
+        {
+             submitButton.gameObject.SetActive(true);
+        }
     }
 
     public void NextButton(Button button)
     {
-         
+
         //Check screen count   
         if (button.tag == "Next")
         {
+            if (isQuestion == true)
+            {
+                Debug.Log("value of previous question tag is " + previousQuestionTag);
+                Debug.Log("value of questionNumber tag is " + questionNumber);
+                previousQuestionTag = questionNumber;
+                answerAttemptedForMCQ = 0;
+       
+                isQuestion = false;
+            }
+            
             if (screenCount != totalNumber)
             {
                     // submitButton.gameObject.SetActive(false);
@@ -3624,6 +4602,10 @@ public class MissionManagement : MonoBehaviour
                         Debug.Log(screenCount + " screen count" + methodCallArray.Count);
                         
                         int parameter = parameterValueArray[screenCount-1];
+                        string dayTypeValue = dayTypeArray[screenCount-1];
+                        int revisionWordReferenceNo = revisionWordReferenceNoArray[screenCount-1];
+                        dayType = dayTypeValue;
+                        revisionWordReference = revisionWordReferenceNo;
                         Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
                         Action<int> unityAction = methodCallArray[screenCount-1];
                         SendInt(unityAction,parameter);
@@ -3642,37 +4624,73 @@ public class MissionManagement : MonoBehaviour
 
             }
             
+            SetBottomTitleLabel();
         }
         else
         {
-            if (screenCount != 1)
+            if (isQuestion == true)
             {
-             
-                screenCount = screenCount - 1;
-                // Debug.Log(screenCount + " screen count");
-                int parameter = parameterValueArray[screenCount-1];
-                Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
-                Action<int> unityAction = methodCallArray[screenCount-1];
-                SendInt(unityAction,parameter);
+                 Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Are you sure you want to go back? Going back will clear all attempted answers, and you will have to reattempt.",
+                    "Cancel",
+                    "Go Back",
+                    GoBack
+                    );
             }
             else
             {
-                Debug.Log("we are on first screen");
+                 GoBack();
             }
-
-            if (screenCount != totalNumber)
-            {
-                submitButton.gameObject.SetActive(false);
-            }
+           
         }
 
-        SetBottomTitleLabel();
+        // SetBottomTitleLabel();
        
     }
 
     public void SendInt(Action<int> action, int value)
     {
         action.Invoke(value);
+    }
+
+    void GoBack()
+    {
+       
+        if (isQuestion == true)
+        {
+             Debug.Log("value of previous question tag is " + previousQuestionTag);
+                Debug.Log("value of questionNumber tag is " + questionNumber);
+                previousQuestionTag = questionNumber;
+            questionResponseDict.Clear();
+            isQuestion = false;
+        }
+        
+        if (screenCount != 1)
+        {
+        
+            screenCount = screenCount - 1;
+            // Debug.Log(screenCount + " screen count");
+
+            int parameter = parameterValueArray[screenCount-1];
+            string dayTypeValue = dayTypeArray[screenCount-1];
+            int revisionWordReferenceNo = revisionWordReferenceNoArray[screenCount-1];
+            dayType = dayTypeValue;
+            revisionWordReference = revisionWordReferenceNo;
+            Debug.Log(parameter + "parameter value for" + methodCallArray[screenCount-1]);
+            Action<int> unityAction = methodCallArray[screenCount-1];
+            SendInt(unityAction,parameter);
+        }
+        else
+        {
+            Debug.Log("we are on first screen");
+        }
+
+        SetBottomTitleLabel();
+        // if (screenCount != totalNumber)
+        // {
+        //     submitButton.gameObject.SetActive(false);
+        // }
     }
 
 }

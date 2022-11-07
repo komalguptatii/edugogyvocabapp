@@ -13,7 +13,14 @@ public class SwipeImages : MonoBehaviour
     int currentIndexOfImageDisplayed = 1;
     int currentValue = 0;
     int nextValue = 1; 
+    private Animator handAnim;
+    public GameObject hand;
    
+
+    private void Awake() 
+    {
+        handAnim = hand.GetComponent<Animator>(); 
+    }
 
     // Update is called once per frame
     void Update()
@@ -29,6 +36,7 @@ public class SwipeImages : MonoBehaviour
         for(int i = 0; i < pos.Length; i++)
         {
             pos[i] = distance * i;
+           
 
         }
 
@@ -46,6 +54,16 @@ public class SwipeImages : MonoBehaviour
                 {
                     currentValue = i;
                     scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[i], 0.1f);
+                     if (i > 0)
+                    {
+                        handAnim.enabled = false;
+                        hand.SetActive(false);
+                    }
+                    else if (i == 0)
+                    {
+                         handAnim.enabled = true;
+                        hand.SetActive(true);
+                    }
                 }
             }
         }
@@ -68,14 +86,14 @@ public class SwipeImages : MonoBehaviour
         }
     }
 
-    public void NextImage()
-    {
+    // public void NextImage()
+    // {
 
         
-        transform.GetChild(nextValue).localScale = Vector2.Lerp(transform.GetChild(nextValue).localScale, new Vector2(1f,1f),0.1f);
-        scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[currentValue], 0.1f);
+    //     transform.GetChild(nextValue).localScale = Vector2.Lerp(transform.GetChild(nextValue).localScale, new Vector2(1f,1f),0.1f);
+    //     scrollBar.GetComponent<Scrollbar>().value = Mathf.Lerp(scrollBar.GetComponent<Scrollbar>().value, pos[currentValue], 0.1f);
 
 
 
-    }
+    // }
 }

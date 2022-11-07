@@ -1242,6 +1242,7 @@ MonoBehaviour:
   - {fileID: 0}
   astronaut: {fileID: 1863877057}
   speed: 40
+  astronautOriginalPosition: {x: -428, y: -576, z: 0}
   scrollRect: {fileID: 234664490}
   scrollRectTransform: {fileID: 234664489}
   contentPanel: {fileID: 1459365766}
@@ -1724,7 +1725,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 502214629}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99998146
+  m_Size: 0.99999875
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

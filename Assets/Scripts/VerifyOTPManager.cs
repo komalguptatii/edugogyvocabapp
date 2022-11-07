@@ -20,6 +20,25 @@ public class VerifyOTPManager : MonoBehaviour
     public string otpEntered;
 
     [Serializable]
+    public class KidsProfile
+    {
+        public int id;
+        public string name;
+        public string phone;
+        public int age_group_id;
+        public int country_code_id;
+        public object social_id;
+        public object social_media;
+        public object email;
+        public int total_level;
+        public int total_passed_level;
+        public int available_level;
+        public bool is_trial_subscription;
+        public string subscription_remaining_day;
+        public int remaining_trial;
+    }
+
+    [Serializable]
     public class ValidateOTPForm
     {
         public string phone;
@@ -56,8 +75,12 @@ public class VerifyOTPManager : MonoBehaviour
     public TextMeshProUGUI description; 
 
     string userName = "";
+    string auth_key;
 
      string baseURL = "https://api.edugogy.app/v1/";
+
+       private Animator loadingIndicator;
+    public GameObject Indicator;
         // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
@@ -71,6 +94,10 @@ public class VerifyOTPManager : MonoBehaviour
 
     void Awake()
     {
+         loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         SetInputCharacterLength();
         if (PlayerPrefs.HasKey("phone"))
         {
@@ -81,6 +108,7 @@ public class VerifyOTPManager : MonoBehaviour
 
         }
 
+        // GetKidProfile();
 
     }
 
@@ -103,7 +131,7 @@ public class VerifyOTPManager : MonoBehaviour
 
 
         Debug.Log(returnNumber);
-        description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for  your space flight.";
+        description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for your space flight.";
     }
 
     void SetInputCharacterLength()
@@ -124,13 +152,10 @@ public class VerifyOTPManager : MonoBehaviour
         if (firstDigit.text.Length == 1)
         {
             secondDigit.Select();
+            
             secondDigit.ActivateInputField();
             otpEntered = (firstDigit.text).ToString();
         }
-
-       
-
-
          
     }
 
@@ -170,6 +195,8 @@ public class VerifyOTPManager : MonoBehaviour
 
     public void resendOTPRequest() => StartCoroutine(ProcessResendMobileOTPRequest_Coroutine());
   
+      void GetKidProfile() => StartCoroutine(GetKidProfile_Coroutine());
+
 
     void SaveAuthKey(string auth_key){
         PlayerPrefs.SetString("auth_key", "Bearer " + auth_key);
@@ -181,6 +208,46 @@ public class VerifyOTPManager : MonoBehaviour
 
             SceneManager.LoadScene("KidsName");
 
+    }
+
+    IEnumerator GetKidProfile_Coroutine()
+    {
+        // outputArea.text = "Loading...";
+        KidsProfile profile = new KidsProfile();
+         auth_key = PlayerPrefs.GetString("auth_key");
+        string uri = baseURL + "students/view";
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+            // auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";
+             request.SetRequestHeader("Authorization", auth_key);
+
+            yield return request.SendWebRequest();
+            
+           
+            string jsonString = request.downloadHandler.text;
+
+            profile = JsonUtility.FromJson<KidsProfile>(jsonString);
+            Debug.Log(profile.name);
+            Debug.Log(profile.age_group_id);
+            loadingIndicator.enabled = false;
+            Indicator.SetActive(false);
+
+            if (profile.name != "" && profile.age_group_id != 0)
+            {
+                 PlayerPrefs.SetString("childName", profile.name);
+                 PlayerPrefs.SetInt("isAgeSelected", 1); //isAgeSelected ? 1 : 0
+                SceneManager.LoadScene("Dashboard");
+            }
+            else
+            {
+                SceneManager.LoadScene("KidsName");
+            }
+        
+            request.Dispose();
+        }
+
+        
     }
 
     IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
@@ -197,6 +264,8 @@ public class VerifyOTPManager : MonoBehaviour
         }
         else
         {
+             loadingIndicator.enabled = true;
+        Indicator.SetActive(true);
             var otp = int.Parse(otpEntered);
         Debug.Log(otp);
         GetAuthKey getKey = new GetAuthKey();
@@ -221,6 +290,9 @@ public class VerifyOTPManager : MonoBehaviour
 
         if (request.error != null)
         {
+             loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+        
             Debug.Log("Error: " + request.error);
              Debug.Log("Status Code: " + request.responseCode);
 
@@ -253,15 +325,16 @@ public class VerifyOTPManager : MonoBehaviour
             getKey = JsonUtility.FromJson<GetAuthKey>(validateOTPJson);
             Debug.Log(getKey.auth_key);
             SaveAuthKey(getKey.auth_key);
-            if (userName == "")
-            {
-                MoveToSubscription();
-            }
-            else
-            {
-                //Check if subscribed or not
-                SceneManager.LoadScene("IAPCatalog");
-            }
+            GetKidProfile();
+            // if (userName == "")
+            // {
+            //     MoveToSubscription();
+            // }
+            // else
+            // {
+            //     //Check if subscribed or not
+            //     SceneManager.LoadScene("IAPCatalog");
+            // }
             
         }
         }
@@ -276,6 +349,8 @@ public class VerifyOTPManager : MonoBehaviour
 
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login
     {
+
+       
 
         ResetInputs();
         ResendOTP resendOTP = new ResendOTP();
@@ -311,9 +386,9 @@ public class VerifyOTPManager : MonoBehaviour
             // string jsonString = fixJson(userJson);
             // Debug.Log(jsonString);
             resendOTP = JsonUtility.FromJson<ResendOTP>(resendOTPJson);
-            Debug.Log(resendOTP.phone);
-            Debug.Log(resendOTP.student.name);
-            userName = resendOTP.student.name;
+            // Debug.Log(resendOTP.phone);
+            // Debug.Log(resendOTP.student.name);
+            // userName = resendOTP.student.name;
            
         }
 

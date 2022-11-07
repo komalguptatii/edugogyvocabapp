@@ -1,42 +1,41 @@
 {
   "project_info": {
-    "project_number": "849410546096",
-    "project_id": "edugogy-1aae2",
-    "storage_bucket": "edugogy-1aae2.appspot.com"
+    "project_number": "82614062214",
+    "project_id": "edugogy-1649659477100",
+    "storage_bucket": "edugogy-1649659477100.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:849410546096:android:e54505cf8be36a66de9e75",
+        "mobilesdk_app_id": "1:82614062214:android:7b8a7d9ee8c7ec605f9507",
         "android_client_info": {
-          "package_name": "it.techies.vocabapp"
+          "package_name": "com.edugogy.vocabapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "it.techies.vocabapp",
-            "certificate_hash": "de5e61be08b23ffdcf80ad6100870812cb0c254b"
-          }
-        },
-        {
-          "client_id": "849410546096-tja0e1fatmts96fph3v4972t42ne79qv.apps.googleusercontent.com",
+          "client_id": "82614062214-3phimom2e24gn642022af7n0plenkqch.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAWhba6qPpOwSy2Ou4xMCLPsXx8h9BOGOw"
+          "current_key": "AIzaSyDqbxIFWL2oCKCUwSzaKQ-RsDuqDATfQfI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "849410546096-tja0e1fatmts96fph3v4972t42ne79qv.apps.googleusercontent.com",
+              "client_id": "82614062214-3phimom2e24gn642022af7n0plenkqch.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.edugogy.vocabapp"
+              }
             }
           ]
         }

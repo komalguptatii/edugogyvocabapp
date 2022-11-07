@@ -1070,7 +1070,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'User''s Name
+  m_text: 'Tell us about yourself
 
 '
   m_isRightToLeft: 0
@@ -1259,11 +1259,11 @@ RectTransform:
   m_Father: {fileID: 134246054}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -210.20871, y: -79.61206}
-  m_SizeDelta: {x: 474.5826, y: 158.2241}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 315.25262, y: -227.5}
+  m_SizeDelta: {x: 531.5052, y: 169.6086}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1432650170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1284,7 +1284,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "What\u2019s our astronaut\u2019s name?"
+  m_text: Please create your profile
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3dcde6115fae4db6b2426824d207860, type: 2}
   m_sharedMaterial: {fileID: -7557864030291673478, guid: f3dcde6115fae4db6b2426824d207860, type: 2}
@@ -1311,10 +1311,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 64
-  m_fontSizeBase: 43
+  m_fontSize: 54
+  m_fontSizeBase: 54
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0

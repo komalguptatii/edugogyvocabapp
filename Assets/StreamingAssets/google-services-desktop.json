@@ -1,25 +1,25 @@
 {
   "project_info": {
-    "project_number": "849410546096",
-    "project_id": "edugogy-1aae2",
-    "storage_bucket": "edugogy-1aae2.appspot.com"
+    "project_number": "82614062214",
+    "project_id": "edugogy-1649659477100",
+    "storage_bucket": "edugogy-1649659477100.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:849410546096:ios:102cf7eb64382fadde9e75",
+        "mobilesdk_app_id": "1:82614062214:ios:2ac92524e1fc818c5f9507",
         "android_client_info": {
-          "package_name": "it.techies.vocabapp"
+          "package_name": "com.edugogy.vocabapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "849410546096-u4ts6ca5r87de36u7dboraamas44kbmh.apps.googleusercontent.com"
+          "client_id": "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com"
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCsSTXM5YOebWeQG7xUjKj_3OG_3X4MFE0"
+          "current_key": "AIzaSyAIFsF_I7Qs3WUYvIIJWrLiywxtUvf42Lw"
         }
       ],
       "services": {

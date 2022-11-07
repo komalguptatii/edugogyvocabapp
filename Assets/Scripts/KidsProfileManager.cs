@@ -35,6 +35,7 @@ public class KidsProfileManager : MonoBehaviour
         public bool is_trial_subscription;
         public string subscription_remaining_day;
         public int remaining_trial;
+        public int remaining_level_for_day;
     }
 
     
@@ -84,6 +85,11 @@ public class KidsProfileManager : MonoBehaviour
     public Sprite buttonSprite;
     public Sprite deactivateButtonSprite;
     private int selectedButton;
+    int previousAgeGroupId;
+    bool isCallingAfterUpdate = false;
+    private Animator loadingIndicator;
+    public GameObject Indicator;
+    public Button updateButton;
 
 
     string baseURL = "https://api.edugogy.app/v1/";
@@ -93,6 +99,9 @@ public class KidsProfileManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+        updateButton.enabled = false;
+
          if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
@@ -101,13 +110,15 @@ public class KidsProfileManager : MonoBehaviour
 
         }
          
+        // auth_key = "Bearer r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4"; 
+
           for(int i = 0; i < ageImageTick.Length; i++)
         {
             ageImageTick[i].enabled = false;
             ageImageTick[i].tag = i.ToString();
             ageButton[i].tag = i.ToString();
         }
-         auth_key = "Bearer shBuqKWlYHGCss7Il4B0-L_3QpRO5L3Z";  // for api.testing.edugogy.app
+          
 
         //Get Kids details
         GetKidProfile();
@@ -122,8 +133,26 @@ public class KidsProfileManager : MonoBehaviour
     void GetKidProfile() => StartCoroutine(GetKidProfile_Coroutine());
     // void GetAgeGroupList() => StartCoroutine(GetAgeGroupList_Coroutine());
     public void UpdateKidsProfile() => StartCoroutine(UpdateKidsName_Coroutine());
-            public void AddTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
 
+    public void takeUpdateConfirmation()
+    {
+        //Pending -  if already is_trial_subscription is true - don't ask any pop up, if subscribe then this pop up - Also here issue is is_trial_subscription coming false yet
+        if (profile.is_trial_subscription == true)
+        {
+            UpdateKidsProfile();
+        }
+        else
+        {
+            Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Changing your level now will end your current subscription. Do you still want to continue?",
+                    "Cancel",
+                    "Continue",
+                    UpdateKidsProfile
+                    );
+        }
+        
+    }
 
     KidsProfile profile = new KidsProfile();
     AgeGroupList agegrouplist = new AgeGroupList();
@@ -144,36 +173,73 @@ public class KidsProfileManager : MonoBehaviour
             
            
             string jsonString = request.downloadHandler.text;
+            Debug.Log(jsonString);
 
             profile = JsonUtility.FromJson<KidsProfile>(jsonString);
+
             Debug.Log(profile.name);
             Debug.Log(profile.age_group_id);
-
-            KidsName.text = profile.name;
+            previousAgeGroupId = profile.age_group_id;
+            
+            if (!isCallingAfterUpdate)
+            {
+                updateButton.enabled = true;
+                     loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+        
+                KidsName.text = profile.name;
+            selectedButton = profile.age_group_id;
             ageButton[profile.age_group_id - 1].image.sprite = buttonSprite;
             ageImageTick[profile.age_group_id - 1].enabled = true;
             
-            if (profile.remaining_trial == 2)
+            if (profile.is_trial_subscription == true)
             {
-                Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    "You have 2 more chances left to change your level.",
-                    "Cancel",
-                    "Okay",
-                    GoSubscribe
-                    );
+                if (profile.remaining_trial > 0)
+                {
+
+                    Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                        "You have " + profile.remaining_trial + " more chances left to change your level.",
+                        "Cancel",
+                        "Okay",
+                        StayOnPage
+                        );
+                }
+                else if (profile.remaining_trial == 0)
+                {
+                    // should something like that Trial period is over
+                    Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                        "It’s time to choose your subscription level! Let’s get started! As trial period is over.",
+                        "Cancel",
+                        "Choose level",
+                        StayOnPage
+                        );
+                }
+            }
+            
+
             }
             else
             {
-                Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    "It’s time to choose your subscription level! Let’s get started!",
-                    "Cancel",
-                    "Subscribe Now",
-                    GoSubscribe
-                    );
+                Debug.Log("profile.subscription_remaining_day " + profile.subscription_remaining_day);
+                 int nextLevel = profile.total_passed_level + 1;
+                   PlayerPrefs.SetString("NextLevelWillBe", nextLevel.ToString());
+                // NextLevelWillBe
+                if (profile.available_level == 0)
+                {
+                   
+                    GoSubscribe();
+                    
+                }
+                else
+                {
+                    //when not subscribed, and value of remaining days is null
+                    SceneManager.LoadScene("Dashboard");
+                    
+                }
             }
-
+            
             // GetAgeGroupList();
             request.Dispose();
         }
@@ -202,45 +268,16 @@ public class KidsProfileManager : MonoBehaviour
 
     }
     
-    //On update button click, update button profile and take back to settings screen
-
-    //  IEnumerator GetAgeGroupList_Coroutine()
-    // {
-    //     // outputArea.text = "Loading...";
-
-    //     string uri = baseURL + "age-groups";
-    //     using (UnityWebRequest request = UnityWebRequest.Get(uri))
-    //     {
-
-    //         yield return request.SendWebRequest();
-            
-    //         string ageGroupJson = request.downloadHandler.text;
-    //         string jsonString = fixJson(ageGroupJson);
-    //         Debug.Log(jsonString);            
-
-    //         agegrouplist = JsonUtility.FromJson<AgeGroupList>(jsonString);
-
-    //         for (var i = 0; i < agegrouplist.items.Length; i++) 
-    //         {
-    //             var id = agegrouplist.items[i].id;
-    //             if (profile.age_group_id == id)
-    //             {
-    //                 Debug.Log(agegrouplist.items[i].title);
-    //                 // AgeGroupInput.text = agegrouplist.items[i].title + " Years";
-
-    //             }
-    //         }
-           
-    //     }
-    // }
-
+   
     IEnumerator UpdateKidsName_Coroutine()  //validate otp
     {
         profile.name = KidsName.text;
         profile.age_group_id = selectedButton + 1;
+        int currentAgeGroupId = selectedButton + 1;
+        
         string json = JsonUtility.ToJson(profile);
 
-        Debug.Log(json);
+        // Debug.Log(json);
 
         string uri = baseURL + "students/update";
 
@@ -267,80 +304,37 @@ public class KidsProfileManager : MonoBehaviour
             Debug.Log("Status Code: " + request.responseCode + "Update");
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
-            AddTrial();
-            // SceneManager.LoadScene("Settings");
+            if (previousAgeGroupId != currentAgeGroupId)
+            {
+                //ResetPlayerPrefs data to start with Mission 1
+
+                PlayerPrefs.DeleteKey("NextLevelWillBe");
+                PlayerPrefs.DeleteKey("numberOfLevelsPerDay");
+                PlayerPrefs.DeleteKey("completionDateTime");
+                PlayerPrefs.DeleteKey("isReattempting");
+                PlayerPrefs.DeleteKey("totalLevelsPassed");
+                Debug.Log("Deleting Keys");
+            }
+            isCallingAfterUpdate = true;
+            GetKidProfile();
+            // GoSubscribe();
+           
+
+    
 
         }
 
         request.Dispose();
             
-    }
-
-    IEnumerator AddTrialSubscription_Coroutine()
-    {
-             ErrorList list = new ErrorList();
-        Error error = new Error();
-
-        int randomNumber = Random.Range(1000, 2000);
-
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
-        string json = JsonUtility.ToJson(subscriptionFormData);
-
-        Debug.Log(json);
-
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        string uri = baseURL + "student-subscriptions";
-
-        var request = new UnityWebRequest(uri, "POST");
-
-        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", auth_key);
-
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("Error: in adding trial subscription because of no. of chances: " + request.error);
-            Debug.Log(request.downloadHandler.text);
-            Debug.Log("Status Code: " + request.responseCode);
-
-            //  string  errorJson = request.downloadHandler.text;
-            // string jsonString = fixJson(errorJson);
-            // Debug.Log(jsonString);
-            string jsonString = request.downloadHandler.text;
-
-            list = JsonUtility.FromJson<ErrorList>(jsonString);
-
-            Debug.Log(list);
-            
-            string message = list.error[0].detail;
-
-            Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    message,
-                    "Cancel",
-                    "Subscribe Now",
-                    GoSubscribe
-                    );
-
-        }
-        else
-        {
-            Debug.Log(request.result);
-            Debug.Log(request.downloadHandler.text);
-            Debug.Log("Successful trial subscripton");
-            // SceneManager.LoadScene("KidsName");
-            // PlayerPrefs.SetString("isSubscribed", "true");
-            // SceneManager.LoadScene("Dashboard");
-        }
-        request.Dispose();
     }
 
      void GoSubscribe()
     {
         SceneManager.LoadScene("IAPCatalog");
+    }
+
+    void StayOnPage()
+    {
+        Debug.Log("Stay on page, Update level");
     }
 }

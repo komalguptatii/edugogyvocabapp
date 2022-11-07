@@ -58,6 +58,7 @@ public class HelpManager : MonoBehaviour
             Debug.Log(auth_key);
 
         }
+        // auth_key = "Bearer bBb-TBDt6rzkIddwUdEer-CMfJbncvSr"; 
         GetFAQs();
     }
 

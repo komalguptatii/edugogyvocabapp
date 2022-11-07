@@ -46,6 +46,8 @@ public class FacebookLogin : MonoBehaviour
         //     this.name = name;
         // }
     }
+      private Animator loadingIndicator;
+    public GameObject Indicator;
 
     Values newValues = new Values();//id, email, name);
 
@@ -54,8 +56,14 @@ public class FacebookLogin : MonoBehaviour
 
     string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
+    SocialLoginForm socialLoginFormData = new SocialLoginForm();
+
     private void Awake()
     {
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+        Indicator.SetActive(false);
+
         FB.Init(SetInit, onHidenUnity);
         // Panel_Add.SetActive(false);
     }
@@ -123,10 +131,19 @@ public class FacebookLogin : MonoBehaviour
             FB.API("/me/picture?type=square&height=128&width=128", HttpMethod.GET, DisplayProfilePic);
             FB.API("/me?fields=id", HttpMethod.GET, DisplayID);
             FB.API("/me?fields=email", HttpMethod.GET, DisplayEmail);
-            newValues.id = id;
-            newValues.email = email;
-            newValues.name = name;
-            showingResults = true;
+            // socialLoginFormData.name = name;
+            // socialLoginFormData.social_id = id;
+            // socialLoginFormData.email = email;
+            // PlayerPrefs.SetString("fbName", name);
+            // PlayerPrefs.SetString("fbId", id);
+            // PlayerPrefs.SetString("fbEmail", email);
+
+            // newValues.id = id;
+            // newValues.email = email;
+            // newValues.name = name;
+            // socialLoginRequest();
+           
+
             // SceneManager.LoadScene("IAPCatalog");
             
             // SocialLogin_Coroutine(id, email, name);
@@ -139,8 +156,11 @@ public class FacebookLogin : MonoBehaviour
     {
         if (showingResults == true)
         {
-            // StartCoroutine(SocialLogin_Coroutine(newValues.id, newValues.email, newValues.name));
+            
+            loadingIndicator.enabled = true;
+            Indicator.SetActive(true);
             socialLoginRequest();
+            showingResults = false;
         }
     }
 
@@ -150,8 +170,9 @@ public class FacebookLogin : MonoBehaviour
         {
             Debug.Log(result.ResultDictionary);
             id = "" + result.ResultDictionary["id"];
-
+            
             Debug.Log("" + id);
+            socialLoginFormData.social_id = id;
         }
         else
         {
@@ -165,8 +186,11 @@ public class FacebookLogin : MonoBehaviour
         {
             Debug.Log(result.ResultDictionary);
             email = "" + result.ResultDictionary["email"];
+            
 
             Debug.Log("" + email);
+            socialLoginFormData.email = email;
+             showingResults = true;
         }
         else
         {
@@ -179,10 +203,12 @@ public class FacebookLogin : MonoBehaviour
         if (result.Error == null)
         {
             name = "" + result.ResultDictionary["first_name"];
+            
 
             //  FB_userName.text = name;
 
             Debug.Log("" + name);
+            socialLoginFormData.name = name;
         }
         else
         {
@@ -207,10 +233,21 @@ public class FacebookLogin : MonoBehaviour
 
     IEnumerator SocialLogin_Coroutine()//string id, string email, string name)
     {
-        showingResults = false;
+        // showingResults = false;
+        // name = PlayerPrefs.GetString("fbName");
+        // email = PlayerPrefs.GetString("fbEmail");
+        // id = PlayerPrefs.GetString("fbId");
+        Debug.Log("name from facebook is " + name);
         GetAuthKey getKey = new GetAuthKey();
        
-        SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = newValues.id, social_media = "facebook", app_validate_key = "0H9K@FbQ3k*6", email = newValues.email, name = newValues.name};
+    //    if (name != "")
+    //    {
+    //     socialLoginFormData.name = name;
+    //    }
+       socialLoginFormData.social_media = "facebook";
+       socialLoginFormData.app_validate_key = "0H9K@FbQ3k*6";
+        // SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = newValues.id, social_media = "facebook", app_validate_key = "0H9K@FbQ3k*6", email = newValues.email, name = newValues.name};
+                // SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "facebook", app_validate_key = "0H9K@FbQ3k*6", email = email, name = name};
 
 
         // SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "facebook", app_validate_key = "J0H9K@FbQ3k*6", email = email, name = name};
@@ -247,6 +284,11 @@ public class FacebookLogin : MonoBehaviour
             Debug.Log(getKey.auth_key);
             Debug.Log("Received Auth Key");
             SavePlatform("facebook");
+            PlayerPrefs.DeleteKey("fbName");
+            PlayerPrefs.DeleteKey("fbEmail");
+            PlayerPrefs.DeleteKey("fbId");
+
+
             SaveAuthKey(getKey.auth_key);
             MoveToSubscription();
         }

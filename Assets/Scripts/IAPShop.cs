@@ -15,15 +15,60 @@ using UnityEngine.SceneManagement;
 
 public class IAPShop : MonoBehaviour
 {
-    private string timePeriod = "com.techies.edugogy.sixmonth";
-    private string subPeriod = "com.techies.edugogy.threemonth";
+    private string spaceExplorationID = "com.techies.edugogy.onemonth";
+    private string spaceWalkID = "com.techies.edugogy.sixmonth";
+    private string spaceCaptureID = "com.techies.edugogy.threemonth";
     string auth_key;
-    [SerializeField] public TextMeshProUGUI transactionId;
+    // [SerializeField] public TextMeshProUGUI transactionId;
+
+        private IAppleExtensions m_AppleExtensions;
+         private IStoreController m_Controller;
+
+
+
+    [Serializable]
+    public class Error
+    {
+        public int code;
+        public string source;
+        public string title;
+        public string detail;
+    }
+
+    [Serializable]
+    public class ErrorList
+    {
+        public Error[] error;
+    }
+
+    [Serializable]
+    public class KidsProfile
+    {
+        public int id;
+        public string name;
+        public string phone;
+        public int age_group_id;
+        public int country_code_id;
+        public object social_id;
+        public object social_media;
+        public object email;
+        public int total_level;
+        public int total_passed_level;
+        public int available_level;
+        public bool is_trial_subscription;
+        public string subscription_remaining_day;
+        public int remaining_trial;
+        public int remaining_level_for_day;
+
+    }
 
      string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
+
+     [SerializeField]
+    public Button subscribeLater;
 
     public class SubscriptionForm
     {
@@ -33,24 +78,134 @@ public class IAPShop : MonoBehaviour
 
         public string platform_plan_id;
     }
-    private void Start()
+
+  
+    string selectedId = "";
+    string typeOfPlatform = "";
+    public Sprite Image1;
+
+    public Sprite selectedSpaceCapture;
+    public Sprite selectedSpaceWalk;
+    public Sprite selectedSpaceExploration;
+
+    public Sprite inActiveSpaceCapture;
+    public Sprite inActiveSpaceWalk;
+    public Sprite inActiveSpaceExploration;
+
+    [SerializeField]
+    public Button ExplorationButton;
+    [SerializeField]
+    public Button WalkButton;
+    [SerializeField]
+    public Button CaptureButton;
+
+    [SerializeField]
+    public Button subscribeNowButton;
+
+    string receiptReceived = "";
+    string transactionIdReceived = "";
+    bool isAddingSubscription = true;
+
+    
+    KidsProfile profile = new KidsProfile();
+    private void Awake()
     {
-        //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
-        if (PlayerPrefs.HasKey("auth_key"))
+        subscribeNowButton.enabled = false;
+          if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            // auth_key = "Bearer KWDs6ZofHH8-obBDw3rOb4VYeHq-QR55";
+            
         }
+        // auth_key = "Bearer r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4";  
+    }
+
+    private void Start()
+    {
+        //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
+      
+       if (Application.platform == RuntimePlatform.Android)
+        {
+            typeOfPlatform = "android";
+        }
+        else
+        {
+            typeOfPlatform = "apple";
+        }
+         
+        GetProfile();
         // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
 
+    // void Update()
+    // {
+    //     if (validPurchase)
+    //     {
+    //         transactionId.GetComponent<TextMeshProUGUI>().text = receiptReceived;
+    //         validPurchase = false;
+    //     }
+    // }
+
+    // public void OnInitialized (IStoreController controller, IExtensionProvider extensions)
+    // {
+    //     m_Controller = controller;
+    //     m_AppleExtensions = extensions.GetExtension<IAppleExtensions> ();
+
+    //     // On Apple platforms we need to handle deferred purchases caused by Apple's Ask to Buy feature.
+    //     // On non-Apple platforms this will have no effect; OnDeferred will never be called.
+    //     m_AppleExtensions.RegisterPurchaseDeferredListener (OnDeferred);
+    // }
+
+    // private void OnDeferred (Product item)
+    // {
+    //     Debug.Log ("Purchase deferred: " + item.definition.id);
+    // }
+
+    public void GetProfile() => StartCoroutine(GetKidProfile_Coroutine());
+
+
+    IEnumerator GetKidProfile_Coroutine()
+    {
+        // outputArea.text = "Loading...";
+       
+        string uri = baseURL + "students/view";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+            Debug.Log("auth key is " + auth_key);
+             request.SetRequestHeader("Authorization", auth_key);
+
+            yield return request.SendWebRequest();
+           
+            string jsonString = request.downloadHandler.text;
+            Debug.Log(jsonString);
+            profile = JsonUtility.FromJson<KidsProfile>(jsonString);
+            Debug.Log(profile.is_trial_subscription);
+            Debug.Log(profile.available_level);
+
+            if ((profile.is_trial_subscription == false && profile.available_level > 0) || profile.remaining_trial == 0)
+            {
+                subscribeLater.enabled = false;
+                 subscribeLater.GetComponent<Image>().sprite = Image1;
+
+                //opacity
+                // subscribeLater.GetComponent<Image>().SetTransparency(50.0f);
+
+            }
+        
+            request.Dispose();
+        }
+        
+    }
+
     public void AddTrial()
     {
+        string confirmationMessage = "You have " + profile.remaining_trial + " chances to hop between 3 levels within the trial period of 5 days to finalise one.";
         Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
-                    "You have 3 chances to hop between 3 levels within the trial period to finalise one.",
+                    confirmationMessage,
                     "Cancel",
                     "Continue",
                     AddSubscriptionTrial
@@ -63,9 +218,9 @@ public class IAPShop : MonoBehaviour
 
     IEnumerator AddSubscription_Coroutine()
     {
-        int randomNumber = Random.Range(2000, 3000);
-
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "com.techies.edugogy.sixmonth" };
+        int randomNumber = Random.Range(2000, 3000); // randomNumber.ToString()
+    // transactionIdReceived
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = transactionIdReceived, platform = typeOfPlatform, platform_plan_id = selectedId };
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
@@ -86,6 +241,7 @@ public class IAPShop : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.Log("Error: " + request.error);
+            isAddingSubscription = false;
         }
         else
         {
@@ -101,9 +257,12 @@ public class IAPShop : MonoBehaviour
 
     IEnumerator AddTrialSubscription_Coroutine()
     {
+        ErrorList list = new ErrorList();
+        Error error = new Error();
+
         int randomNumber = Random.Range(1000, 2000);
 
-        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = "apple", platform_plan_id = "trial" };
+        SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = typeOfPlatform, platform_plan_id = "trial" };
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
@@ -124,6 +283,23 @@ public class IAPShop : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.Log("Error: " + request.error);
+
+            string jsonString = request.downloadHandler.text;
+
+            list = JsonUtility.FromJson<ErrorList>(jsonString);
+
+            Debug.Log(list);
+            
+            string message = list.error[0].detail;
+
+            Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    message,
+                    "Cancel",
+                    "Subscribe Now",
+                    GoSubscribe
+                    );
+
         }
         else
         {
@@ -132,39 +308,79 @@ public class IAPShop : MonoBehaviour
             // SceneManager.LoadScene("KidsName");
             PlayerPrefs.SetString("isSubscribed", "true");
             SceneManager.LoadScene("Dashboard");
-
-// {
-//     "transaction_id": "10027",
-//     "platform": "apple",
-//     "platform_plan_id": "trial",
-//     "student_id": 2,
-//     "age_group_id": 6,
-//     "plan_id": 1,
-//     "plan_title": "5 day trail",
-//     "plan_term": "5 day",
-//     "number_of_level": 5,
-//     "start_at": 1663718531,
-//     "expire_at": 1664150531,
-//     "created_at": 1663718531,
-//     "updated_at": 1663718531,
-//     "id": 19
-// }
         }
     }
 
+    public void GoSubscribe()
+    {
+        Debug.Log("Subscribe now");
+    }
+
+    public void OnButtonClick(Button thisButton)
+    {
+        if (thisButton.tag == "Exploration")
+        {
+            thisButton.GetComponent<Image>().sprite = selectedSpaceExploration;
+             WalkButton.GetComponent<Image>().sprite = inActiveSpaceWalk;
+              CaptureButton.GetComponent<Image>().sprite = inActiveSpaceCapture;
+        }
+        else if (thisButton.tag == "Walk")
+        {
+            thisButton.GetComponent<Image>().sprite = selectedSpaceWalk;
+             ExplorationButton.GetComponent<Image>().sprite = inActiveSpaceExploration;
+              CaptureButton.GetComponent<Image>().sprite = inActiveSpaceCapture;
+        }
+        else if (thisButton.tag == "Capture")
+        {
+            thisButton.GetComponent<Image>().sprite = selectedSpaceCapture;
+             WalkButton.GetComponent<Image>().sprite = inActiveSpaceWalk;
+             ExplorationButton.GetComponent<Image>().sprite = inActiveSpaceExploration;
+        }
+    }
 
     public void OnPurchaseComplete(Product product)
     {
-        if (product.definition.id == timePeriod)
+        selectedId = product.definition.id;
+        if (product.definition.id == spaceExplorationID)
         {
             Debug.Log("Subscription successful for one month");
 
         }
-
-        if (product.definition.id == subPeriod)
+        else if (product.definition.id == spaceWalkID)
         {
             Debug.Log("Subscription successful for three month");
+
         }
+        else if (product.definition.id == spaceCaptureID)
+        {
+            Debug.Log("Subscription successful for capture month");
+        }
+
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        // Get a reference to IAppleConfiguration during IAP initialization.
+        var appleConfig = builder.Configure<IAppleConfiguration>();
+        var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
+        AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
+
+        Debug.Log(receipt.bundleID);
+        Debug.Log(receipt.receiptCreationDate);
+
+        // transactionId.GetComponent<TextMeshProUGUI>().text = Application.identifier + "" + receipt.receiptCreationDate;
+
+        foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
+            Debug.Log(productReceipt.transactionID);
+            Debug.Log(productReceipt.productID);
+            transactionIdReceived = productReceipt.transactionID;
+
+            if (isAddingSubscription)
+            {
+                AddSubscriptionData();
+                isAddingSubscription = false;
+            }
+            // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
+        }
+        
+        
     }
 
     public void OnPurchaseFailed(Product product, PurchaseFailureReason reason)
@@ -174,11 +390,70 @@ public class IAPShop : MonoBehaviour
 
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     {
+
         bool validPurchase = true;
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "true";//productReceipt.transactionID;
+        //             transactionId.GetComponent<TextMeshProUGUI>().text = e.purchasedProduct.definition.id;
+
+
+        // if (String.Equals(e.purchasedProduct.definition.id, productName, StringComparison.Ordinal))
+        // {
+        //     Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", e.purchasedProduct.definition.id));
+        //     // TODO: The non-consumable item has been successfully purchased, grant this item to the player.
+        //     transactionId.GetComponent<TextMeshProUGUI>().text = e.purchasedProduct.definition.id;
+        // }
+        // else
+        // {
+        //     Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", e.purchasedProduct.definition.id));
+        //                 transactionId.GetComponent<TextMeshProUGUI>().text = e.purchasedProduct.definition.id;
+
+        // }
+
+
+        // if (Application.platform == RuntimePlatform.IPhonePlayer ||
+        //     Application.platform == RuntimePlatform.tvOS) {
+        //         validPurchase = true;
+
+        //     string transactionReceipt = m_AppleExtensions.GetTransactionReceiptForProduct (e.purchasedProduct);
+        //     receiptReceived = transactionReceipt;
+        //     // transactionId.GetComponent<TextMeshProUGUI>().text = transactionReceipt;
+        //     // Console.WriteLine (transactionReceipt);
+        //     // Send transaction receipt to server for validation
+        // }    
+        //  return (validPurchase) ? PurchaseProcessingResult.Complete : PurchaseProcessingResult.Pending;
+
+        // string msg = "value is " + validPurchase;
+        //  transactionId.GetComponent<TextMeshProUGUI>().text = msg;
+
+        // OnPurchaseComplete.Invoke(e.purchasedProduct);
+        // bool validPurchase = true;
+
+        #if UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        // Get a reference to IAppleConfiguration during IAP initialization.
+        var appleConfig = builder.Configure<IAppleConfiguration>();
+        var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
+        AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
+
+        Debug.Log(receipt.bundleID);
+        Debug.Log(receipt.receiptCreationDate);
+        foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
+            Debug.Log(productReceipt.transactionID);
+            Debug.Log(productReceipt.productID);
+            // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
+        }
+        #endif
+
+        // #if !DEBUG_STOREKIT_TEST
+        // var validator = new CrossPlatformValidator(GooglePlayTangle.Data(),
+        //         AppleTangle.Data(), Application.identifier);
+        // #else
+        //     var validator = new CrossPlatformValidator(GooglePlayTangle.Data(),
+        //         AppleStoreKitTestTangle.Data(), Application.identifier);
+        // #endif
         var validator = new CrossPlatformValidator(GooglePlayTangle.Data(),
-                AppleTangle.Data(), Application.identifier);
-        Debug.Log("Checking for tangle data under purchase process");
-        Debug.Log(validator + " value of validator");
+                AppleStoreKitTestTangle.Data(), Application.identifier);
+       
 
         try
         {
@@ -192,6 +467,7 @@ public class IAPShop : MonoBehaviour
                 Debug.Log(productReceipt.productID);
                 Debug.Log(productReceipt.purchaseDate);
                 Debug.Log(productReceipt.transactionID);
+                // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
 
                 GooglePlayReceipt google = productReceipt as GooglePlayReceipt;
                 if (null != google)
@@ -203,9 +479,13 @@ public class IAPShop : MonoBehaviour
                     Debug.Log(google.purchaseDate);
                     Debug.Log(google.purchaseState);
                     Debug.Log(google.purchaseToken);
-                    transactionId.GetComponent<TextMeshProUGUI>().text = google.transactionID;
+                    transactionIdReceived = google.transactionID;
+
+                    // transactionId.GetComponent<TextMeshProUGUI>().text = google.transactionID;
+                    // AddSubscriptionData();
 
                 }
+
 
                 AppleInAppPurchaseReceipt apple = productReceipt as AppleInAppPurchaseReceipt;
                 if (null != apple)
@@ -216,8 +496,9 @@ public class IAPShop : MonoBehaviour
                     Debug.Log(apple.subscriptionExpirationDate);
                     Debug.Log(apple.cancellationDate);
                     Debug.Log(apple.quantity);
-                    transactionId.GetComponent<TextMeshProUGUI>().text = apple.transactionID;
-
+                    transactionIdReceived = apple.originalTransactionIdentifier;
+                    // transactionId.GetComponent<TextMeshProUGUI>().text = apple.originalTransactionIdentifier;
+                    // AddSubscriptionData();
                 }
             }
 
@@ -228,7 +509,12 @@ public class IAPShop : MonoBehaviour
             validPurchase = false;
         }
 
+        if (validPurchase)
+        {
+            // transactionId.GetComponent<TextMeshProUGUI>().text = transactionIdReceived;
 
+            AddSubscriptionData();
+        }
 
         return PurchaseProcessingResult.Complete;
 
@@ -242,22 +528,25 @@ public class IAPShop : MonoBehaviour
         //     {
         //         // if (checkIfProductIsAvailableForSubscriptionManager(e.purchasedProduct.receipt))
         //         // {
-        //         string intro_json = (introductory_info_dict == null || !introductory_info_dict.ContainsKey(item.definition.storeSpecificId)) ? null : introductory_info_dict[item.definition.storeSpecificId];
-        //         SubscriptionManager p = new SubscriptionManager(e.purchasedProduct, intro_json);
-        //         SubscriptionInfo info = p.getSubscriptionInfo();
-        //         Debug.Log("product id is: " + info.getProductId());
-        //         Debug.Log("purchase date is: " + info.getPurchaseDate());
-        //         Debug.Log("subscription next billing date is: " + info.getExpireDate());
-        //         Debug.Log("is subscribed? " + info.isSubscribed().ToString());
-        //         Debug.Log("is expired? " + info.isExpired().ToString());
-        //         Debug.Log("is cancelled? " + info.isCancelled());
-        //         Debug.Log("product is in free trial peroid? " + info.isFreeTrial());
-        //         Debug.Log("product is auto renewing? " + info.isAutoRenewing());
-        //         Debug.Log("subscription remaining valid time until next billing date is: " + info.getRemainingTime());
-        //         Debug.Log("is this product in introductory price period? " + info.isIntroductoryPricePeriod());
-        //         Debug.Log("the product introductory localized price is: " + info.getIntroductoryPrice());
-        //         Debug.Log("the product introductory price period is: " + info.getIntroductoryPricePeriod());
-        //         Debug.Log("the number of product introductory price period cycles is: " + info.getIntroductoryPricePeriodCycles());
+        //         // string intro_json = (introductory_info_dict == null || !introductory_info_dict.ContainsKey(item.definition.storeSpecificId)) ? null : introductory_info_dict[item.definition.storeSpecificId];
+        //         // SubscriptionManager p = new SubscriptionManager(e.purchasedProduct, intro_json);
+        //         // SubscriptionInfo info = p.getSubscriptionInfo();
+        //         // Debug.Log("product id is: " + info.getProductId());
+        //         // Debug.Log("purchase date is: " + info.getPurchaseDate());
+        //         // Debug.Log("subscription next billing date is: " + info.getExpireDate());
+        //         // Debug.Log("is subscribed? " + info.isSubscribed().ToString());
+        //         // Debug.Log("is expired? " + info.isExpired().ToString());
+        //         // Debug.Log("is cancelled? " + info.isCancelled());
+        //         // Debug.Log("product is in free trial peroid? " + info.isFreeTrial());
+        //         // Debug.Log("product is auto renewing? " + info.isAutoRenewing());
+        //         // Debug.Log("subscription remaining valid time until next billing date is: " + info.getRemainingTime());
+        //         // Debug.Log("is this product in introductory price period? " + info.isIntroductoryPricePeriod());
+        //         // Debug.Log("the product introductory localized price is: " + info.getIntroductoryPrice());
+        //         // Debug.Log("the product introductory price period is: " + info.getIntroductoryPricePeriod());
+        //         // Debug.Log("the number of product introductory price period cycles is: " + info.getIntroductoryPricePeriodCycles());
+        //             transactionId.GetComponent<TextMeshProUGUI>().text = "Checking subscription info";
+        //             AddSubscriptionData();
+
         //         // }
         //         // else
         //         // {
@@ -271,3 +560,16 @@ public class IAPShop : MonoBehaviour
 
     }
 }
+
+ public static class Extensions
+ {
+      public static void SetTransparency(this UnityEngine.UI.Image p_image, float p_transparency)
+      {
+          if (p_image != null)
+          {
+              UnityEngine.Color __alpha = p_image.color;
+              __alpha.a = p_transparency;
+              p_image.color = __alpha;
+          }
+      }
+  }

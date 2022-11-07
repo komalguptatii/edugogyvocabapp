@@ -16,7 +16,7 @@ MonoBehaviour:
   clientTokens:
   - 
   appIds:
-  - 326574759542023
+  - 816198156487446
   appLabels:
   - Edugogy
   cookie: 1
@@ -25,7 +25,7 @@ MonoBehaviour:
   xfbml: 0
   frictionlessRequests: 1
   androidKeystorePath: 
-  iosURLSuffix: fb326574759542023
+  iosURLSuffix: fb816198156487446
   appLinkSchemes:
   - list: []
   uploadAccessToken: 

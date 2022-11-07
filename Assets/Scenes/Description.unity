@@ -560,10 +560,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Want to use English words like a pro? We are here to hold your hand to
-    help you discover new words and use them with ease.
-
-'
+  m_text: Want to use words like a pro? Edugogy is here to help you grow! Exciting
+    new words, their usages and fun-filled exercises, we have it all for you!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3dcde6115fae4db6b2426824d207860, type: 2}
   m_sharedMaterial: {fileID: -7557864030291673478, guid: f3dcde6115fae4db6b2426824d207860, type: 2}
@@ -590,7 +588,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 47.5
+  m_fontSize: 41
   m_fontSizeBase: 49
   m_fontWeight: 400
   m_enableAutoSizing: 1
