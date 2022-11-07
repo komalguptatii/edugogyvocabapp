@@ -19,6 +19,13 @@ public class AppleManager : MonoBehaviour
     public string AppleUserIdKey { get; private set; }
 
     public bool isLoggedIn = true;
+    public bool isQuickLogin = false;
+
+    [Serializable]
+    public class KidsNameForm
+    {
+        public string name;
+    }
 
     [Serializable]
     public class SocialLoginForm
@@ -69,7 +76,7 @@ public class AppleManager : MonoBehaviour
     void Update()
     {
 
-        if (showingResults == true)
+        if (showingResults == true || isQuickLogin == true)
         {
              loadingIndicator.enabled = true;
         Indicator.SetActive(true);
@@ -113,7 +120,8 @@ public class AppleManager : MonoBehaviour
                     var userId = appleIdCredential.User;
                     PlayerPrefs.SetString(AppleUserIdKey, userId);
                     id = userId;
-                    showingResults = true;
+                    // showingResults = true;
+                    isQuickLogin = true;
                 }
                 else
                 {
@@ -132,6 +140,9 @@ public class AppleManager : MonoBehaviour
                     PlayerPrefs.SetString(AppleUserIdKey, userId);
                     id = userId;
 
+                    // var fullName = appleIdCredential.FullName;
+                    // PlayerPrefs.SetString("AppleName", fullName.ToLocalizedString());
+
                     // Email (Received ONLY in the first login)
                     // var email = passwordCredential.Email;
                     // email = email;
@@ -140,7 +151,9 @@ public class AppleManager : MonoBehaviour
                     // var fullName = passwordCredential.FullName;
                     // name = fullName.ToString();
                     Debug.Log("Quick Login happening");
-                    showingResults = true;
+                    // showingResults = true;
+                    isQuickLogin = true;
+
                 }
                 else
                 {
@@ -159,6 +172,7 @@ public class AppleManager : MonoBehaviour
          Debug.Log("If already logged in, trying to fetch details");
         var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName);
 
+
         this.appleAuthManager.LoginWithAppleId(
             loginArgs,
             credential =>
@@ -175,11 +189,18 @@ public class AppleManager : MonoBehaviour
 
                     // Email (Received ONLY in the first login)
                     var email = appleIdCredential.Email;
+                     PlayerPrefs.SetString("AppleEmail", email);
+
                     email = email;
 
                     // Full name (Received ONLY in the first login)
                     var fullName = appleIdCredential.FullName;
-                    name = fullName.ToString();
+                    PlayerPrefs.SetString("AppleName", fullName.ToLocalizedString());
+                    Debug.Log("full name of apple user is " + fullName.ToLocalizedString(PersonNameFormatterStyle.Short));
+                    Debug.Log("full name of apple user is " + fullName.ToLocalizedString(PersonNameFormatterStyle.Medium));
+                    Debug.Log("full name of apple user is " + fullName.ToLocalizedString(PersonNameFormatterStyle.Long));
+
+                    name = fullName.ToLocalizedString();
 
                     // Identity token
                     var identityToken = Encoding.UTF8.GetString(
@@ -228,13 +249,44 @@ public class AppleManager : MonoBehaviour
 
     IEnumerator SocialLogin_Coroutine(string id, string email, string name)
     {
-        showingResults = false;
+        
         GetAuthKey getKey = new GetAuthKey();
 
-        SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "apple", app_validate_key = "0H9K@FbQ3k*6", email = email, name = name};
+        SocialLoginForm socialLoginFormData = new SocialLoginForm();
+        socialLoginFormData.social_id = id;
+        socialLoginFormData.social_media = "apple";
+        socialLoginFormData.app_validate_key = "0H9K@FbQ3k*6";
+
+        if (showingResults == true)
+        {
+            string emailId = "";
+            string nameOfAppleUser = "";
+            if (PlayerPrefs.HasKey("AppleEmail"))
+            {
+                emailId = PlayerPrefs.GetString("AppleEmail");
+                nameOfAppleUser = PlayerPrefs.GetString("AppleName");
+            }
+             
+            
+            
+            socialLoginFormData.email = emailId;
+            socialLoginFormData.name = nameOfAppleUser;
+            showingResults = false;
+            Debug.Log("Value of apple json is name" + nameOfAppleUser + " & email is " + emailId + " id is " + id);
+
+
+        }
+        else if (isQuickLogin == true)
+        {
+            Debug.Log("Value of apple json is id " + id);
+
+            isQuickLogin = false;
+        }
+        
+
+        // SocialLoginForm socialLoginFormData = new SocialLoginForm {social_id = id, social_media = "apple", app_validate_key = "0H9K@FbQ3k*6", email = emailId, name = nameOfAppleUser};
         string json = JsonUtility.ToJson(socialLoginFormData);
 
-        Debug.Log("Value of apple json is");
         Debug.Log(json);
 
 
@@ -268,17 +320,70 @@ public class AppleManager : MonoBehaviour
             SavePlatform("apple");
             SaveAuthKey(getKey.auth_key);
             Debug.Log("Received Auth Key");
-            MoveToSubscription();
+            
         }
     }
 
-     void SavePlatform(string platform)
+    void SavePlatform(string platform)
     {
          PlayerPrefs.SetString("platform", platform);
     }
 
     void SaveAuthKey(string auth_key){
         PlayerPrefs.SetString("auth_key", "Bearer " + auth_key);
+
+        if (PlayerPrefs.HasKey("AppleName"))
+        {
+            string nameOfAppleUser = PlayerPrefs.GetString("AppleName");
+            UpdateKidsName();   
+        }
+        else
+        {
+            MoveToSubscription();
+        }
+        
+    }
+
+    void UpdateKidsName() => StartCoroutine(ProcessKidsName_Coroutine());
+
+    IEnumerator ProcessKidsName_Coroutine()  //validate otp
+    {
+
+        string nameOfAppleUser = PlayerPrefs.GetString("AppleName");
+        KidsNameForm validKidNameForm = new KidsNameForm { name = nameOfAppleUser };
+        string json = JsonUtility.ToJson(validKidNameForm);
+
+        Debug.Log(json);
+
+
+        string uri = baseURL + "students/update";
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        var request = new UnityWebRequest(uri, "PUT");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", PlayerPrefs.GetString("auth_key"));
+
+
+        yield return request.SendWebRequest();
+
+        if (request.error != null)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log("Status Code: " + request.responseCode);
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+            PlayerPrefs.SetString("childName", validKidNameForm.name);
+
+            MoveToSubscription();
+        }
+
     }
 
      void MoveToSubscription()
@@ -286,6 +391,6 @@ public class AppleManager : MonoBehaviour
          loadingIndicator.enabled = false;
         Indicator.SetActive(false);
         //  Debug.Log("Value of apple json is");
-        SceneManager.LoadScene("KidsName");
+        SceneManager.LoadScene("SelectAge"); // Don't go on Kids name as Apple is already providing that
     }
 }

@@ -58,6 +58,8 @@ public class IAPShop : MonoBehaviour
         public bool is_trial_subscription;
         public string subscription_remaining_day;
         public int remaining_trial;
+        public int remaining_level_for_day;
+
     }
 
      string baseURL = "https://api.edugogy.app/v1/";

@@ -3433,6 +3433,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isLoggedIn: 1
+  isQuickLogin: 0
   Indicator: {fileID: 267314613}
 --- !u!114 &1587905817
 MonoBehaviour:
