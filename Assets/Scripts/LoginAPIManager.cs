@@ -114,6 +114,9 @@ public class LoginAPIManager : MonoBehaviour
             Debug.Log("will hide apple sign in button here later");
             appleBtn.SetActive(false);
             ChangeButtonPosition();
+            // fbBtn.SetActive(false);
+            // googleBtn.SetActive(false);
+            
         }
         //change position of facebook and google button after hiding apple button
         // appleBtn.SetActive(false);
@@ -182,23 +185,39 @@ public class LoginAPIManager : MonoBehaviour
 
     public void OnValueChanged(string code)
     {
-        // if (code == "")
-        // {
-            Debug.Log("code is empty now");
-            countryCodeDropdown.ClearOptions();
+        Debug.Log("value of country code is " + countryCodeInput.text);
+       
+        // Debug.Log("code is empty now");
+        // countryCodeDropdown.ClearOptions();
 
-            for (var i = 0; i < listObject.items.Length; i++) {
-                countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
-            }
+        // for (var i = 0; i < listObject.items.Length; i++) {
+        //     countryCodeDropdown.options.Add (new TMP_Dropdown.OptionData() {text = listObject.items[i].dial_code});
+        // }
 
-        // }
-        // else
-        // {
-            countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
-        // }
-        countryCodeDropdown.Show();
-        // dropDownItemSelected();
+        
+        // countryCodeDropdown.options = countryCodeDropdown.options.FindAll( option => option.text.IndexOf( code ) >= 0 );
+       
+        // countryCodeDropdown.Show();
+     
          
+    }
+
+    void SearchCountryCodeId(string code)
+    {
+        Debug.Log("value of code is " + code);
+        code = "+" + code;
+        for(int x = 0; x < listObject.items.Length;x++)
+        {
+               if (code == listObject.items[x].dial_code)
+               {
+                    selectedCountryCode = listObject.items[x].id;
+                    Debug.Log("code Id is " + selectedCountryCode);
+
+                    // countryCodeInput.text = selectedValue.ToString();
+                    
+               }
+
+        }
     }
 
     private void LateUpdate()
@@ -223,15 +242,16 @@ public class LoginAPIManager : MonoBehaviour
 
     public void sendLoginRequest() => StartCoroutine(ProcessLoginRequest_Coroutine());
 
-    public void validateOTPRequest() => StartCoroutine(ProcessValidateOTPRequest_Coroutine());
 
     public void resendOTPRequest() => StartCoroutine(ProcessResendMobileOTPRequest_Coroutine());
 
 
     public bool ValidateLoginData()
     {
-        Debug.Log("selectedCountryCode " + selectedCountryCode);
-        if (selectedCountryCode == 0)
+       
+        SearchCountryCodeId(countryCodeInput.text);
+             Debug.Log(selectedCountryCode);
+        if (countryCodeInput.text == "")//(selectedCountryCode == 0)
         {
              Popup popup = UIController.Instance.CreatePopup();
                 popup.Init(UIController.Instance.MainCanvas,
@@ -312,8 +332,19 @@ public class LoginAPIManager : MonoBehaviour
             if (request.responseCode == 422)
             {
              Debug.Log(request.downloadHandler.text);
+            
 // {"error":[{"code":0,"source":"phone","title":"Phone \"9855940600\" has already been taken.","detail":"Phone \"9855940600\" has already been taken."}]}
                 resendOTPRequest();
+            }
+            else if (request.responseCode == 404)
+            {
+                 Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Your Edugogy registration is still pending! Please make sure that you type the correct country code and don’t have DND on your messages",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
             }
         }
         else
@@ -328,10 +359,16 @@ public class LoginAPIManager : MonoBehaviour
             userSignUp = JsonUtility.FromJson<SignedUpUser>(jsonString);
 
             Debug.Log(userSignUp);
-            if (userSignUp.is_existing_user == 0)
-            {
-                resendOTPRequest();
-            }
+            
+            // if (userSignUp.is_existing_user == 0)
+            // {
+            //     resendOTPRequest();
+            // }
+
+     
+            SavePhoneNumber(userSignUp.phone);
+            // MoveToVerifyOTP();
+
             // MoveToVerifyOTP();
             // "phone": "9855940600",
             // "country_code_id": 88,
@@ -355,44 +392,9 @@ public class LoginAPIManager : MonoBehaviour
         SceneManager.LoadScene("VerifyOTP");
     }
 
-    IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
-    {
-
-        ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumberInput.text, country_code_id = selectedCountryCode, otp = 6875 };
-        string json = JsonUtility.ToJson(validateOTPFormData);
-
-        Debug.Log(json);
-
-
-        string uri = baseURL + "students/validate-otp";
-
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        var request = new UnityWebRequest(uri, "POST");
-
-        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        yield return request.SendWebRequest();
-
-        if (request.error != null)
-        {
-            Debug.Log("Error: " + request.error);
-        }
-        else
-        {
-            Debug.Log("All OK");
-            Debug.Log("Status Code: " + request.responseCode);
-            Debug.Log(request.result);
-            Debug.Log(request.downloadHandler.text);
-            // { "auth_key":"3VcmTskZ5jRINDiaO_489b0pdVsbTEy6"}
-        }
-
-    }
-
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login
     {
+
 
         ResendOTP resendOTP = new ResendOTP();
         ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumberInput.text, country_code_id = selectedCountryCode };
@@ -415,6 +417,17 @@ public class LoginAPIManager : MonoBehaviour
         if (request.error != null)
         {
             Debug.Log("Error: " + request.error);
+
+            if (request.responseCode == 404)
+            {
+                 Popup popup = UIController.Instance.CreatePopup();
+                popup.Init(UIController.Instance.MainCanvas,
+                    "Your Edugogy registration is still pending! Please make sure that you type the correct country code and don’t have DND on your messages",
+                    "Cancel",
+                    "Sure!",
+                    resetAction
+                    );
+            }
         }
         else
         {
@@ -424,14 +437,13 @@ public class LoginAPIManager : MonoBehaviour
             Debug.Log(request.downloadHandler.text);
 
             string resendOTPJson = request.downloadHandler.text;
-            // string jsonString = fixJson(userJson);
-            // Debug.Log(jsonString);
+           
             resendOTP = JsonUtility.FromJson<ResendOTP>(resendOTPJson);
 
             Debug.Log(resendOTP.phone);
             Debug.Log(resendOTP.student.name);
             SavePhoneNumber(resendOTP.phone);
-            MoveToVerifyOTP();
+            
             //save phone number
 
         }
@@ -440,8 +452,9 @@ public class LoginAPIManager : MonoBehaviour
 
 
  void SavePhoneNumber(string phone){
-        PlayerPrefs.SetString("phone", phone);
+        PlayerPrefs.SetString("phone", phoneNumberInput.text);
         PlayerPrefs.SetInt("countryCodeId", selectedCountryCode);
+        MoveToVerifyOTP();
     }
 
      

@@ -698,9 +698,9 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        //   auth_key = "Bearer nFWb5vW43uctmurD3X7vbO_AlW14YjKr"; // Komal
-        //  auth_key = "Bearer jIU9J018VJlwCnY91C-0wVzkNuuwy8NN"; // Ridhima, 9-10
-                //   auth_key = "Bearer ZIwP6xqcHiEdKk_LV4YKxH3bwluLLXio"; // Aman, 12-13
+        // auth_key = "Bearer cgfJLzQgxKiZoCEtLUCBTctI2ChX4cI_"; //mine
+        // auth_key = "Bearer Bstp7UDJr8F_yxaWbq47Z1MRw7jobhAi"; //Ridhima
+
 
     }
 
@@ -738,6 +738,10 @@ public class MissionManagement : MonoBehaviour
             }
             else
             {
+                if (Screen.height == 1920)
+                {
+                    dutBoard.transform.position = new Vector2(dutBoard.transform.position.x, dutBoard.transform.position.y + 60.0f);
+                }
                 Debug.Log("generalMCQBoard.transform.position " + generalMCQBoard.transform.position);
                 generalMCQBoard.transform.position = new Vector2(generalMCQBoard.transform.position.x, generalMCQBoard.transform.position.y + 120.0f);
 
@@ -3779,7 +3783,16 @@ public class MissionManagement : MonoBehaviour
                 }
                 Debug.Log("sentenceLength " + sentenceLength);
 
-                if (sentenceLength > 300.0f)
+                if (sentenceLength > 450.0f && newWordDetails.dailyUseTips.Length == 3)
+                {
+                   
+                    Debug.Log("sentenceLength second" + sentenceLength);
+                    pathVlg.spacing = 280;
+                    pathVlg.padding.bottom = 220;
+                    pathVlg.padding.top = 120;
+                   
+                }
+                else if (sentenceLength > 300.0f)
                 {
                     if (newWordDetails.dailyUseTips.Length == 3)
                     {

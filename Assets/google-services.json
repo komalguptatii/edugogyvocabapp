@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "82614062214-n05pi3sp312s7lm6l16qcknq8thgorge.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edugogy.vocabapp",
+            "certificate_hash": "031af439cd94e53b16341931f0f9d2ee855755bb"
+          }
+        },
+        {
           "client_id": "82614062214-3phimom2e24gn642022af7n0plenkqch.apps.googleusercontent.com",
           "client_type": 3
         }

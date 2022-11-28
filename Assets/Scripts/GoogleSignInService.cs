@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Firebase;
 using Firebase.Auth;
+using Firebase.Extensions;
 using Google;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,16 +12,29 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
+using TMPro;
+
 
 public class GoogleSignInService : MonoBehaviour
 {
     // public Text infoText;
-    // public string webClientId = "849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com";
-    public string webClientId = "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com";
+    // public string webClientId = "849410546096-t5gubl7o7bbe3osbbg586quj6cjdef2b.apps.googleusercontent.com"; // dev
+    public string webClientId = "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com"; // ios
 
-    public FirebaseAuth auth;
+    public string webClientIdAndroid = "82614062214-e3cbmhq15v6amfrrs712ftt9jdrugmdp.apps.googleusercontent.com";
+
+    public string webId = "82614062214-3phimom2e24gn642022af7n0plenkqch.apps.googleusercontent.com";
+    Firebase.Auth.FirebaseAuth auth;
     public FirebaseApp app;
+    Firebase.Auth.FirebaseUser user;
     private GoogleSignInConfiguration configuration;
+
+
+
+    // Firebase.DependencyStatus dependencyStatus = Firebase.DependencyStatus.UnavailableOther;
+
+    // [SerializeField] 
+    // public TextMeshProUGUI toast;
 
     [Serializable]
     public class SocialLoginForm
@@ -40,6 +54,7 @@ public class GoogleSignInService : MonoBehaviour
 
     public string email = "";
     public string name = "";
+    public string id = "";
     public bool isSignInDone = false;
 
      private Animator loadingIndicator;
@@ -51,21 +66,15 @@ public class GoogleSignInService : MonoBehaviour
 
     string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
 
-    private void Awake()
-    {
-        loadingIndicator = Indicator.GetComponent<Animator>(); 
+   void Awake() {
+      loadingIndicator = Indicator.GetComponent<Animator>(); 
          loadingIndicator.enabled = false;
         Indicator.SetActive(false);
 
         configuration = new GoogleSignInConfiguration { WebClientId = webClientId, RequestEmail = true, RequestIdToken = true };
-        // var dependencyResult = FirebaseApp.CheckAndFixDependenciesAsync();
-        // if(dependencyResult == DependencyStatus.Available)
-        // {
-        //     app = FirebaseApp.DefaultInstance;
-        //     OnFirebaseInitialized.Invoke(); //This simply loads the next scene.
-        // }
     }
-     
+
+
     void Start()
     {
     //    auth = Firebase.Auth.FirebaseAuth.DefaultInstance;
@@ -74,7 +83,6 @@ public class GoogleSignInService : MonoBehaviour
         // auth.StateChanged += AuthStateChanged;
         // CheckFirebaseDependencies();
     }
-
     public void CheckFirebaseDependencies()
     {
         // auth = Firebase.Auth.FirebaseAuth.DefaultInstance;

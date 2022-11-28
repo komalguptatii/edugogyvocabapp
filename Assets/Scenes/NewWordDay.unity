@@ -3266,9 +3266,9 @@ MonoBehaviour:
   voice: 12
   outputAudioSource: {fileID: 0}
   oculusLipsyncAudioSource: {fileID: 0}
-  speakerButton: {fileID: 0}
+  speakerButton: {fileID: 643249596}
   externalTriggerType: 0
-  word: {fileID: 0}
+  word: {fileID: 970135261}
 --- !u!1 &680266891
 GameObject:
   m_ObjectHideFlags: 0
