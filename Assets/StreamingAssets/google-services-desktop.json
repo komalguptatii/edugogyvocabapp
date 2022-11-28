@@ -7,27 +7,45 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:82614062214:ios:2ac92524e1fc818c5f9507",
+        "mobilesdk_app_id": "1:82614062214:android:7b8a7d9ee8c7ec605f9507",
         "android_client_info": {
           "package_name": "com.edugogy.vocabapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com"
+          "client_id": "82614062214-n05pi3sp312s7lm6l16qcknq8thgorge.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edugogy.vocabapp",
+            "certificate_hash": "031af439cd94e53b16341931f0f9d2ee855755bb"
+          }
+        },
+        {
+          "client_id": "82614062214-3phimom2e24gn642022af7n0plenkqch.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAIFsF_I7Qs3WUYvIIJWrLiywxtUvf42Lw"
+          "current_key": "AIzaSyDqbxIFWL2oCKCUwSzaKQ-RsDuqDATfQfI"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 0
-        },
         "appinvite_service": {
-          "status": 1
+          "other_platform_oauth_client": [
+            {
+              "client_id": "82614062214-3phimom2e24gn642022af7n0plenkqch.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "82614062214-g2b970mdo2qvdh9opp4lrum37q9ae2kj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.edugogy.vocabapp"
+              }
+            }
+          ]
         }
       }
     }

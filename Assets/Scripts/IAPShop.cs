@@ -20,10 +20,10 @@ public class IAPShop : MonoBehaviour
     private string spaceCaptureID = "com.techies.edugogy.threemonth";
     string auth_key;
     // [SerializeField] public TextMeshProUGUI transactionId;
+    // [SerializeField] public TextMeshProUGUI payload;
 
-        private IAppleExtensions m_AppleExtensions;
-         private IStoreController m_Controller;
-
+    private IAppleExtensions m_AppleExtensions;
+    private IStoreController m_Controller;
 
 
     [Serializable]
@@ -224,6 +224,7 @@ public class IAPShop : MonoBehaviour
         string json = JsonUtility.ToJson(subscriptionFormData);
 
         Debug.Log(json);
+        // payload.GetComponent<TextMeshProUGUI>().text = json;
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -238,13 +239,17 @@ public class IAPShop : MonoBehaviour
 
         yield return request.SendWebRequest();
 
+        // payload.GetComponent<TextMeshProUGUI>().text = json + " \n " + request.downloadHandler.text;
+
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.Log("Error: " + request.error);
             isAddingSubscription = false;
+            // transactionId.GetComponent<TextMeshProUGUI>().text = (request.responseCode).ToString()  + "Error: " + request.error;
         }
         else
         {
+            // transactionId.GetComponent<TextMeshProUGUI>().text = (request.responseCode).ToString();
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
             // SceneManager.LoadScene("KidsName");
@@ -371,13 +376,13 @@ public class IAPShop : MonoBehaviour
             Debug.Log(productReceipt.transactionID);
             Debug.Log(productReceipt.productID);
             transactionIdReceived = productReceipt.transactionID;
+            //  transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
 
-            if (isAddingSubscription)
+            if (isAddingSubscription && transactionIdReceived != "")
             {
                 AddSubscriptionData();
                 isAddingSubscription = false;
             }
-            // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
         }
         
         
@@ -572,4 +577,4 @@ public class IAPShop : MonoBehaviour
               p_image.color = __alpha;
           }
       }
-  }
+ }

@@ -97,24 +97,28 @@ public class DashboardManager : MonoBehaviour
     float clampValue = 150.0f;
     bool isUnleashPotential = false;
 
+    DateTime startDate;
+    DateTime updatedDate;
+
     ProfileDetails profileData = new ProfileDetails();
 
     private void Awake() 
     {
+        startDate = System.DateTime.Now;
+
+        Debug.Log("day is " + startDate.Date + "Day " + startDate);
         if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
 
-        //  auth_key = "Bearer nFWb5vW43uctmurD3X7vbO_AlW14YjKr"; // Komal
-        //  auth_key = "Bearer jIU9J018VJlwCnY91C-0wVzkNuuwy8NN"; // Ridhima, 9-10
-                //   auth_key = "Bearer ZIwP6xqcHiEdKk_LV4YKxH3bwluLLXio"; // Aman, 12-13
+        // auth_key = "Bearer cgfJLzQgxKiZoCEtLUCBTctI2ChX4cI_"; //mine
+        // auth_key = "Bearer Bstp7UDJr8F_yxaWbq47Z1MRw7jobhAi"; //Ridhima
 
-        //  r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4"; 
-        GetUserProfile();
+        // GetUserProfile();
+        SpawnPath();
         UpdateDeviceBasedUI();
-
 
     }
 
@@ -151,9 +155,8 @@ public class DashboardManager : MonoBehaviour
     }
 
     void Start()
-    {
-        SpawnPath();
-        
+    { 
+        GetUserProfile(); 
     }
 
     void StartSetup()
@@ -201,10 +204,11 @@ public class DashboardManager : MonoBehaviour
             RectTransform thistarget = lastReachedLevel.GetComponent<RectTransform>();
             Reset(lastReachedLevel);
             screenPos = cam.WorldToScreenPoint(thistarget.position);  // 
+            GetNormalizePosition(thistarget);
             Debug.Log("target is " + screenPos.x + " pixels from the left" + screenPos.y); //target is -24996 pixels from the left-552576.1
 
             // Debug.Log("Position is " + thistarget.position); // Position is (-133.00, -2883.00, 0.00)
-            // GetNormalizePosition(thistarget);
+            
 
             // DateTime thisTime = System.DateTime.Now.Date;
             // Debug.Log("this date is " + thisTime);  //09-08-2022 13:34:10
@@ -229,12 +233,17 @@ public class DashboardManager : MonoBehaviour
                     if (profileData.remaining_level_for_day > 0)
                     {
                         Debug.Log("value of level number is " + levelNumber);
-                        if (levelNumber <= profileData.max_passed_level)
+                        if (levelNumber < profileData.max_passed_level)
                         {
-                            nextLevelValueShouldbe = levelNumber + 1;
+                            nextLevelValueShouldbe = profileData.max_passed_level;// + 1;
                             nextLevelWillbe = nextLevelValueShouldbe.ToString();
 
                         }
+                        // else if (levelNumber == profileData.max_passed_level)
+                        // {
+                        //     nextLevelValueShouldbe = profileData.max_passed_level + 1;
+                        //     nextLevelWillbe = nextLevelValueShouldbe.ToString();
+                        // }
                     
                         Debug.Log("coming into this loop & next level is " + nextLevelWillbe);
                         Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
@@ -261,19 +270,20 @@ public class DashboardManager : MonoBehaviour
                         if (PlayerPrefs.HasKey("isReattempting"))
                         {
                             int isReattempting = PlayerPrefs.GetInt("isReattempting");
+                            Debug.Log("");
                             if (isReattempting == 1)
                             {
                                 isUnleashPotential = false;
                             }
                             else
                             {
-                                Debug.Log("You have unleashed your true potential");
+                                Debug.Log("You have unleashed your true potential 1");
                                 isUnleashPotential = true;  
                             }
                         }
                         else
                         {
-                            Debug.Log("You have unleashed your true potential");
+                            Debug.Log("You have unleashed your true potential 2");
                             isUnleashPotential = true;  
                         }
                     
@@ -287,7 +297,7 @@ public class DashboardManager : MonoBehaviour
                     if (level < 5)
                     {
                         PlayerPrefs.SetInt("numberOfLevelsPerDay", numberOfLevelsPerDay);
-                        Debug.Log("unlock next level");
+                        Debug.Log("unlock next level & value of nextLevel here is " + nextLevelWillbe);
                             Button button = GameObject.Find(nextLevelWillbe).GetComponent<Button>();
                             GameObject lockImage = button.transform.GetChild(1).gameObject;
                             // lockImage.SetActive(false);
@@ -325,6 +335,13 @@ public class DashboardManager : MonoBehaviour
 
     void Update() {
 
+        updatedDate = System.DateTime.Now;
+        if (startDate.Date != updatedDate.Date)
+        {
+            GetUserProfile();
+            startDate = updatedDate;
+        }
+        
          if (isProfileLoaded)
         {
             Debug.Log("Calling start Setup");
@@ -612,15 +629,25 @@ public class DashboardManager : MonoBehaviour
             }
             else
             {
+                Debug.Log("Checking loop it is coming in");
                 totalNumberOfLevels = profileData.available_level;
                 if (profileData.max_passed_level != 0){
                     levelsPassed = profileData.max_passed_level;
-                    if (!PlayerPrefs.HasKey("NextLevelWillBe"))
+                    // if (!PlayerPrefs.HasKey("NextLevelWillBe"))
+                    // {
+                    
+                    if (profileData.total_passed_level < profileData.max_passed_level && profileData.remaining_level_for_day > 0)
                     {
-                     
-                     PlayerPrefs.SetString("NextLevelWillBe", (profileData.max_passed_level + 1).ToString());
+                        PlayerPrefs.SetString("NextLevelWillBe", (profileData.max_passed_level).ToString());
+                    }
+                    else
+                    {
+                        PlayerPrefs.SetString("NextLevelWillBe", (profileData.max_passed_level + 1).ToString());
 
                     }
+                     
+
+                    // }
 
                 }
                 else
@@ -636,7 +663,18 @@ public class DashboardManager : MonoBehaviour
                     // if (int.Parse(profileData.subscription_remaining_day) > 0)
                     if (remainingLevels > 0)
                     {
-                        string displayMessageForTrial = "You are left with " + remainingLevels + " missions of this level"; // missions in thia leve
+                        string displayMessageForTrial = "";
+                        if (profileData.max_passed_level == 0)
+                        {
+                            int rLevels = remainingLevels + 1;
+                            displayMessageForTrial = "You are left with " + rLevels + " missions of this level"; // missions in thia leve
+
+                        }
+                        else
+                        {
+                            displayMessageForTrial = "You are left with " + remainingLevels + " missions of this level"; // missions in thia leve
+
+                        }
 
                         InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
                         popup.Init(UIController.Instance.MainCanvas,
@@ -644,18 +682,23 @@ public class DashboardManager : MonoBehaviour
                         "Okay"
                         );
                     }
-                    // else
-                    // {
-                    //     // if (chances == 0)
-                    //     Popup popup = UIController.Instance.CreatePopup();
-                    //     popup.Init(UIController.Instance.MainCanvas,
-                    //     "Your trial missions for this level are exhausted.",
-                    //     "Cancel",
-                    //     "Okay",
-                    //     GoSubscribe
-                    //     );
-                    // }
                     
+                    
+                }
+                else
+                {
+                    Debug.Log("trial subscription is over" + profileData.subscription_remaining_day);
+                    if (profileData.subscription_remaining_day == "")
+                    {
+                        Debug.Log("trial subscription is over but showing value null too");
+                         Popup popup = UIController.Instance.CreatePopup();
+                            popup.Init(UIController.Instance.MainCanvas,
+                            "Your trial missions for this level are exhausted.",
+                            "Cancel",
+                            "Okay",
+                            GoSubscribe
+                            );
+                    }
                 }
                 
 

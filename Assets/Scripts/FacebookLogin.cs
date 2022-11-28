@@ -64,9 +64,37 @@ public class FacebookLogin : MonoBehaviour
          loadingIndicator.enabled = false;
         Indicator.SetActive(false);
 
-        FB.Init(SetInit, onHidenUnity);
+
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (!FB.IsInitialized) {
+                // Initialize the Facebook SDK
+                FB.Init (InitCallback, onHidenUnity);
+            } else {
+                // Already initialized, signal an app activation App Event
+                FB.ActivateApp ();
+            }
+        }
+        else
+        {
+             FB.Init(SetInit, onHidenUnity);
+        }
         // Panel_Add.SetActive(false);
     }
+
+
+    private void InitCallback ()
+    {
+        if (FB.IsInitialized) {
+            // Signal an app activation App Event
+            FB.ActivateApp ();
+            // Continue with Facebook SDK
+            // ...
+        } else {
+            Debug.Log ("Failed to Initialize the Facebook SDK");
+        }
+    }
+
     void SetInit()
     {
         if (FB.IsLoggedIn)
@@ -112,7 +140,22 @@ public class FacebookLogin : MonoBehaviour
         {
             if (FB.IsLoggedIn)
             {
-                Debug.Log("Facebook is Login!");
+
+                if (Application.platform == RuntimePlatform.Android)
+                {
+                    var aToken = Facebook.Unity.AccessToken.CurrentAccessToken;
+                    // Print current access token's User ID
+                    Debug.Log (aToken.UserId);
+                    // Print current access token's granted permissions
+                    foreach (string perm in aToken.Permissions) {
+                        Debug.Log (perm);
+                    }
+                }
+                else
+                {
+                    Debug.Log("Facebook is Login!");
+                }
+                
                 // Panel_Add.SetActive(true);
             }
             else

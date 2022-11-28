@@ -110,7 +110,7 @@ public class KidsProfileManager : MonoBehaviour
 
         }
          
-        // auth_key = "Bearer r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4"; 
+        // auth_key = "Bearer P3pwMYA_q0598Zbf9Kdf5VD_pD-iAVDk"; 
 
           for(int i = 0; i < ageImageTick.Length; i++)
         {

@@ -81,6 +81,8 @@ public class VerifyOTPManager : MonoBehaviour
 
        private Animator loadingIndicator;
     public GameObject Indicator;
+
+    public bool isReceivingOTP = false;
         // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
@@ -94,8 +96,9 @@ public class VerifyOTPManager : MonoBehaviour
 
     void Awake()
     {
-         loadingIndicator = Indicator.GetComponent<Animator>(); 
-         loadingIndicator.enabled = false;
+        // GUIUtility.systemCopyBuffer = "";
+        loadingIndicator = Indicator.GetComponent<Animator>(); 
+        loadingIndicator.enabled = false;
         Indicator.SetActive(false);
 
         SetInputCharacterLength();
@@ -134,6 +137,31 @@ public class VerifyOTPManager : MonoBehaviour
         description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for your space flight.";
     }
 
+    // void Update()
+    // {
+    //     if (!isReceivingOTP)
+    //     {
+    //         string clipBoard = GUIUtility.systemCopyBuffer;
+
+    //         if (clipBoard != "")
+    //         {
+    //             fillOTP(clipBoard);
+    //             isReceivingOTP = true;
+    //         }
+    //     }
+       
+    // }
+
+    // void fillOTP(string receivedValue)
+    // {
+    //      var charArray = receivedValue.ToCharArray();
+    //     firstDigit.text = charArray[0].ToString();
+    //     secondDigit.text = charArray[1].ToString();
+    //     thirdDigit.text = charArray[2].ToString();
+    //     fourthDigit.text = charArray[3].ToString();
+    //     GUIUtility.systemCopyBuffer = "";
+    // }
+
     void SetInputCharacterLength()
     {
         firstDigit.characterLimit = 1;
@@ -151,6 +179,7 @@ public class VerifyOTPManager : MonoBehaviour
         Debug.Log(data);
         if (firstDigit.text.Length == 1)
         {
+            Debug.Log(firstDigit.text);
             secondDigit.Select();
             
             secondDigit.ActivateInputField();
@@ -237,7 +266,15 @@ public class VerifyOTPManager : MonoBehaviour
             {
                  PlayerPrefs.SetString("childName", profile.name);
                  PlayerPrefs.SetInt("isAgeSelected", 1); //isAgeSelected ? 1 : 0
-                SceneManager.LoadScene("Dashboard");
+                 if (profile.available_level > 0)
+                 {
+                     SceneManager.LoadScene("Dashboard");
+                 }
+                 else
+                 {
+                    SceneManager.LoadScene("IAPCatalog");
+                 }
+               
             }
             else
             {
@@ -266,8 +303,11 @@ public class VerifyOTPManager : MonoBehaviour
         {
              loadingIndicator.enabled = true;
         Indicator.SetActive(true);
-            var otp = int.Parse(otpEntered);
-        Debug.Log(otp);
+        var otp = int.Parse(otpEntered);
+        Debug.Log("value of otp is " + otp);
+        Debug.Log("phoneNumber is " + phoneNumber);
+        Debug.Log("countryCodeId is " + countryCodeId);
+
         GetAuthKey getKey = new GetAuthKey();
         
         ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumber, country_code_id = countryCodeId, otp = otp };
@@ -350,10 +390,10 @@ public class VerifyOTPManager : MonoBehaviour
     IEnumerator ProcessResendMobileOTPRequest_Coroutine()  //Resend validate otp, also used for login
     {
 
-       
-
         ResetInputs();
         ResendOTP resendOTP = new ResendOTP();
+        Debug.Log("phoneNumber is " + phoneNumber);
+        Debug.Log("countryCodeId is " + countryCodeId);
         ValidateOTPForm validateOTPFormData = new ValidateOTPForm { phone = phoneNumber, country_code_id = countryCodeId };
         string json = JsonUtility.ToJson(validateOTPFormData);
 
