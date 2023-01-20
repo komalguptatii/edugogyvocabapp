@@ -698,9 +698,8 @@ public class MissionManagement : MonoBehaviour
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
-        // auth_key = "Bearer cgfJLzQgxKiZoCEtLUCBTctI2ChX4cI_"; //mine
-        // auth_key = "Bearer Bstp7UDJr8F_yxaWbq47Z1MRw7jobhAi"; //Ridhima
-
+              
+        auth_key = "Bearer aX93LB28fV-gWf2j3bWlbGu0ThPmMiLd"; 
 
     }
 

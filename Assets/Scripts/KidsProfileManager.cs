@@ -110,7 +110,7 @@ public class KidsProfileManager : MonoBehaviour
 
         }
          
-        // auth_key = "Bearer P3pwMYA_q0598Zbf9Kdf5VD_pD-iAVDk"; 
+        // auth_key = "Bearer DB7wRBv6G8atorfi2FqkEw3w-Zo-gYAb"; 
 
           for(int i = 0; i < ageImageTick.Length; i++)
         {
@@ -252,13 +252,13 @@ public class KidsProfileManager : MonoBehaviour
         
         Debug.Log(button.tag);
         
-        selectedButton = int.Parse(button.tag);
-        ageButton[selectedButton].image.sprite = buttonSprite;
-        ageImageTick[selectedButton].enabled = true;
+        selectedButton = int.Parse(button.tag) + 1;
+        ageButton[selectedButton - 1].image.sprite = buttonSprite;
+        ageImageTick[selectedButton - 1].enabled = true;
 
         for(int i = 0; i < 7; i++)
         {
-            if(i != selectedButton)
+            if(i != selectedButton - 1)
             {
                 ageButton[i].image.sprite = deactivateButtonSprite;
                 ageImageTick[i].enabled = false;
@@ -272,8 +272,8 @@ public class KidsProfileManager : MonoBehaviour
     IEnumerator UpdateKidsName_Coroutine()  //validate otp
     {
         profile.name = KidsName.text;
-        profile.age_group_id = selectedButton + 1;
-        int currentAgeGroupId = selectedButton + 1;
+        profile.age_group_id = selectedButton;
+        int currentAgeGroupId = selectedButton;
         
         string json = JsonUtility.ToJson(profile);
 
@@ -289,7 +289,6 @@ public class KidsProfileManager : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
          request.SetRequestHeader("Authorization", auth_key);
-        // request.SetRequestHeader("Authorization", "Bearer M0hLI8d5GVceaFh32XrOsiaiFvFgxxRz");
 
         yield return request.SendWebRequest();
 

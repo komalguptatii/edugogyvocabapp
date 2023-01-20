@@ -113,8 +113,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(auth_key);
         }
 
-        // auth_key = "Bearer cgfJLzQgxKiZoCEtLUCBTctI2ChX4cI_"; //mine
-        // auth_key = "Bearer Bstp7UDJr8F_yxaWbq47Z1MRw7jobhAi"; //Ridhima
+        // auth_key = "Bearer aX93LB28fV-gWf2j3bWlbGu0ThPmMiLd"; //mine
 
         // GetUserProfile();
         SpawnPath();
@@ -274,6 +273,11 @@ public class DashboardManager : MonoBehaviour
                             if (isReattempting == 1)
                             {
                                 isUnleashPotential = false;
+                            }
+                            else if (levelsPassed == totalNumberOfLevels)
+                            {
+                                Debug.Log("You have unleashed your true potential 1");
+                                isUnleashPotential = false;  
                             }
                             else
                             {
@@ -645,9 +649,6 @@ public class DashboardManager : MonoBehaviour
                         PlayerPrefs.SetString("NextLevelWillBe", (profileData.max_passed_level + 1).ToString());
 
                     }
-                     
-
-                    // }
 
                 }
                 else
@@ -687,18 +688,30 @@ public class DashboardManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("trial subscription is over" + profileData.subscription_remaining_day);
-                    if (profileData.subscription_remaining_day == "")
-                    {
-                        Debug.Log("trial subscription is over but showing value null too");
-                         Popup popup = UIController.Instance.CreatePopup();
+                       PlayerPrefs.SetString("GetRenewalId", "true");
+                Popup popup = UIController.Instance.CreatePopup();
                             popup.Init(UIController.Instance.MainCanvas,
-                            "Your trial missions for this level are exhausted.",
+                            "Your subscription is over, today is the last day",
                             "Cancel",
                             "Okay",
-                            GoSubscribe
+                            GoToRenewPurchase
                             );
-                    }
+                    // Debug.Log("trial subscription is over" + profileData.subscription_remaining_day);
+                    // if (profileData.subscription_remaining_day == "")
+                    // {
+                    //     Debug.Log("trial subscription is over but showing value null too");
+                    //      Popup popup = UIController.Instance.CreatePopup();
+                    //         popup.Init(UIController.Instance.MainCanvas,
+                    //         "Your trial missions for this level are exhausted.",
+                    //         "Cancel",
+                    //         "Okay",
+                    //         GoSubscribe
+                    //         );
+                    // }
+                    // else if (profileData.subscription_remaining_day == 0)
+                    // {
+                        
+                    // }
                 }
                 
 
@@ -715,6 +728,11 @@ public class DashboardManager : MonoBehaviour
     {
         // SceneManager.LoadScene("IAPCatalog");
         SceneManager.LoadScene("KidsProfile");
+    }
+
+    void GoToRenewPurchase()
+    {
+        SceneManager.LoadScene("IAPCatalog");
     }
 
     void NotifyAboutSubscriptionStatus()
@@ -736,12 +754,15 @@ public class DashboardManager : MonoBehaviour
             {
                 Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
                 // check for subscription period - 30, 90, 180 may change adding free trial
-                InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                    popup.Init(UIController.Instance.MainCanvas,
-                    "Your subscription is over, today is the last day",
-                    "Ok"
-                    );
-                
+                PlayerPrefs.SetString("GetRenewalId", "true");
+
+                Popup popup = UIController.Instance.CreatePopup();
+                            popup.Init(UIController.Instance.MainCanvas,
+                            "Your subscription is over, today is the last day",
+                            "Cancel",
+                            "Okay",
+                            GoToRenewPurchase
+                            );
             } 
             else if (levelsPassed == dayBefore)
             {

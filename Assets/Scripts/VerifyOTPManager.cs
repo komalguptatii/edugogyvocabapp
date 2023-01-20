@@ -74,12 +74,15 @@ public class VerifyOTPManager : MonoBehaviour
     [SerializeField]
     public TextMeshProUGUI description; 
 
+    // [SerializeField]
+    // public TextMeshProUGUI otpToast; 
+
     string userName = "";
     string auth_key;
 
-     string baseURL = "https://api.edugogy.app/v1/";
+    string baseURL = "https://api.edugogy.app/v1/";
 
-       private Animator loadingIndicator;
+    private Animator loadingIndicator;
     public GameObject Indicator;
 
     public bool isReceivingOTP = false;
@@ -135,12 +138,14 @@ public class VerifyOTPManager : MonoBehaviour
 
         Debug.Log(returnNumber);
         description.text = "Kindly enter the OTP sent by SMS on " +  returnNumber   +" for your space flight.";
+        // firstDigit.ActivateInputField();
     }
 
     // void Update()
     // {
     //     if (!isReceivingOTP)
     //     {
+    //         otpToast.text = "trying" + Input.inputString;
     //         string clipBoard = GUIUtility.systemCopyBuffer;
 
     //         if (clipBoard != "")
@@ -152,15 +157,15 @@ public class VerifyOTPManager : MonoBehaviour
        
     // }
 
-    // void fillOTP(string receivedValue)
-    // {
-    //      var charArray = receivedValue.ToCharArray();
-    //     firstDigit.text = charArray[0].ToString();
-    //     secondDigit.text = charArray[1].ToString();
-    //     thirdDigit.text = charArray[2].ToString();
-    //     fourthDigit.text = charArray[3].ToString();
-    //     GUIUtility.systemCopyBuffer = "";
-    // }
+    void fillOTP(string receivedValue)
+    {
+         var charArray = receivedValue.ToCharArray();
+        firstDigit.text = charArray[0].ToString();
+        secondDigit.text = charArray[1].ToString();
+        thirdDigit.text = charArray[2].ToString();
+        fourthDigit.text = charArray[3].ToString();
+        GUIUtility.systemCopyBuffer = "";
+    }
 
     void SetInputCharacterLength()
     {
@@ -183,8 +188,13 @@ public class VerifyOTPManager : MonoBehaviour
             secondDigit.Select();
             
             secondDigit.ActivateInputField();
-            otpEntered = (firstDigit.text).ToString();
+            // otpEntered = (firstDigit.text).ToString();
         }
+        // else if (data == "")
+        // {
+        //     otpEntered = otpEntered.Remove(otpEntered.Length - 1);
+        //     Debug.Log("otpEntered is " + otpEntered);
+        // }
          
     }
 
@@ -195,8 +205,13 @@ public class VerifyOTPManager : MonoBehaviour
         {
             thirdDigit.Select();
             thirdDigit.ActivateInputField();
-            otpEntered = otpEntered + (secondDigit.text).ToString();
+            // otpEntered = otpEntered + (secondDigit.text).ToString();
         }
+        // else if (data == "")
+        // {
+        //     otpEntered = otpEntered.Remove(otpEntered.Length - 1);
+        //     Debug.Log("otpEntered is " + otpEntered);
+        // }
     }
 
     public void thirdDigitValueChanged(string data)
@@ -206,18 +221,27 @@ public class VerifyOTPManager : MonoBehaviour
         {
             fourthDigit.Select();
             fourthDigit.ActivateInputField();
-            otpEntered = otpEntered + (thirdDigit.text).ToString();
+            // otpEntered = otpEntered + (thirdDigit.text).ToString();
         }
+        // else if (data == "")
+        // {
+        //     otpEntered = otpEntered.Remove(otpEntered.Length - 1);
+        //     Debug.Log("otpEntered is " + otpEntered);
+        // }
     }
 
     public void fourthDigitValueChanged(string data)
     {
        if (fourthDigit.text.Length == 1)
         {
-            
-            otpEntered = otpEntered + (fourthDigit.text).ToString();
+            // otpEntered = otpEntered + (fourthDigit.text).ToString();
             Debug.Log(otpEntered);
         }
+        // else if (data == "")
+        // {
+        //     otpEntered = otpEntered.Remove(otpEntered.Length - 1);
+        //     Debug.Log("otpEntered is " + otpEntered);
+        // }
     }
 
     public void validateOTPRequest() => StartCoroutine(ProcessValidateOTPRequest_Coroutine());
@@ -289,6 +313,8 @@ public class VerifyOTPManager : MonoBehaviour
 
     IEnumerator ProcessValidateOTPRequest_Coroutine()  //validate otp
     {
+        otpEntered = (firstDigit.text).ToString() + (secondDigit.text).ToString() + (thirdDigit.text).ToString() + (fourthDigit.text).ToString();
+
         if (otpEntered == "")
         {
              Popup popup = UIController.Instance.CreatePopup();

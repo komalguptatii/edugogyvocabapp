@@ -13,18 +13,22 @@ using Random=UnityEngine.Random;
 using UnityEngine.SceneManagement;
 
 
-public class IAPShop : MonoBehaviour
+public class IAPShop : MonoBehaviour, IStoreListener
 {
     private string spaceExplorationID = "com.techies.edugogy.onemonth";
-    private string spaceWalkID = "com.techies.edugogy.sixmonth";
-    private string spaceCaptureID = "com.techies.edugogy.threemonth";
+    private string spaceWalkID = "com.techies.edugogy.threemonth";
+    private string spaceCaptureID = "com.techies.edugogy.sixmonth";
+
     string auth_key;
-    // [SerializeField] public TextMeshProUGUI transactionId;
+
+    [SerializeField] public TextMeshProUGUI transactionId;
     // [SerializeField] public TextMeshProUGUI payload;
 
     private IAppleExtensions m_AppleExtensions;
-    private IStoreController m_Controller;
+            IStoreController m_StoreController;
+    private IExtensionProvider extensions;
 
+    public static IAPShop instance;
 
     [Serializable]
     public class Error
@@ -69,6 +73,8 @@ public class IAPShop : MonoBehaviour
 
      [SerializeField]
     public Button subscribeLater;
+    [SerializeField]
+    public Button restoreButton;
 
     public class SubscriptionForm
     {
@@ -108,16 +114,19 @@ public class IAPShop : MonoBehaviour
 
     
     KidsProfile profile = new KidsProfile();
+    string processedTransactionId = "";
+
+
+
     private void Awake()
     {
-        subscribeNowButton.enabled = false;
-          if (PlayerPrefs.HasKey("auth_key"))
+        // subscribeNowButton.enabled = false;
+        if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
-            
         }
-        // auth_key = "Bearer r5Gl713cqD2iCuL4ufEUDhkgpoLbe7-4";  
+         InitializePurchasing();
     }
 
     private void Start()
@@ -126,7 +135,7 @@ public class IAPShop : MonoBehaviour
       
        if (Application.platform == RuntimePlatform.Android)
         {
-            typeOfPlatform = "android";
+            typeOfPlatform = "google";
         }
         else
         {
@@ -134,33 +143,51 @@ public class IAPShop : MonoBehaviour
         }
          
         GetProfile();
-        // AddSubscriptionData(); // otherwise call on receipt validation and information received
 
     }
 
-    // void Update()
-    // {
-    //     if (validPurchase)
-    //     {
-    //         transactionId.GetComponent<TextMeshProUGUI>().text = receiptReceived;
-    //         validPurchase = false;
-    //     }
-    // }
+     void InitializePurchasing()
+        {
+            var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
-    // public void OnInitialized (IStoreController controller, IExtensionProvider extensions)
-    // {
-    //     m_Controller = controller;
-    //     m_AppleExtensions = extensions.GetExtension<IAppleExtensions> ();
+             builder.AddProduct("com.techies.edugogy.onemonth", ProductType.Subscription);
+            builder.AddProduct("com.techies.edugogy.threemonth", ProductType.Subscription);
+            builder.AddProduct("com.techies.edugogy.sixmonth", ProductType.Subscription);
 
-    //     // On Apple platforms we need to handle deferred purchases caused by Apple's Ask to Buy feature.
-    //     // On non-Apple platforms this will have no effect; OnDeferred will never be called.
-    //     m_AppleExtensions.RegisterPurchaseDeferredListener (OnDeferred);
-    // }
+            UnityPurchasing.Initialize(this, builder);
+        }
 
-    // private void OnDeferred (Product item)
-    // {
-    //     Debug.Log ("Purchase deferred: " + item.definition.id);
-    // }
+    public void OnInitialized (IStoreController controller, IExtensionProvider extensions)
+    {
+         m_StoreController = controller;
+        m_AppleExtensions = extensions.GetExtension<IAppleExtensions>();
+       
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error)
+    {
+        // Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
+        Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
+        transactionId.GetComponent<TextMeshProUGUI>().text = "Initialization failed";
+    }
+
+    public void ListProducts()
+    {
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "checking for all products";
+        foreach (UnityEngine.Purchasing.Product item in m_StoreController.products.all)
+        {
+            // transactionId.GetComponent<TextMeshProUGUI>().text = "coming into loop";
+            if (item.receipt != null)
+            {
+                Debug.Log("Receipt found for Product = " + item.definition.id.ToString());
+                transactionId.GetComponent<TextMeshProUGUI>().text = "Receipt found for Product = " + item.definition.id.ToString() + "transaction id is " + item.transactionID.ToString();
+
+                transactionIdReceived = item.transactionID.ToString();
+                selectedId = item.definition.id.ToString();
+                AddSubscriptionData();
+            }
+        }
+    }
 
     public void GetProfile() => StartCoroutine(GetKidProfile_Coroutine());
 
@@ -185,10 +212,16 @@ public class IAPShop : MonoBehaviour
             Debug.Log(profile.is_trial_subscription);
             Debug.Log(profile.available_level);
 
+            // if (profile.available_level == 0)
+            // {
+            //     restoreButton.gameObject.SetActive(false);
+            //     subscribeNowButton.gameObject.SetActive(true);
+            // }
+
             if ((profile.is_trial_subscription == false && profile.available_level > 0) || profile.remaining_trial == 0)
             {
                 subscribeLater.enabled = false;
-                 subscribeLater.GetComponent<Image>().sprite = Image1;
+                subscribeLater.GetComponent<Image>().sprite = Image1;
 
                 //opacity
                 // subscribeLater.GetComponent<Image>().SetTransparency(50.0f);
@@ -213,7 +246,7 @@ public class IAPShop : MonoBehaviour
     }
 
     public void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
-        public void AddSubscriptionTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
+    public void AddSubscriptionTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
 
 
     IEnumerator AddSubscription_Coroutine()
@@ -245,6 +278,7 @@ public class IAPShop : MonoBehaviour
         {
             Debug.Log("Error: " + request.error);
             isAddingSubscription = false;
+            // SceneManager.LoadScene("Dashboard");
             // transactionId.GetComponent<TextMeshProUGUI>().text = (request.responseCode).ToString()  + "Error: " + request.error;
         }
         else
@@ -265,7 +299,7 @@ public class IAPShop : MonoBehaviour
         ErrorList list = new ErrorList();
         Error error = new Error();
 
-        int randomNumber = Random.Range(1000, 2000);
+        int randomNumber = Random.Range(10000, 90000);
 
         SubscriptionForm subscriptionFormData = new SubscriptionForm { transaction_id = randomNumber.ToString(), platform = typeOfPlatform, platform_plan_id = "trial" };
         string json = JsonUtility.ToJson(subscriptionFormData);
@@ -345,6 +379,7 @@ public class IAPShop : MonoBehaviour
 
     public void OnPurchaseComplete(Product product)
     {
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "Completing Purchase";
         selectedId = product.definition.id;
         if (product.definition.id == spaceExplorationID)
         {
@@ -361,29 +396,32 @@ public class IAPShop : MonoBehaviour
             Debug.Log("Subscription successful for capture month");
         }
 
-        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-        // Get a reference to IAppleConfiguration during IAP initialization.
-        var appleConfig = builder.Configure<IAppleConfiguration>();
-        var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
-        AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
+        // var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        // // Get a reference to IAppleConfiguration during IAP initialization.
+        // var appleConfig = builder.Configure<IAppleConfiguration>();
+        // var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
+        // AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
 
-        Debug.Log(receipt.bundleID);
-        Debug.Log(receipt.receiptCreationDate);
+        // Debug.Log(receipt.bundleID);
+        // Debug.Log(receipt.receiptCreationDate);
 
-        // transactionId.GetComponent<TextMeshProUGUI>().text = Application.identifier + "" + receipt.receiptCreationDate;
+        // // transactionId.GetComponent<TextMeshProUGUI>().text = Application.identifier + "" + receipt.receiptCreationDate;
 
-        foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
-            Debug.Log(productReceipt.transactionID);
-            Debug.Log(productReceipt.productID);
-            transactionIdReceived = productReceipt.transactionID;
-            //  transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
+        // foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
+        //     Debug.Log(productReceipt.transactionID);
+        //     Debug.Log(productReceipt.productID);
+        //     transactionIdReceived = productReceipt.transactionID;
+        //     // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
+        //     Debug.Log("Reading Purchase receipt");
+        //     transactionId.GetComponent<TextMeshProUGUI>().text = "Reading Purchase receipt";
+        //     if (isAddingSubscription && transactionIdReceived != "")
+        //     {
+        //         transactionId.GetComponent<TextMeshProUGUI>().text = "subs-id " + productReceipt.transactionID;
 
-            if (isAddingSubscription && transactionIdReceived != "")
-            {
-                AddSubscriptionData();
-                isAddingSubscription = false;
-            }
-        }
+        //         AddSubscriptionData();
+        //         isAddingSubscription = false;
+        //     }
+        // }
         
         
     }
@@ -395,59 +433,70 @@ public class IAPShop : MonoBehaviour
 
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     {
+         var product = e.purchasedProduct;
 
-        bool validPurchase = true;
-        // transactionId.GetComponent<TextMeshProUGUI>().text = "true";//productReceipt.transactionID;
-        //             transactionId.GetComponent<TextMeshProUGUI>().text = e.purchasedProduct.definition.id;
+            Debug.Log($"Processing Purchase: {product.definition.id}");
 
+            if (Application.platform == RuntimePlatform.IPhonePlayer ||
+                Application.platform == RuntimePlatform.tvOS)
+            {
+                var thisreceipt = m_AppleExtensions.GetTransactionReceiptForProduct(product);
+                Debug.Log($"Product receipt for deferred purchase: {thisreceipt}");
+                // transactionId.GetComponent<TextMeshProUGUI>().text = thisreceipt;
+                // Send transaction receipt to server for validation
+            }
 
-        // if (String.Equals(e.purchasedProduct.definition.id, productName, StringComparison.Ordinal))
+        processedTransactionId = e.purchasedProduct.transactionID;
+        Debug.Log("getting Purchase transaction id" + e.purchasedProduct.transactionID);
+        transactionIdReceived = e.purchasedProduct.transactionID;
+        transactionId.GetComponent<TextMeshProUGUI>().text = "tid is " + transactionIdReceived;
+         selectedId = product.definition.id;
+         if (isAddingSubscription)
+         {
+            AddSubscriptionData();
+            isAddingSubscription = false;
+         }
+        
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "purchase product id is " + e.purchasedProduct.transactionID;
+
+        // if (String.Equals(e.purchasedProduct.definition.id, spaceExplorationID, StringComparison.Ordinal))
         // {
-        //     Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", e.purchasedProduct.definition.id));
-        //     // TODO: The non-consumable item has been successfully purchased, grant this item to the player.
-        //     transactionId.GetComponent<TextMeshProUGUI>().text = e.purchasedProduct.definition.id;
+            
+        //     Debug.Log("Purchase completion going on");
+        //     AddSubscriptionData();
         // }
         // else
         // {
-        //     Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", e.purchasedProduct.definition.id));
-        //                 transactionId.GetComponent<TextMeshProUGUI>().text = e.purchasedProduct.definition.id;
-
+        //     Debug.Log("Purchase Failed");
         // }
 
+        // if (purchaseReceipt.productID == productId
+        // && ((purchaseReceipt as GooglePlayReceipt)?.purchaseToken == transactionId
+        //     || (purchaseReceipt as AppleReceipt)?.transactionID == transactionID))
+        // {
+            
+        //     break;
+        // }
 
-        // if (Application.platform == RuntimePlatform.IPhonePlayer ||
-        //     Application.platform == RuntimePlatform.tvOS) {
-        //         validPurchase = true;
+        Debug.Log("Reading receipt");
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "Reading receipt";
+        bool validPurchase = true;
+    
+        // #if UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX
+        // var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        // // Get a reference to IAppleConfiguration during IAP initialization.
+        // var appleConfig = builder.Configure<IAppleConfiguration>();
+        // var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
+        // AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
 
-        //     string transactionReceipt = m_AppleExtensions.GetTransactionReceiptForProduct (e.purchasedProduct);
-        //     receiptReceived = transactionReceipt;
-        //     // transactionId.GetComponent<TextMeshProUGUI>().text = transactionReceipt;
-        //     // Console.WriteLine (transactionReceipt);
-        //     // Send transaction receipt to server for validation
-        // }    
-        //  return (validPurchase) ? PurchaseProcessingResult.Complete : PurchaseProcessingResult.Pending;
-
-        // string msg = "value is " + validPurchase;
-        //  transactionId.GetComponent<TextMeshProUGUI>().text = msg;
-
-        // OnPurchaseComplete.Invoke(e.purchasedProduct);
-        // bool validPurchase = true;
-
-        #if UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX
-        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-        // Get a reference to IAppleConfiguration during IAP initialization.
-        var appleConfig = builder.Configure<IAppleConfiguration>();
-        var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
-        AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
-
-        Debug.Log(receipt.bundleID);
-        Debug.Log(receipt.receiptCreationDate);
-        foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
-            Debug.Log(productReceipt.transactionID);
-            Debug.Log(productReceipt.productID);
-            // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
-        }
-        #endif
+        // Debug.Log(receipt.bundleID);
+        // Debug.Log(receipt.receiptCreationDate);
+        // foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
+        //     Debug.Log(productReceipt.transactionID);
+        //     Debug.Log(productReceipt.productID);
+        //     // transactionId.GetComponent<TextMeshProUGUI>().text = productReceipt.transactionID;
+        // }
+        // #endif
 
         // #if !DEBUG_STOREKIT_TEST
         // var validator = new CrossPlatformValidator(GooglePlayTangle.Data(),
@@ -492,19 +541,20 @@ public class IAPShop : MonoBehaviour
                 }
 
 
-                AppleInAppPurchaseReceipt apple = productReceipt as AppleInAppPurchaseReceipt;
-                if (null != apple)
-                {
-                    Debug.Log(apple.transactionID);
-                    Debug.Log(apple.purchaseDate);
-                    Debug.Log(apple.originalTransactionIdentifier);
-                    Debug.Log(apple.subscriptionExpirationDate);
-                    Debug.Log(apple.cancellationDate);
-                    Debug.Log(apple.quantity);
-                    transactionIdReceived = apple.originalTransactionIdentifier;
-                    // transactionId.GetComponent<TextMeshProUGUI>().text = apple.originalTransactionIdentifier;
-                    // AddSubscriptionData();
-                }
+                // AppleInAppPurchaseReceipt apple = productReceipt as AppleInAppPurchaseReceipt;
+                // if (null != apple)
+                // {
+                //     Debug.Log(apple.transactionID);
+                //     Debug.Log(apple.purchaseDate);
+                //     Debug.Log(apple.originalTransactionIdentifier);
+                //     Debug.Log(apple.subscriptionExpirationDate);
+                //     Debug.Log(apple.cancellationDate);
+                //     Debug.Log(apple.quantity);
+                //     transactionIdReceived = apple.transactionID;
+                //     transactionId.GetComponent<TextMeshProUGUI>().text = "apple identifier " + apple.originalTransactionIdentifier + " tid is " + apple.transactionID;
+                //     // transactionId.GetComponent<TextMeshProUGUI>().text = apple.originalTransactionIdentifier;
+                //     // AddSubscriptionData();
+                // }
             }
 
         }
@@ -514,57 +564,115 @@ public class IAPShop : MonoBehaviour
             validPurchase = false;
         }
 
-        if (validPurchase)
-        {
-            // transactionId.GetComponent<TextMeshProUGUI>().text = transactionIdReceived;
+        // if (validPurchase)
+        // {
+        //     // transactionId.GetComponent<TextMeshProUGUI>().text = transactionIdReceived;
 
-            AddSubscriptionData();
-        }
+        //     AddSubscriptionData();
+        // }
 
         return PurchaseProcessingResult.Complete;
 
-
-
-        // Unlock the appropriate content here.
-
-        // if (e.purchasedProduct.receipt != null)
-        // {
-        //     if (e.purchasedProduct.definition.type == ProductType.Subscription)
-        //     {
-        //         // if (checkIfProductIsAvailableForSubscriptionManager(e.purchasedProduct.receipt))
-        //         // {
-        //         // string intro_json = (introductory_info_dict == null || !introductory_info_dict.ContainsKey(item.definition.storeSpecificId)) ? null : introductory_info_dict[item.definition.storeSpecificId];
-        //         // SubscriptionManager p = new SubscriptionManager(e.purchasedProduct, intro_json);
-        //         // SubscriptionInfo info = p.getSubscriptionInfo();
-        //         // Debug.Log("product id is: " + info.getProductId());
-        //         // Debug.Log("purchase date is: " + info.getPurchaseDate());
-        //         // Debug.Log("subscription next billing date is: " + info.getExpireDate());
-        //         // Debug.Log("is subscribed? " + info.isSubscribed().ToString());
-        //         // Debug.Log("is expired? " + info.isExpired().ToString());
-        //         // Debug.Log("is cancelled? " + info.isCancelled());
-        //         // Debug.Log("product is in free trial peroid? " + info.isFreeTrial());
-        //         // Debug.Log("product is auto renewing? " + info.isAutoRenewing());
-        //         // Debug.Log("subscription remaining valid time until next billing date is: " + info.getRemainingTime());
-        //         // Debug.Log("is this product in introductory price period? " + info.isIntroductoryPricePeriod());
-        //         // Debug.Log("the product introductory localized price is: " + info.getIntroductoryPrice());
-        //         // Debug.Log("the product introductory price period is: " + info.getIntroductoryPricePeriod());
-        //         // Debug.Log("the number of product introductory price period cycles is: " + info.getIntroductoryPricePeriodCycles());
-        //             transactionId.GetComponent<TextMeshProUGUI>().text = "Checking subscription info";
-        //             AddSubscriptionData();
-
-        //         // }
-        //         // else
-        //         // {
-        //         //     Debug.Log("This product is not available for SubscriptionManager class, only products that are purchase by 1.19+ SDK can use this class.");
-        //         // }
-        //     }
-        // }
-
-
-
-
     }
+
+    public void RestoreTransactions() {
+
+        ListProducts();
+       
+    //     var thisreceipt = m_AppleExtensions.GetTransactionReceiptForProduct(spaceExplorationID);
+    //     Debug.Log($"Product receipt for deferred purchase: {thisreceipt}");
+    //    transactionId.GetComponent<TextMeshProUGUI>().text = thisreceipt;
+        Debug.Log("Checking for restoration");
+         bool isActive = false;
+       // -----
+    
+    //    var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+    //     var appleConfig = builder.Configure<IAppleConfiguration>();
+    //     var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
+    //     AppleReceipt receipt = new AppleValidator(AppleTangle.Data()).Validate(receiptData);
+
+   
+
+
+    // ------
+        // Debug.Log("Receipt bundle is " + receipt.bundleID);
+        // Debug.Log("Receipt date is " + receipt.receiptCreationDate);
+
+        // transactionId.GetComponent<TextMeshProUGUI>().text = Application.identifier + "" + receipt.receiptCreationDate;
+
+        // foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
+        //     Debug.Log(productReceipt.transactionID);
+        //     Debug.Log(productReceipt.productID);
+        //     // Debug.Log(productReceipt.subscriptionExpirationDate);
+        //     DateTime expirationDate = productReceipt.subscriptionExpirationDate;
+        //     Debug.Log("Checking for expirationDate " + expirationDate + "& product id is " + productReceipt.productID);
+
+        //     DateTime now = DateTime.Now;
+        //     //DateTime cancellationDate = apple.cancellationDate;
+
+           
+        //     transactionIdReceived = productReceipt.transactionID;
+        //     selectedId = productReceipt.productID;
+        //     transactionId.GetComponent<TextMeshProUGUI>().text =  productReceipt.transactionID + " Checking for expirationDate " + expirationDate + "& product id is " + productReceipt.productID;
+            
+            // if(DateTime.Compare(now, expirationDate) < 0)
+            // {
+            //       isActive = true;
+            //       Debug.Log("Checking for true expirationDate " + expirationDate + "& product id is " + productReceipt.productID);
+
+            //     transactionId.GetComponent<TextMeshProUGUI>().text = "transaction id is " + productReceipt.transactionID + " product id is " + productReceipt.productID;
+
+            // }
+            //  else
+            // {
+            //     transactionId.GetComponent<TextMeshProUGUI>().text = "false";
+            // }
+          
+            // if (processedTransactionId == transactionIdReceived)
+            // {
+            //     transactionId.GetComponent<TextMeshProUGUI>().text = "transaction id is " + productReceipt.transactionID + " product id is " + productReceipt.productID;
+                
+            // }
+            // else
+            // {
+            //      transactionId.GetComponent<TextMeshProUGUI>().text = "Process purchase not working ";
+            // }
+
+        // }
+    
+    }
+
+    public bool isSubscriptionActive(AppleInAppPurchaseReceipt appleReceipt)
+    {
+
+
+        bool isActive = false;
+ 
+        AppleInAppPurchaseReceipt apple = appleReceipt;
+        if (null != apple)
+        {
+            DateTime expirationDate = apple.subscriptionExpirationDate;
+            DateTime now = DateTime.Now;
+            //DateTime cancellationDate = apple.cancellationDate;
+
+            if(DateTime.Compare(now, expirationDate) < 0)
+            {
+                isActive = true;
+                transactionId.GetComponent<TextMeshProUGUI>().text = "transaction id is " + apple.transactionID + " product id is " + apple.productID;
+
+            }
+            else
+            {
+                transactionId.GetComponent<TextMeshProUGUI>().text = "false";
+            }
+        }
+ 
+        return isActive;
+    }
+    
 }
+
+
 
  public static class Extensions
  {
