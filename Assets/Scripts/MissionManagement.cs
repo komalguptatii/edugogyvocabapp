@@ -699,7 +699,7 @@ public class MissionManagement : MonoBehaviour
             Debug.Log(auth_key);
         }
               
-        auth_key = "Bearer aX93LB28fV-gWf2j3bWlbGu0ThPmMiLd"; 
+        // auth_key = "Bearer qjFxAd1cbXjD6ftjhuM175aD3VCXKjnB"; //mine
 
     }
 

@@ -116,11 +116,16 @@ public class IAPShop : MonoBehaviour, IStoreListener
     KidsProfile profile = new KidsProfile();
     string processedTransactionId = "";
 
-
+    private Animator loadingIndicator;
+    public GameObject Indicator;
 
     private void Awake()
     {
-        // subscribeNowButton.enabled = false;
+         loadingIndicator = Indicator.GetComponent<Animator>(); 
+         loadingIndicator.enabled = false;
+          Indicator.SetActive(false);
+
+        subscribeNowButton.enabled = false;
         if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
@@ -160,7 +165,8 @@ public class IAPShop : MonoBehaviour, IStoreListener
     public void OnInitialized (IStoreController controller, IExtensionProvider extensions)
     {
          m_StoreController = controller;
-        m_AppleExtensions = extensions.GetExtension<IAppleExtensions>();
+        m_AppleExtensions = extensions.GetExtension<IAppleExtensions>();      
+
        
     }
 
@@ -173,6 +179,8 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     public void ListProducts()
     {
+        loadingIndicator.enabled = true;
+         Indicator.SetActive(true);
         // transactionId.GetComponent<TextMeshProUGUI>().text = "checking for all products";
         foreach (UnityEngine.Purchasing.Product item in m_StoreController.products.all)
         {
@@ -184,7 +192,13 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
                 transactionIdReceived = item.transactionID.ToString();
                 selectedId = item.definition.id.ToString();
-                AddSubscriptionData();
+
+                if (isAddingSubscription)
+                {
+
+                    AddSubscriptionData();
+                    isAddingSubscription = false;
+                }
             }
         }
     }
@@ -212,11 +226,11 @@ public class IAPShop : MonoBehaviour, IStoreListener
             Debug.Log(profile.is_trial_subscription);
             Debug.Log(profile.available_level);
 
-            // if (profile.available_level == 0)
-            // {
-            //     restoreButton.gameObject.SetActive(false);
-            //     subscribeNowButton.gameObject.SetActive(true);
-            // }
+            if (profile.available_level == 0)
+            {
+                restoreButton.gameObject.SetActive(false);
+                subscribeNowButton.gameObject.SetActive(true);
+            }
 
             if ((profile.is_trial_subscription == false && profile.available_level > 0) || profile.remaining_trial == 0)
             {
@@ -276,6 +290,8 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
         if (request.result != UnityWebRequest.Result.Success)
         {
+             loadingIndicator.enabled = false;
+            Indicator.SetActive(false);
             Debug.Log("Error: " + request.error);
             isAddingSubscription = false;
             // SceneManager.LoadScene("Dashboard");
@@ -286,8 +302,11 @@ public class IAPShop : MonoBehaviour, IStoreListener
             // transactionId.GetComponent<TextMeshProUGUI>().text = (request.responseCode).ToString();
             Debug.Log(request.result);
             Debug.Log(request.downloadHandler.text);
+            
             // SceneManager.LoadScene("KidsName");
             PlayerPrefs.SetString("isSubscribed", "true");
+             loadingIndicator.enabled = false;
+            Indicator.SetActive(false);
             SceneManager.LoadScene("Dashboard");
 
             // {"transaction_id":"14277687","platform":"apple","platform_plan_id":"com.techies.edugogy.onemonth","student_id":3,"age_group_id":2,"plan_id":2,"plan_title":"1 Month","plan_term":"30 day","number_of_level":30,"start_at":1655356249,"expire_at":1657948249,"created_at":1652797078,"updated_at":1652797078,"id":4}
@@ -433,9 +452,11 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     {
+         loadingIndicator.enabled = true;
+         Indicator.SetActive(true);
          var product = e.purchasedProduct;
 
-            Debug.Log($"Processing Purchase: {product.definition.id}");
+        Debug.Log($"Processing Purchase: {product.definition.id}");
 
             if (Application.platform == RuntimePlatform.IPhonePlayer ||
                 Application.platform == RuntimePlatform.tvOS)
@@ -451,11 +472,19 @@ public class IAPShop : MonoBehaviour, IStoreListener
         transactionIdReceived = e.purchasedProduct.transactionID;
         transactionId.GetComponent<TextMeshProUGUI>().text = "tid is " + transactionIdReceived;
          selectedId = product.definition.id;
+
+        if (processedTransactionId == "")
+        {
+            loadingIndicator.enabled = false;
+             Indicator.SetActive(false);
+        }
+
          if (isAddingSubscription)
-         {
+         {       
             AddSubscriptionData();
             isAddingSubscription = false;
          }
+
         
         // transactionId.GetComponent<TextMeshProUGUI>().text = "purchase product id is " + e.purchasedProduct.transactionID;
 
@@ -577,6 +606,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     public void RestoreTransactions() {
 
+        
         ListProducts();
        
     //     var thisreceipt = m_AppleExtensions.GetTransactionReceiptForProduct(spaceExplorationID);
