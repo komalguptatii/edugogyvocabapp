@@ -113,7 +113,7 @@ public class DashboardManager : MonoBehaviour
             Debug.Log(auth_key);
         }
 
-        // auth_key = "Bearer qjFxAd1cbXjD6ftjhuM175aD3VCXKjnB"; //mine
+        // auth_key = "Bearer h-D7B7mqXu-ROVlTIQfx2EQrdqMvRQRT"; //mine
 
         // GetUserProfile();
         SpawnPath();
@@ -710,7 +710,7 @@ public class DashboardManager : MonoBehaviour
 
     void GoToRenewPurchase()
     {
-        PlayerPrefs.SetString("GetRenewalId", "false");
+        // PlayerPrefs.SetString("GetRenewalId", "false");
         SceneManager.LoadScene("IAPCatalog");
     }
 
@@ -778,11 +778,16 @@ public class DashboardManager : MonoBehaviour
                     {
                         int accessibleLevels = profileData.available_level - PlayerPrefs.GetInt("CurrentAvailableLevel");
                         Debug.Log("no. of accessible levels are " + accessibleLevels);
-                        InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
-                        popup.Init(UIController.Instance.MainCanvas,
-                        "Kudos! You have got access to next " +  accessibleLevels + " missions.",
-                        "Okay"
-                        );
+                        if (accessibleLevels%30 == 0 && (profileData.available_level != PlayerPrefs.GetInt("CurrentAvailableLevel")))
+                        {
+                            PlayerPrefs.SetInt("CurrentAvailableLevel", profileData.available_level);
+                            InteractivePopUp popup = UIController.Instance.CreateInteractivePopup();
+                            popup.Init(UIController.Instance.MainCanvas,
+                            "Kudos! You have got access to next " +  accessibleLevels + " missions.",
+                            "Okay"
+                            );
+                        }
+                        
                     }
                     else
                     {

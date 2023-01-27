@@ -167,7 +167,15 @@ public class IAPShop : MonoBehaviour, IStoreListener
          m_StoreController = controller;
         m_AppleExtensions = extensions.GetExtension<IAppleExtensions>();      
 
-       
+    //    if (PlayerPrefs.HasKey("GetRenewalId"))
+    //     {
+    //         string valueOfIfCheckForRenewal = PlayerPrefs.GetString("GetRenewalId");
+    //         if(valueOfIfCheckForRenewal == "true")
+    //         {
+    //             ListProducts();
+    //             PlayerPrefs.SetString("GetRenewalId", "false");
+    //         }
+    //     }
     }
 
     public void OnInitializeFailed(InitializationFailureReason error)

@@ -699,7 +699,7 @@ public class MissionManagement : MonoBehaviour
             Debug.Log(auth_key);
         }
               
-        // auth_key = "Bearer qjFxAd1cbXjD6ftjhuM175aD3VCXKjnB"; //mine
+        // auth_key = "Bearer h-D7B7mqXu-ROVlTIQfx2EQrdqMvRQRT"; //mine
 
     }
 
@@ -2083,12 +2083,14 @@ public class MissionManagement : MonoBehaviour
             descriptionText.text = allDetailData.passages[parameter].description;
 
             Debug.Log("debugging value of parameter here " + parameter);
+
             GameObject questionBoard;
                 GameObject newPrefab;
                 GameObject mcqBoard;
                 GameObject optionBoard;
                 GameObject optionContainer;
                 VerticalLayoutGroup pathVlg;
+
             for (var i = 0; i < allDetailData.passages[parameter].questions.Length; i++)
             {
                 
@@ -2163,27 +2165,10 @@ public class MissionManagement : MonoBehaviour
                         
                     }
 
-                    // if (i >= 2 && i <= 3)
-                    // {
-                    //     GameObject obj = convoContentPrefab.transform.GetChild(i-1).gameObject;
-
-                    //     VerticalLayoutGroup vlg = obj.GetComponent<VerticalLayoutGroup>();
-                    //     float value = vlg.padding.top;
-                    
-                    //     if (options == 3)
-                    //     {
-                    //         mcqVlg.padding.top = 0; // -200
-                    //         if (value == -200)
-                    //         {
-                    //             mcqVlg.padding.top = -200;
-                    //         }
-
-                    //     }
-                    // }
-                    // else 
+    
                     if (i > 4)
                     {
-                        mcqVlg.padding.top = 100;
+                        mcqVlg.padding.top = 40;
                         mcqVlg.spacing = -800;
                     }
                     
@@ -2267,7 +2252,7 @@ public class MissionManagement : MonoBehaviour
                     {
                         
                         ccVlg.padding.bottom = 5000;
-                        ccVlg.spacing = 660;
+                        ccVlg.spacing = 860;
                         if (answerOptions == 3)
                         {
                             ccVlg.spacing = 900; //780
@@ -2275,6 +2260,10 @@ public class MissionManagement : MonoBehaviour
                         else if (answerOptions == 4)
                         {
                             ccVlg.spacing = 900;
+                        }
+                        else if (answerOptions == 2)
+                        {
+                           ccVlg.spacing = 900;
                         }
                     }
                     else
