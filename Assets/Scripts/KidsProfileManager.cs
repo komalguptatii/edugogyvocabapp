@@ -36,6 +36,8 @@ public class KidsProfileManager : MonoBehaviour
         public string subscription_remaining_day;
         public int remaining_trial;
         public int remaining_level_for_day;
+        public int max_passed_level;
+        public bool is_last_plan_a_trial_subscription;
     }
 
     
@@ -93,6 +95,7 @@ public class KidsProfileManager : MonoBehaviour
 
 
     string baseURL = "https://api.edugogy.app/v1/";
+    bool isComingFromTrial = false;
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
     // string baseURLTest = "http://165.22.219.198/edugogy/api/v1/";
@@ -137,19 +140,44 @@ public class KidsProfileManager : MonoBehaviour
     public void takeUpdateConfirmation()
     {
         //Pending -  if already is_trial_subscription is true - don't ask any pop up, if subscribe then this pop up - Also here issue is is_trial_subscription coming false yet
-        if (profile.is_trial_subscription == true)
+       int currentAgeGroupId = selectedButton;
+        
+        if (previousAgeGroupId != currentAgeGroupId)
         {
-            UpdateKidsProfile();
+
+            if (profile.is_trial_subscription == true)
+            {
+                isComingFromTrial = true;
+                UpdateKidsProfile();
+            }
+            else
+            {
+                /// -------
+                if (profile.is_last_plan_a_trial_subscription == false)
+                {
+                    Popup popup = UIController.Instance.CreatePopup();
+                    popup.Init(UIController.Instance.MainCanvas,
+                        "Changing your level now will end your current subscription. Do you still want to continue?",
+                        "Cancel",
+                        "Continue",
+                        UpdateKidsProfile
+                        );
+                }
+                else
+                {
+                    isComingFromTrial = true;
+                    UpdateKidsProfile();
+                }
+                
+            }
         }
         else
         {
-            Popup popup = UIController.Instance.CreatePopup();
-                popup.Init(UIController.Instance.MainCanvas,
-                    "Changing your level now will end your current subscription. Do you still want to continue?",
-                    "Cancel",
-                    "Continue",
-                    UpdateKidsProfile
-                    );
+            if ((profile.is_trial_subscription == true || profile.is_last_plan_a_trial_subscription == true) && profile.available_level < 20)
+            {
+               GoSubscribe();
+            }
+            
         }
         
     }
@@ -208,13 +236,18 @@ public class KidsProfileManager : MonoBehaviour
                 else if (profile.remaining_trial == 0)
                 {
                     // should something like that Trial period is over
-                    Popup popup = UIController.Instance.CreatePopup();
+
+                     if (profile.available_level == 15 && profile.max_passed_level == 15)
+                    {
+                        Popup popup = UIController.Instance.CreatePopup();
                     popup.Init(UIController.Instance.MainCanvas,
                         "It’s time to choose your subscription level! Let’s get started! As trial period is over.",
                         "Cancel",
                         "Choose level",
                         StayOnPage
                         );
+                    }
+                    
                 }
             }
             
@@ -313,6 +346,11 @@ public class KidsProfileManager : MonoBehaviour
                 PlayerPrefs.DeleteKey("isReattempting");
                 PlayerPrefs.DeleteKey("totalLevelsPassed");
                 Debug.Log("Deleting Keys");
+
+                if(isComingFromTrial == true)
+                {
+                    GoSubscribe();
+                }
             }
             isCallingAfterUpdate = true;
             GetKidProfile();

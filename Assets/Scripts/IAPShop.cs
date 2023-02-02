@@ -21,7 +21,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     string auth_key;
 
-    [SerializeField] public TextMeshProUGUI transactionId;
+    // [SerializeField] public TextMeshProUGUI transactionId;
     // [SerializeField] public TextMeshProUGUI payload;
 
     private IAppleExtensions m_AppleExtensions;
@@ -89,6 +89,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
     string selectedId = "";
     string typeOfPlatform = "";
     public Sprite Image1;
+    public Sprite subscribeLaterImage;
 
     public Sprite selectedSpaceCapture;
     public Sprite selectedSpaceWalk;
@@ -123,20 +124,21 @@ public class IAPShop : MonoBehaviour, IStoreListener
     {
          loadingIndicator = Indicator.GetComponent<Animator>(); 
          loadingIndicator.enabled = false;
-          Indicator.SetActive(false);
+        Indicator.SetActive(false);
 
         subscribeNowButton.enabled = false;
+        
         if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
             Debug.Log(auth_key);
         }
+
          InitializePurchasing();
     }
 
     private void Start()
     {
-        //     StandardPurchasingModule.Instance().useFakeStoreAlways = true;
       
        if (Application.platform == RuntimePlatform.Android)
         {
@@ -182,7 +184,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
     {
         // Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
         Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
-        transactionId.GetComponent<TextMeshProUGUI>().text = "Initialization failed";
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "Initialization failed";
     }
 
     public void ListProducts()
@@ -196,7 +198,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
             if (item.receipt != null)
             {
                 Debug.Log("Receipt found for Product = " + item.definition.id.ToString());
-                transactionId.GetComponent<TextMeshProUGUI>().text = "Receipt found for Product = " + item.definition.id.ToString() + "transaction id is " + item.transactionID.ToString();
+                // transactionId.GetComponent<TextMeshProUGUI>().text = "Receipt found for Product = " + item.definition.id.ToString() + "transaction id is " + item.transactionID.ToString();
 
                 transactionIdReceived = item.transactionID.ToString();
                 selectedId = item.definition.id.ToString();
@@ -237,17 +239,45 @@ public class IAPShop : MonoBehaviour, IStoreListener
             if (profile.available_level == 0)
             {
                 restoreButton.gameObject.SetActive(false);
-                subscribeNowButton.gameObject.SetActive(true);
+
+                Vector3 subscribeLaterPos = subscribeLater.transform.position;
+                subscribeLaterPos.x += 280f;
+                subscribeLater.transform.position = subscribeLaterPos;
+                // subscribeLater
+            }
+            else if (profile.available_level <= 15 )
+            {
+                Vector3 subscribeLaterPos = subscribeLater.transform.position;
+                subscribeLaterPos.x += 280f;
+                subscribeLater.transform.position = subscribeLaterPos;
+                 restoreButton.gameObject.SetActive(false);
+                 subscribeLater.enabled = true;
+                subscribeLater.GetComponent<Image>().sprite = subscribeLaterImage; 
+               
+
+            }
+            else
+            {
+                restoreButton.gameObject.SetActive(true);
             }
 
-            if ((profile.is_trial_subscription == false && profile.available_level > 0) || profile.remaining_trial == 0)
+            if ((profile.is_trial_subscription == false && profile.available_level > 0) && profile.remaining_trial == 0)
             {
                 subscribeLater.enabled = false;
                 subscribeLater.GetComponent<Image>().sprite = Image1;
 
-                //opacity
-                // subscribeLater.GetComponent<Image>().SetTransparency(50.0f);
-
+            }
+            
+            if (profile.remaining_trial > 0 )
+            {
+                subscribeLater.enabled = true;
+                subscribeLater.GetComponent<Image>().sprite = subscribeLaterImage; 
+                
+            }
+            else
+            {
+                subscribeLater.enabled = false;
+                subscribeLater.GetComponent<Image>().sprite = Image1;
             }
         
             request.Dispose();
@@ -458,10 +488,18 @@ public class IAPShop : MonoBehaviour, IStoreListener
         Debug.Log("Purchase of " + product.definition.id + " failed due to" + reason);
     }
 
+    public void BuyProduct(string productName)
+    {
+        m_StoreController.InitiatePurchase(productName);
+        loadingIndicator.enabled = true;
+         Indicator.SetActive(true);
+        
+    }
+
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     {
-         loadingIndicator.enabled = true;
-         Indicator.SetActive(true);
+        //  loadingIndicator.enabled = true;
+        //  Indicator.SetActive(true);
          var product = e.purchasedProduct;
 
         Debug.Log($"Processing Purchase: {product.definition.id}");
@@ -478,7 +516,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
         processedTransactionId = e.purchasedProduct.transactionID;
         Debug.Log("getting Purchase transaction id" + e.purchasedProduct.transactionID);
         transactionIdReceived = e.purchasedProduct.transactionID;
-        transactionId.GetComponent<TextMeshProUGUI>().text = "tid is " + transactionIdReceived;
+        // transactionId.GetComponent<TextMeshProUGUI>().text = "tid is " + transactionIdReceived;
          selectedId = product.definition.id;
 
         if (processedTransactionId == "")
@@ -614,7 +652,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     public void RestoreTransactions() {
 
-        
+        restoreButton.enabled = false;
         ListProducts();
        
     //     var thisreceipt = m_AppleExtensions.GetTransactionReceiptForProduct(spaceExplorationID);
@@ -696,12 +734,12 @@ public class IAPShop : MonoBehaviour, IStoreListener
             if(DateTime.Compare(now, expirationDate) < 0)
             {
                 isActive = true;
-                transactionId.GetComponent<TextMeshProUGUI>().text = "transaction id is " + apple.transactionID + " product id is " + apple.productID;
+                // transactionId.GetComponent<TextMeshProUGUI>().text = "transaction id is " + apple.transactionID + " product id is " + apple.productID;
 
             }
             else
             {
-                transactionId.GetComponent<TextMeshProUGUI>().text = "false";
+                // transactionId.GetComponent<TextMeshProUGUI>().text = "false";
             }
         }
  

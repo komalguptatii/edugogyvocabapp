@@ -50,6 +50,7 @@ public class DashboardManager : MonoBehaviour
          public int remaining_trial;
         public int remaining_level_for_day;
         public int max_passed_level;
+        public bool is_last_plan_a_trial_subscription;
     }
 
     public GameObject pathPrefab;
@@ -107,6 +108,7 @@ public class DashboardManager : MonoBehaviour
         startDate = System.DateTime.Now;
 
         Debug.Log("day is " + startDate.Date + "Day " + startDate);
+        
         if (PlayerPrefs.HasKey("auth_key"))
         {
             auth_key = PlayerPrefs.GetString("auth_key");
@@ -732,6 +734,19 @@ public class DashboardManager : MonoBehaviour
         {
             if (profileData.subscription_remaining_day == 0 && profileData.available_level > 0)
             {
+                if (profileData.is_last_plan_a_trial_subscription == true && profileData.available_level < 20)
+                {
+                    Popup popup = UIController.Instance.CreatePopup();
+                            popup.Init(UIController.Instance.MainCanvas,
+                            "Your trial missions for this level are exhausted.",
+                            "Cancel",
+                            "Okay",
+                            GoSubscribe
+                            );
+                }
+                else
+                {
+
                 Debug.Log("Your subscription is over, today is the last day"); //pop up - start with level , you haven't subscribed, complete previous level 
                     // check for subscription period - 30, 90, 180 may change adding free trial
                     PlayerPrefs.SetString("GetRenewalId", "true");
@@ -743,6 +758,7 @@ public class DashboardManager : MonoBehaviour
                                 "Okay",
                                 GoToRenewPurchase
                                 );
+                }
             }
             else if (profileData.subscription_remaining_day > 0)
             {
