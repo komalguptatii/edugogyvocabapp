@@ -157,11 +157,18 @@ public class KidsProfileManager : MonoBehaviour
                 {
                     Popup popup = UIController.Instance.CreatePopup();
                     popup.Init(UIController.Instance.MainCanvas,
-                        "Changing your level now will end your current subscription. Do you still want to continue?",
-                        "Cancel",
-                        "Continue",
+                        "Are you sure you want to continue?",
+                        "No",
+                        "Yes",
                         UpdateKidsProfile
                         );
+                    // Popup popup = UIController.Instance.CreatePopup();
+                    // popup.Init(UIController.Instance.MainCanvas,
+                    //     "Changing your level now will end your current subscription. Do you still want to continue?",
+                    //     "Cancel",
+                    //     "Continue",
+                    //     UpdateKidsProfile
+                    //     );
                 }
                 else
                 {

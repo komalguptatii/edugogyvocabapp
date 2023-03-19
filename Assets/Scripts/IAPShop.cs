@@ -15,9 +15,39 @@ using UnityEngine.SceneManagement;
 
 public class IAPShop : MonoBehaviour, IStoreListener
 {
+   // -----
     private string spaceExplorationID = "com.techies.edugogy.onemonth";
     private string spaceWalkID = "com.techies.edugogy.threemonth";
     private string spaceCaptureID = "com.techies.edugogy.sixmonth";
+    //-----
+
+    private string spaceExplorationIdBeginner = "com.edugogy.vocabapp.beginnerOneMonth";
+    private string spaceWalkIdBeginner = "com.edugogy.vocabapp.beginnerThreeMonth";
+    private string spaceCaptureIdBeginner = "com.edugogy.vocabapp.beginnerSixMonth";
+
+    private string spaceExplorationIdLearner = "com.edugogy.vocabapp.learnerOneMonth";
+    private string spaceWalkIdLearner = "com.edugogy.vocabapp.learnerThreeMonth";
+    private string spaceCaptureIdLearner = "com.edugogy.vocabapp.learnerSixMonth";
+
+     private string spaceExplorationIdSeeker = "com.edugogy.vocabapp.seekerOneMonth";
+    private string spaceWalkIdSeeker = "com.edugogy.vocabapp.seekerThreeMonth";
+    private string spaceCaptureIdSeeker = "com.edugogy.vocabapp.seekerSixMonth";
+
+    private string spaceExplorationIdIntermediate = "com.edugogy.vocabapp.intermediateOneMonth";
+    private string spaceWalkIdIntermediate = "com.edugogy.vocabapp.intermediateThreeMonth";
+    private string spaceCaptureIdIntermediate = "com.edugogy.vocabapp.intermediateSixMonth";
+
+    private string spaceExplorationIdGraduate = "com.edugogy.vocabapp.graduateOneMonth";
+    private string spaceWalkIdGraduate = "com.edugogy.vocabapp.graduateThreeMonth";
+    private string spaceCaptureIdGraduate = "com.edugogy.vocabapp.graduateSixMonth";
+
+    private string spaceExplorationIdMaster = "com.edugogy.vocabapp.masterOneMonth";
+    private string spaceWalkIdMaster = "com.edugogy.vocabapp.masterThreeMonth";
+    private string spaceCaptureIdMaster = "com.edugogy.vocabapp.masterSixMonth";
+
+    private string spaceExplorationIdWordsmith = "com.edugogy.vocabapp.wordsmithOneMonth";
+    private string spaceWalkIdWordsmith = "com.edugogy.vocabapp.wordsmithThreeMonth";
+    private string spaceCaptureIdWordsmith = "com.edugogy.vocabapp.wordsmithSixMonth";
 
     string auth_key;
 
@@ -66,6 +96,13 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     }
 
+    [Serializable]
+    public class SubscriptionLoad
+    {
+        public string type;
+        public string log;
+    }
+
      string baseURL = "https://api.edugogy.app/v1/";
     // string baseURL = "https://api.testing.edugogy.app/v1/";
 
@@ -75,6 +112,7 @@ public class IAPShop : MonoBehaviour, IStoreListener
     public Button subscribeLater;
     [SerializeField]
     public Button restoreButton;
+    public string infoLoad = "";
 
     public class SubscriptionForm
     {
@@ -139,6 +177,16 @@ public class IAPShop : MonoBehaviour, IStoreListener
     public GameObject Indicator;
     public string stateOfApp = "start";
     string failureReason = "";
+
+    [SerializeField] public TextMeshProUGUI firstPlanTitle;
+
+    [SerializeField] public TextMeshProUGUI secondPlanTitle;
+
+    [SerializeField] public TextMeshProUGUI thirdPlanTitle;
+
+    public int levelId = 0;
+    public string productId = "";
+
     Dictionary<string, string> dict = new Dictionary<string, string>();
 
 
@@ -156,12 +204,14 @@ public class IAPShop : MonoBehaviour, IStoreListener
             Debug.Log(auth_key);
         }
 
-         InitializePurchasing();
+             
+        GetProfile();
+        
     }
 
     private void Start()
     {
-      
+        Debug.Log("level id is " + levelId);
        if (Application.platform == RuntimePlatform.Android)
         {
             typeOfPlatform = "google";
@@ -170,21 +220,113 @@ public class IAPShop : MonoBehaviour, IStoreListener
         {
             typeOfPlatform = "apple";
         }
-         
-        GetProfile();
 
     }
 
-     void InitializePurchasing()
+    void SetTitle()
+    {
+        if (levelId == 1)
         {
-            var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-
-             builder.AddProduct("com.techies.edugogy.onemonth", ProductType.Subscription);
-            builder.AddProduct("com.techies.edugogy.threemonth", ProductType.Subscription);
-            builder.AddProduct("com.techies.edugogy.sixmonth", ProductType.Subscription);
-
-            UnityPurchasing.Initialize(this, builder);
+            firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Beginner - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Beginner - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Beginner - Space Capture";
+        } 
+        else if (levelId == 2)
+        {
+             firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Learner - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Learner - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Learner - Space Capture";
         }
+        else if (levelId == 3)
+        {
+             firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Seeker - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Seeker - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Seeker - Space Capture";
+        }
+        else if (levelId == 4)
+        {
+            firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Intermediate - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Intermediate - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Intermediate - Space Capture";
+        }
+        else if (levelId == 5)
+        {
+            firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Graduate - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Graduate - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Graduate - Space Capture";
+        }
+        else if (levelId == 6)
+        {
+            firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Master - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Master - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Master - Space Capture";
+        }
+        else if (levelId == 7)
+        {
+             firstPlanTitle.GetComponent<TextMeshProUGUI>().text = "Wordsmith - Space Exploration";
+            secondPlanTitle.GetComponent<TextMeshProUGUI>().text = "Wordsmith - Space Walk";
+            thirdPlanTitle.GetComponent<TextMeshProUGUI>().text = "Wordsmith - Space Capture";
+        }
+    }
+
+     void InitializePurchasing()
+    {
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+
+        
+        if (levelId == 1)
+        {
+            
+             builder.AddProduct(spaceExplorationIdBeginner, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdBeginner, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdBeginner, ProductType.Subscription);
+        }
+        else if (levelId == 2)
+        {
+           
+             builder.AddProduct(spaceExplorationIdLearner, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdLearner, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdLearner, ProductType.Subscription);
+        }
+        else if (levelId == 3)
+        {
+           
+             builder.AddProduct(spaceExplorationIdSeeker, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdSeeker, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdSeeker, ProductType.Subscription);
+        }
+        else if (levelId == 4)
+        {
+            
+             builder.AddProduct(spaceExplorationIdIntermediate, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdIntermediate, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdIntermediate, ProductType.Subscription);
+        }
+        else if (levelId == 5)
+        {
+            
+             builder.AddProduct(spaceExplorationIdGraduate, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdGraduate, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdGraduate, ProductType.Subscription);
+        }
+        else if (levelId == 6)
+        {
+            
+             builder.AddProduct(spaceExplorationIdMaster, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdMaster, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdMaster, ProductType.Subscription);
+        }
+        else if (levelId == 7)
+        {
+           
+             builder.AddProduct(spaceExplorationIdWordsmith, ProductType.Subscription);
+             builder.AddProduct(spaceWalkIdWordsmith, ProductType.Subscription);
+            builder.AddProduct(spaceCaptureIdWordsmith, ProductType.Subscription);
+        }
+        
+
+        UnityPurchasing.Initialize(this, builder);
+    }
 
     public void OnInitialized (IStoreController controller, IExtensionProvider extensions)
     {
@@ -258,6 +400,8 @@ public class IAPShop : MonoBehaviour, IStoreListener
             Debug.Log(profile.is_trial_subscription);
             Debug.Log(profile.available_level);
 
+            levelId = profile.age_group_id;
+
             if (profile.available_level == 0)
             {
                 restoreButton.gameObject.SetActive(false);
@@ -301,7 +445,8 @@ public class IAPShop : MonoBehaviour, IStoreListener
                 subscribeLater.enabled = false;
                 subscribeLater.GetComponent<Image>().sprite = Image1;
             }
-        
+            SetTitle();
+             InitializePurchasing();
             request.Dispose();
         }
         
@@ -321,7 +466,42 @@ public class IAPShop : MonoBehaviour, IStoreListener
 
     public void AddSubscriptionData() => StartCoroutine(AddSubscription_Coroutine());
     public void AddSubscriptionTrial() => StartCoroutine(AddTrialSubscription_Coroutine());
+    public void SaveLog() => StartCoroutine(SaveLog_Coroutine());
 
+    
+    IEnumerator SaveLog_Coroutine()
+    {
+       
+        SubscriptionLoad loadData = new SubscriptionLoad {type="Payment API", log = infoLoad};
+        string json = JsonUtility.ToJson(loadData);
+
+        Debug.Log(json);
+
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        string uri = baseURL + "/logs/save";
+
+        var request = new UnityWebRequest(uri, "POST");
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", auth_key);
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            Debug.Log(request.result);
+            Debug.Log(request.downloadHandler.text);
+
+        }
+    }
 
     IEnumerator AddSubscription_Coroutine()
     {
@@ -465,20 +645,12 @@ public class IAPShop : MonoBehaviour, IStoreListener
     {
         // transactionId.GetComponent<TextMeshProUGUI>().text = "Completing Purchase";
         selectedId = product.definition.id;
-        if (product.definition.id == spaceExplorationID)
+        if (product.definition.id == productId)
         {
-            Debug.Log("Subscription successful for one month");
+            Debug.Log("Subscription successful");
 
         }
-        else if (product.definition.id == spaceWalkID)
-        {
-            Debug.Log("Subscription successful for three month");
-
-        }
-        else if (product.definition.id == spaceCaptureID)
-        {
-            Debug.Log("Subscription successful for capture month");
-        }
+       
 
         // var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
         // // Get a reference to IAppleConfiguration during IAP initialization.
@@ -590,7 +762,105 @@ public class IAPShop : MonoBehaviour, IStoreListener
     public void BuyProduct(string productName)
     {
         // m_AppleExtensions.PresentCodeRedemptionSheet(); 
-        m_StoreController.InitiatePurchase(productName);
+        //check combination of product type and level based on that assign product name
+
+        if (productName == "onemonth")
+        {
+            if (levelId == 1)
+            {
+                productId = spaceExplorationIdBeginner;
+            }
+            else if(levelId == 2)
+            {
+                productId = spaceExplorationIdLearner;
+            }
+            else if(levelId == 3)
+            {
+                productId = spaceExplorationIdSeeker;
+            }
+            else if(levelId == 4)
+            {
+                productId = spaceExplorationIdIntermediate;
+            }
+            else if(levelId == 5)
+            {
+                productId = spaceExplorationIdGraduate;
+            }
+            else if(levelId == 6)
+            {
+                productId = spaceExplorationIdMaster;
+            }
+            else if(levelId == 7)
+            {
+                productId = spaceExplorationIdWordsmith;
+            }
+           
+        }
+        else if (productName == "threemonth")
+        {
+            if (levelId == 1)
+            {
+                productId = spaceWalkIdBeginner;
+            }
+            else if(levelId == 2)
+            {
+                productId = spaceWalkIdLearner;
+            }
+            else if(levelId == 3)
+            {
+                productId = spaceWalkIdSeeker;
+            }
+            else if(levelId == 4)
+            {
+                productId = spaceWalkIdIntermediate;
+            }
+            else if(levelId == 5)
+            {
+                productId = spaceWalkIdGraduate;
+            }
+            else if(levelId == 6)
+            {
+                productId = spaceWalkIdMaster;
+            }
+            else if(levelId == 7)
+            {
+                productId = spaceWalkIdWordsmith;
+            }
+        }
+         else if (productName == "sixmonth")
+        {
+            if (levelId == 1)
+            {
+                productId = spaceCaptureIdBeginner;
+            }
+            else if(levelId == 2)
+            {
+                productId = spaceCaptureIdLearner;
+            }
+            else if(levelId == 3)
+            {
+                productId = spaceCaptureIdSeeker;
+            }
+            else if(levelId == 4)
+            {
+                productId = spaceCaptureIdIntermediate;
+            }
+            else if(levelId == 5)
+            {
+                productId = spaceCaptureIdGraduate;
+            }
+            else if(levelId == 6)
+            {
+                productId = spaceCaptureIdMaster;
+            }
+            else if(levelId == 7)
+            {
+                productId = spaceCaptureIdWordsmith;
+            }
+        }
+
+        
+        m_StoreController.InitiatePurchase(productId);
          
         loadingIndicator.enabled = true;
          Indicator.SetActive(true);
@@ -641,6 +911,8 @@ public class IAPShop : MonoBehaviour, IStoreListener
                 Debug.Log(info.getIntroductoryPricePeriod());
                 Debug.Log(info.getIntroductoryPricePeriodCycles());
                 DateTime dt = TimeZone.CurrentTimeZone.ToLocalTime(info.getPurchaseDate());
+                infoLoad = "product id is " + info.getProductId() + " purchase date is " + info.getPurchaseDate() + " expired date " + info.getExpireDate() + " isSubscribed " + info.isSubscribed() + " isExpired " + info.isExpired() + " isCancelled " + info.isCancelled() + " isFreeTrial " + info.isFreeTrial() + " isAutoRenewing " + info.isAutoRenewing() + " getRemainingTime " + info.getRemainingTime() + " transaction id is " + e.purchasedProduct.transactionID;
+                SaveLog();
                 // transactionId.GetComponent<TextMeshProUGUI>().text = "ED is " + info.getExpireDate() + " PD is " + info.getPurchaseDate() + " RT is " + info.getRemainingTime() + " for product id " + info.getProductId() + " local PD is " + dt;
 
             } else {
